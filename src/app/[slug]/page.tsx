@@ -2,6 +2,7 @@
 
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { Organization } from "@/types/organization";
+import { redirect } from "next/navigation";
 
 const isValidOrganization = (data: any): data is Organization => {
   return data && !data.error && typeof data.name === "string";

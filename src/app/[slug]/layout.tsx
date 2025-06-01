@@ -19,7 +19,7 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   const { slug } = await params;
-  const organization = await httpInternalApi.httpGetPublic<Organization>("/organization", new URLSearchParams({ slug }));
+  const organization = await httpInternalApi.httpGetPublic<Organization>("/organizations/slug", slug);
 
   return {
     title: organization?.name || "KlipperApp",
@@ -39,7 +39,7 @@ export default async function RootLayout({
   params: { slug: string };
 }) {
   const { slug } = await params;
-  const initialData = await httpInternalApi.httpGetPublic<Organization>("/organization", new URLSearchParams({ slug }));
+  const initialData = await httpInternalApi.httpGetPublic<Organization>("/organizations/slug", slug);
 
 
   return (
@@ -50,7 +50,6 @@ export default async function RootLayout({
         <ThemeProvider>
           <OrganizationProvider initialData={initialData} slug={slug}>
             {isValidOrganization(initialData) && <NavBarContainer />}
-            <NavBarContainer />
             {children}
             <ToasterProvider />
           </OrganizationProvider>

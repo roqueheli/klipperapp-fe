@@ -44,7 +44,7 @@ export function OrganizationProvider({
 
     const loadData = async () => {
       try {
-        const data = await httpInternalApi.httpGetPublic<Organization>("/organization", new URLSearchParams({ slug }));
+        const data = await httpInternalApi.httpGetPublic<Organization>("/organizations/slug", slug);
         setState((prev) => ({
           ...prev,
           organization: data,
@@ -65,7 +65,7 @@ export function OrganizationProvider({
   const refresh = async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const data = await httpInternalApi.httpGetPublic<Organization>("/organization", new URLSearchParams({ slug }));
+      const data = await httpInternalApi.httpGetPublic<Organization>("/organizations/slug", slug);
       setState({
         organization: data,
         slug,
