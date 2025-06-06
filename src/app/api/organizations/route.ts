@@ -1,9 +1,9 @@
 import organizationsAPI from "@/lib/organizations/organizations.service";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const slug = searchParams.get('slug');
+    const slug = searchParams.get("slug");
 
     if (!slug) {
         return NextResponse.json(
@@ -13,17 +13,13 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const { id, metadata } = await organizationsAPI.getOrganization(slug);
+        const organization = await organizationsAPI.getOrganization(slug);
 
-        if (!id) {
+        if (!organization.id) {
             throw new Error('Organization not found');
         }
 
-        return NextResponse.json({
-            id: id,
-            data: metadata,
-            status: 200,
-        });
+        return NextResponse.json({ organization });
     } catch (error) {
         return new Response(JSON.stringify({ error: "Organization not found", status: 404 }));
     }

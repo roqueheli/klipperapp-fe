@@ -1,5 +1,5 @@
-import { Organization } from "../types/organization";
+import { Organization } from "@/types/organization";
 
-export const isValidOrganization = (data: any): data is Organization => {
-    return data && !data.error && typeof data.name === "string";
+export const isValidOrganization = (data: any): data is Organization => {   
+    return data && typeof data.name === "string" && typeof data.id === "number";
 };

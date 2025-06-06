@@ -4,12 +4,15 @@ import NavBarContainer from "@/components/navbar/NavBar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
 import { OrganizationProvider } from "@/contexts/OrganizationContext";
+import { UserProvider } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Organization } from "@/types/organization";
+import { Organization, OrganizationResponse } from "@/types/organization";
+import { User } from "@/types/user";
+import { isValidOrganization } from "@/utils/organization.utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { cookies, headers } from "next/headers";
 import "../../styles/globals.css";
-import { isValidOrganization } from "@/utils/organization.utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,17 +21,33 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const organization = await httpInternalApi.httpGetPublic<Organization>("/organizations/slug", slug);
+  try {
+    const { slug } = await params;
+    let organization: Organization | null = null;
+    try {
+      const response =
+        await httpInternalApi.httpGetPublic<OrganizationResponse>("/organizations", new URLSearchParams({ slug }));
+      organization = response.organization;
+    } catch (error) {
+      console.error("Error loading organization:", error);
+    }
 
-  return {
-    title: organization?.name || "KlipperApp",
-    description:
-      organization?.description || "Sistema de gestión para barberías",
-    icons: {
-      icon: organization?.favicon || "/favicon.ico",
-    },
-  };
+    return {
+      title: organization?.name || "KlipperApp",
+      description: organization?.bio || "Sistema de gestión para barberías",
+      icons: {
+        icon: organization?.metadata?.favicon || "/favicon.ico",
+      },
+    };
+  } catch (error) {
+    return {
+      title: "KlipperApp",
+      description: "Sistema de gestión para barberías",
+      icons: {
+        icon: "/favicon.ico",
+      },
+    };
+  }
 }
 
 export default async function RootLayout({
@@ -39,19 +58,45 @@ export default async function RootLayout({
   params: { slug: string };
 }) {
   const { slug } = await params;
-  const initialData = await httpInternalApi.httpGetPublic<Organization>("/organizations/slug", slug);
 
+  const pathname = (await headers()).get("x-next-pathname") || ""; // 👈 Detectar ruta actual
+  const isLoginPage = pathname.includes("/auth/login"); // 👈 Ajusta si tu path cambia
+  const cookiesStore = cookies();
+  const auth_token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+
+  let initialData: Organization | null = null;
+  let userData: User | null = null;
+
+  try {
+    const response = await httpInternalApi.httpGetPublic<OrganizationResponse>("/organizations", new URLSearchParams({ slug }));
+    initialData = response.organization;
+  } catch (error) {
+    console.error("Error loading organization:", error);
+  }
+
+  if(auth_token){
+    try {
+      const response = await httpInternalApi.httpGetPublic<User>("/auth/me");
+      userData = response;
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    }
+  }
 
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${inter.className} bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
+        className={`${inter.className} flex flex-col min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
       >
         <ThemeProvider>
           <OrganizationProvider initialData={initialData} slug={slug}>
-            {isValidOrganization(initialData) && <NavBarContainer />}
-            {children}
-            <ToasterProvider />
+            <UserProvider userData={userData}>
+              {!isLoginPage && isValidOrganization(initialData) && (
+                <NavBarContainer />
+              )}{" "}
+              <main className="w-full flex-1 flex flex-col">{children}</main>
+              <ToasterProvider />
+            </UserProvider>
           </OrganizationProvider>
         </ThemeProvider>
       </body>

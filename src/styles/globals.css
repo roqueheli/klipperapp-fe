@@ -8,24 +8,43 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --color-background: var(--background);
+  --color-background: linear-gradient(135deg, #ffffff, #f4f4f4);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans, Arial, Helvetica, sans-serif);
   --font-mono: var(--font-geist-mono, monospace);
+  --electric-blue: #3dd9eb;
+  --cyber-gray: #1f1f1f;
+  --soft-white: #ededed;
+  --accent-pink: #f55376;
+  --menu-hover-bg: rgba(61, 217, 235, 0.15); /* Ej: azul eléctrico suave */
+  --hover-foreground: #000000; /* texto más fuerte en hover */
 }
 
 /* 🌙 Tema oscuro cuando html tiene clase .dark */
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
-  --color-background: var(--background);
+  --color-background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
   --color-foreground: var(--foreground);
+  --menu-hover-bg: rgba(61, 217, 235, 0.25); /* más fuerte en dark mode */
+  --hover-foreground: #ffffff;
 }
 
-body {
+/* body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+} */
+
+body {
+  background: var(--color-background);
+  --color-background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 html,

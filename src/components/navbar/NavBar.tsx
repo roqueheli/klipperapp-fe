@@ -2,31 +2,71 @@
 
 import { useTheme } from "@/components/ThemeProvider"; // Asegúrate que el path sea correcto
 import { useOrganization } from "@/contexts/OrganizationContext";
+import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
+import { MenuItem } from "@/types/user";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 type NavBarProps = {
-  first_name?: string;
-  last_name?: string;
   auth_token?: string;
 };
 
-const NavBar = ({ first_name, last_name, auth_token }: NavBarProps) => {
-  const { slug } = useOrganization();
+const NavBar = ({ auth_token }: NavBarProps) => {
+  const { data, slug } = useOrganization();
+  const { userData } = useUser();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-
   const { theme, toggleTheme } = useTheme();
+  const [route, setRoute] = useState("/users");
 
-  const userName = `${first_name || "John"} ${last_name || "Doe"}`.trim();
-  const initials = userName
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
+  useEffect(() => {
+    if (!auth_token) {
+      setRoute(`/auth/login`);
+      router.replace(`/${slug}/auth/login`);
+    }
+  }, [router]);
+
+  const roleId = userData?.role_id;
+
+  const defaultMenus: MenuItem[] = [
+    {
+      label: "Asistencia",
+      path: `/${slug}/users/arrivals`,
+      allowedRoles: [1, 2],
+    },
+    {
+      label: "Atención",
+      path: `/${slug}/users/attendances`,
+      allowedRoles: [1, 2],
+    },
+    { label: "Listas", path: `/${slug}/users/lists`, allowedRoles: [1, 2, 3] },
+    {
+      label: "Dashboard",
+      path: `/${slug}/users/dashboard`,
+      allowedRoles: [1, 2, 3],
+    },
+  ];
+
+  const menus: MenuItem[] =
+    data?.metadata?.menus?.length > 0
+      ? (data?.metadata?.menus as MenuItem[])
+      : defaultMenus;
+
+  const filteredMenus = menus.filter((menu) =>
+    menu.allowedRoles.includes(roleId || 0)
+  );
+
+  const initials = userData?.name
+    .split(" ") // separa por espacios
+    .filter(Boolean) // elimina elementos vacíos
+    .map((word) => word[0]) // toma la primera letra de cada palabra
+    .slice(0, 2) // toma como máximo las dos primeras
+    .join("")
+    .toUpperCase();
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -43,7 +83,7 @@ const NavBar = ({ first_name, last_name, auth_token }: NavBarProps) => {
         }
       )
       .then(() => {
-        router.push(`/${slug}/user`);
+        window.location.href = `/${slug}/auth/login`;
       });
   };
 
@@ -61,15 +101,13 @@ const NavBar = ({ first_name, last_name, auth_token }: NavBarProps) => {
   }, []);
 
   return (
-    <nav
-      style={{
-        backgroundColor: "var(--background)",
-        color: "var(--foreground)",
-      }}
-      className="w-full shadow-md px-6 py-2 flex justify-between items-center"
-    >
-      <h1 className="text-xl font-bold">Barbería El Russo</h1>
-
+    <nav className="w-full fixed top-0 left-0 z-50 px-6 py-2 flex justify-between items-center backdrop-blur-md bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(18,18,18,0.7)] border-b border-[rgba(255,255,255,0.3)] dark:border-[rgba(255,255,255,0.1)] text-[var(--foreground)]">
+      <Link
+        href={`/${slug}${route}`}
+        className="text-xl font-bold transition-colors duration-200 hover:text-[var(--foreground)]"
+      >
+        {data?.name}
+      </Link>
       <div className="flex items-center gap-4">
         {/* Toggle theme */}
         <button
@@ -82,38 +120,50 @@ const NavBar = ({ first_name, last_name, auth_token }: NavBarProps) => {
         </button>
 
         {/* User menu */}
-        <div className="relative" ref={menuRef}>
-          <button
-            onClick={toggleMenu}
-            className="w-10 h-12 rounded-full flex items-center justify-center font-bold"
-            style={{
-              backgroundColor: "var(--electric-blue)",
-              color: "white",
-            }}
-          >
-            {initials}
-          </button>
-          {menuOpen && (
-            <div
-              className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg z-10"
+        {auth_token && (
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={toggleMenu}
+              className="w-12 h-12 rounded-full flex items-center justify-center font-bold"
               style={{
-                backgroundColor: "var(--menu-bg)",
-                border: "1px solid var(--menu-border)",
+                backgroundColor: "var(--cyber-gray)",
+                color: "white",
               }}
             >
-              <ul className="py-2">
-                {[
-                  { href: `/${slug}/user/dashboard`, label: "Dashboard" },
-                  { href: `/${slug}/tickets`, label: "Tickets" },
-                  { href: `/${slug}/user/lists`, label: "Filas" },
-                ].map(({ href, label }) => (
-                  <li key={label}>
-                    <Link
-                      href={href}
-                      className="block px-4 py-2 hover:bg-opacity-20 transition cursor-pointer"
-                      style={{
-                        color: "var(--foreground)",
-                      }}
+              {initials}
+            </button>
+            {menuOpen && (
+              <div
+                className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg z-10"
+                style={{
+                  backgroundColor: "var(--menu-bg)",
+                  border: "1px solid var(--menu-border)",
+                }}
+              >
+                <ul className="py-2">
+                  {filteredMenus.map(({ path, label }) => (
+                    <li key={label}>
+                      <Link
+                        href={path}
+                        className="block px-4 py-2 rounded-md transition-colors duration-200 text-[var(--foreground)] hover:bg-[var(--menu-hover-bg)] hover:text-[var(--hover-foreground)]"
+                        onMouseEnter={(e) =>
+                          ((e.target as HTMLElement).style.backgroundColor =
+                            "var(--menu-hover-bg)")
+                        }
+                        onMouseLeave={(e) =>
+                          ((e.target as HTMLElement).style.backgroundColor =
+                            "transparent")
+                        }
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="text-left w-full block px-4 py-2 rounded-md transition-colors duration-200 text-[var(--foreground)] hover:bg-[var(--menu-hover-bg)] hover:text-[var(--hover-foreground)]"
                       onMouseEnter={(e) =>
                         ((e.target as HTMLElement).style.backgroundColor =
                           "var(--menu-hover-bg)")
@@ -123,34 +173,14 @@ const NavBar = ({ first_name, last_name, auth_token }: NavBarProps) => {
                           "transparent")
                       }
                     >
-                      {label}
-                    </Link>
+                      Logout
+                    </button>
                   </li>
-                ))}
-                <li>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="text-left w-full block px-4 py-2 hover:bg-opacity-20 transition cursor-pointer"
-                    style={{
-                      color: "var(--foreground)",
-                    }}
-                    onMouseEnter={(e) =>
-                      ((e.target as HTMLElement).style.backgroundColor =
-                        "var(--menu-hover-bg)")
-                    }
-                    onMouseLeave={(e) =>
-                      ((e.target as HTMLElement).style.backgroundColor =
-                        "transparent")
-                    }
-                  >
-                    Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

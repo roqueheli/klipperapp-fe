@@ -7,29 +7,31 @@ export class HttpBaseAPI {
         this.privateEndpoint = privateEndpoint;
     }
 
-    async httpGet<T>(endpointSuffix: string, params?: string, access_token?: string): Promise<T> {      
-        const res = await fetch(`${this.privateEndpoint}${endpointSuffix}${params ? `/${params}` : ''}`, {
+    async httpGet<T>(endpointSuffix: string, params?: URLSearchParams, access_token?: string): Promise<T> {
+        const res = await fetch(`${this.privateEndpoint}${endpointSuffix}${params ? `?${params}` : ''}`, {
             cache: 'no-cache',
             headers: !access_token ? { "Content-Type": "application/json", } : {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${access_token}`,
             },
         });
-
+        
         if (!res.ok) {
             if (res.status === 403) {
                 throw new AccesDeniedError("User has no access");
             }
-            // throw new Error('Failed to retrieve: ' + endpointSuffix);X
+            throw new Error('Failed to retrieve: ' + endpointSuffix);
         }
         return res.json();
     }
 
-    async httpGetPublic<T>(endpointSuffix: string, params?: string): Promise<T> {
+    async httpGetPublic<T>(endpointSuffix: string, params?: URLSearchParams): Promise<T> {
         return this.httpGet(`${endpointSuffix}`, params);
     }
 
     async httpPost<T>(endpointSuffix: string, method: string, body?: object, access_token?: string): Promise<T> {
+        console.log(JSON.stringify(body));
+        
         const res = await fetch(`${this.privateEndpoint}${endpointSuffix}`, {
             method: method,
             headers: !access_token ? { "Content-Type": "application/json", } : {
@@ -43,7 +45,7 @@ export class HttpBaseAPI {
             if (res.status === 403) {
                 throw new AccesDeniedError("User has no access");
             }
-            // throw new Error(`Failed to post: ${endpointSuffix}`);
+            throw new Error(`Failed to post: ${endpointSuffix}`);
         }
 
         return res.json();

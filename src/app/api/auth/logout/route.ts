@@ -1,4 +1,4 @@
-import authAPI from "@/services/auth/auth.service";
+import authAPI from "@/lib/auth/auth.service";
 import { cookies, headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,12 +8,12 @@ export async function POST(request: NextRequest) {
         const header = headers();
         const authorization = (await header).get('Authorization');
         const token = authorization?.replace("Bearer ", "") || '';
-    
+
         if (!token) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-        
-        await authAPI.logout(token);
+
+        // await authAPI.logout(token);
         (await cookieStore).set(process.env.AUTH_TOKEN_SECRET || '', '', {
             expires: new Date(0), // Fecha en el pasado
             httpOnly: true,

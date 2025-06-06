@@ -14,7 +14,6 @@ import SubmitButton from "../../form/SubmitButton";
 
 const LoginForm = () => {
   const { slug } = useOrganization();
-  const router = useRouter();
   const methods = useForm<FormData>({
     resolver: yupResolver(LoginScheme),
   });
@@ -37,7 +36,7 @@ const LoginForm = () => {
         }
       )
       .then(() => {
-        router.push(`/${slug}/user`);
+        window.location.href = `/${slug}/users`;
       })
       .catch((error) => {
         if (error instanceof AccesDeniedError) {
@@ -54,7 +53,7 @@ const LoginForm = () => {
     <FormProvider {...methods}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex items-center flex-col w-full p-4"
+        className="flex flex-col items-center w-full gap-6 text-black dark:text-white"
       >
         <InputField
           type="email"
@@ -70,26 +69,29 @@ const LoginForm = () => {
         />
 
         <SubmitButton
-          label="Login"
+          label="Iniciar sesión"
           onSubmit={onSubmit}
-          styles="btn-secondary mt-4 w-[50%] text-center rounded-md"
+          styles="cursor-pointer bg-white text-black hover:bg-white hover:text-electric-blue transition-all font-semibold py-2 px-4 rounded-md mt-4"
         />
 
-        <div className="mt-4 text-sm text-gray-600">
-          <a href="/forgot-password" className="text-blue-500 hover:underline">
-            ¿Forgot your password?
+        <div className="text-sm text-center text-gray-400">
+          <a
+            href="/forgot-password"
+            className="hover:underline text-electric-blue"
+          >
+            ¿Olvidaste tu contraseña?
           </a>
         </div>
 
-        <div className="mt-2 text-sm text-gray-600">
+        {/* <div className="text-sm text-center text-gray-400">
           ¿Aún no tienes cuenta?{" "}
           <a
             href={`/${slug}/auth/register`}
-            className="text-blue-500 hover:underline"
+            className="hover:underline text-electric-blue"
           >
-            Register
+            Regístrate
           </a>
-        </div>
+        </div> */}
       </form>
     </FormProvider>
   );

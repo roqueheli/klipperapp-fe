@@ -1,26 +1,23 @@
 import usersAPI from "@/lib/users/users.service";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-    const { searchParams } = new URL(request.url);
-    const slug = searchParams.get('slug');
+    const cookiesStore = cookies();
+    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+    const searchParams = request.nextUrl.searchParams;
 
-    if (!slug) {
-        return NextResponse.json(
-            { error: "Slug parameter is required" },
-            { status: 400 }
-        );
-    }
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const { id } = await usersAPI.getUser(slug);
+        const users = await usersAPI.getUsers(searchParams, token?.value || "");
 
-        if (!id) {
+        if (!users) {
             throw new Error('User not found');
         }
 
         return NextResponse.json({
-            id: id,
+            users,
             status: 200,
         });
     } catch (error) {

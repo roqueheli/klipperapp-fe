@@ -1,5 +1,5 @@
 export type LoginResponseType = {
-    access_token: string;
+    token: string;
 }
 
 export type RegisterResponseType = {
@@ -8,11 +8,10 @@ export type RegisterResponseType = {
 
 export type RegisterData = {
     email: string;
-    password: string;
+    password?: string;
     confirm_password?: string;
-    first_name: string;
-    last_name: string;
-    phone: string;
+    name: string;
+    phone_number: string;
     birth_date: Date;
 };
 

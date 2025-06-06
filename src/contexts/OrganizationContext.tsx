@@ -5,7 +5,7 @@ import { Organization } from "@/types/organization";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface OrganizationContextType {
-  organization: Organization | null;
+  data: Organization | null;
   slug: string | null;
   loading: boolean;
   error: string | null;
@@ -13,8 +13,8 @@ interface OrganizationContextType {
 }
 
 const OrganizationContext = createContext<OrganizationContextType>({
-  organization: null,
-  slug: "",
+  data: null,
+  slug: null,
   loading: true,
   error: null,
   refresh: async () => {},
@@ -30,7 +30,7 @@ export function OrganizationProvider({
   slug: string;
 }) {
   const [state, setState] = useState<OrganizationContextType>({
-    organization: initialData, // Usamos los datos iniciales del servidor
+    data: initialData, // Usamos los datos iniciales del servidor
     slug,
     loading: !initialData, // Si no hay datos iniciales, cargamos
     error: null,
@@ -44,10 +44,11 @@ export function OrganizationProvider({
 
     const loadData = async () => {
       try {
-        const data = await httpInternalApi.httpGetPublic<Organization>("/organizations/slug", slug);
+        const data = await httpInternalApi.httpGetPublic<Organization>("/organizations", new URLSearchParams({slug}));
+       
         setState((prev) => ({
           ...prev,
-          organization: data,
+          data,
           loading: false,
         }));
       } catch (err) {
@@ -65,9 +66,10 @@ export function OrganizationProvider({
   const refresh = async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const data = await httpInternalApi.httpGetPublic<Organization>("/organizations/slug", slug);
+      const data = await httpInternalApi.httpGetPublic<Organization>("/organizations", new URLSearchParams({slug}));
+    
       setState({
-        organization: data,
+        data,
         slug,
         loading: false,
         error: null,
