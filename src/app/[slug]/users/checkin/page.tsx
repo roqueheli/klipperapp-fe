@@ -31,22 +31,18 @@ const CheckinQRPage = () => {
       const usersParams = new URLSearchParams();
       if (data?.id !== undefined) {
         usersParams.set("organization_id", String(data.id));
-        usersParams.set("role_id", "3");
       }
+      
       if (userData?.branch_id !== undefined) {
         usersParams.set("branch_id", String(userData.branch_id));
+        usersParams.set("role_id", "3");
+        usersParams.set("active", "true");
       }
 
       try {
         const [allRes, workingRes] = await Promise.all([
-          httpInternalApi.httpGetPublic(
-            "/users",
-            usersParams
-          ) as Promise<UserResponse>,
-          httpInternalApi.httpGetPublic(
-            "/users/working_today",
-            usersParams
-          ) as Promise<UserResponse>,
+          httpInternalApi.httpGetPublic("/users", usersParams) as Promise<UserResponse>,
+          httpInternalApi.httpGetPublic("/users/working_today", usersParams) as Promise<UserResponse>,
         ]);
 
         const allUsers = allRes.users || [];

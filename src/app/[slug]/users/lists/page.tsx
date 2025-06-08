@@ -1,13 +1,11 @@
 "use client";
 
+import { useOrganization } from "@/contexts/OrganizationContext";
+import { useUser } from "@/contexts/UserContext";
+import httpInternalApi from "@/lib/common/http.internal.service";
+import { UserResponse } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const mockUsers = [
-  { id: 1, name: "Ana López" },
-  { id: 2, name: "Juan Pérez" },
-  { id: 3, name: "Carlos García" },
-];
 
 const mockAttendances = [
   {
@@ -38,9 +36,38 @@ export default function AttendanceListsPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [attendances, setAttendances] = useState<any[]>([]);
   const [sortOption, setSortOption] = useState("name");
+  const { data } = useOrganization();
+  const { userData } = useUser();
 
   useEffect(() => {
-    setUsers(mockUsers);
+    const fetchData = async () => {
+      const usersParams = new URLSearchParams();
+      if (data?.id !== undefined) {
+        usersParams.set("organization_id", String(data.id));
+        usersParams.set("role_id", String("3"));
+      }
+
+      if (userData?.branch_id !== undefined) {
+        usersParams.set("branch_id", String(userData.branch_id));
+      } else {
+        usersParams.set("branch_id", String("1"));
+      }
+
+      try {
+        const usersRes = (await httpInternalApi.httpGetPublic(
+          "/users/working_today",
+          usersParams
+        )) as UserResponse;
+        setUsers(usersRes.users);
+      } catch (error) {
+        console.error("Error al cargar usuarios:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
     setAttendances(mockAttendances);
   }, []);
 

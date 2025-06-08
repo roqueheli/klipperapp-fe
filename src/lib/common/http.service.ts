@@ -8,6 +8,10 @@ export class HttpBaseAPI {
     }
 
     async httpGet<T>(endpointSuffix: string, params?: URLSearchParams, access_token?: string): Promise<T> {
+        if(endpointSuffix === "http://localhost:3100/api/v1") {
+            console.log(`${this.privateEndpoint}${endpointSuffix}${params ? `?${params}` : ''}`);
+        }
+        
         const res = await fetch(`${this.privateEndpoint}${endpointSuffix}${params ? `?${params}` : ''}`, {
             cache: 'no-cache',
             headers: !access_token ? { "Content-Type": "application/json", } : {

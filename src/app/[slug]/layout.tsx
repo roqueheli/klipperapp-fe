@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import Footer from "@/components/footer/Footer";
 import NavBarContainer from "@/components/navbar/NavBar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
@@ -26,7 +27,10 @@ export async function generateMetadata({
     let organization: Organization | null = null;
     try {
       const response =
-        await httpInternalApi.httpGetPublic<OrganizationResponse>("/organizations", new URLSearchParams({ slug }));
+        await httpInternalApi.httpGetPublic<OrganizationResponse>(
+          "/organizations",
+          new URLSearchParams({ slug })
+        );
       organization = response.organization;
     } catch (error) {
       console.error("Error loading organization:", error);
@@ -62,19 +66,24 @@ export default async function RootLayout({
   const pathname = (await headers()).get("x-next-pathname") || ""; // 👈 Detectar ruta actual
   const isLoginPage = pathname.includes("/auth/login"); // 👈 Ajusta si tu path cambia
   const cookiesStore = cookies();
-  const auth_token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+  const auth_token = (await cookiesStore).get(
+    process.env.AUTH_TOKEN_SECRET || ""
+  );
 
   let initialData: Organization | null = null;
   let userData: User | null = null;
 
   try {
-    const response = await httpInternalApi.httpGetPublic<OrganizationResponse>("/organizations", new URLSearchParams({ slug }));
+    const response = await httpInternalApi.httpGetPublic<OrganizationResponse>(
+      "/organizations",
+      new URLSearchParams({ slug })
+    );
     initialData = response.organization;
   } catch (error) {
     console.error("Error loading organization:", error);
   }
 
-  if(auth_token){
+  if (auth_token) {
     try {
       const response = await httpInternalApi.httpGetPublic<User>("/auth/me");
       userData = response;
@@ -86,15 +95,20 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${inter.className} flex flex-col min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
+        className={`${inter.className} flex flex-col bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
       >
         <ThemeProvider>
           <OrganizationProvider initialData={initialData} slug={slug}>
             <UserProvider userData={userData}>
               {!isLoginPage && isValidOrganization(initialData) && (
                 <NavBarContainer />
-              )}{" "}
-              <main className="w-full flex-1 flex flex-col">{children}</main>
+              )}
+
+              <div className="flex flex-col flex-1 w-full">
+                <main className="flex-1 w-full">{children}</main>
+                <Footer />
+              </div>
+
               <ToasterProvider />
             </UserProvider>
           </OrganizationProvider>
