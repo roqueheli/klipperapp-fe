@@ -1,12 +1,14 @@
 "use client";
 
 import httpInternalApi from "@/lib/common/http.internal.service";
+import { Attendance } from "@/types/attendance";
 import { Organization } from "@/types/organization";
 import { Profile, ProfileResponse } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 type Step = 1 | 2 | 3;
 
@@ -25,18 +27,49 @@ const AttendanceWizard = ({
   const [step, setStep] = useState<Step>(1);
   const [phone, setPhone] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(
-    null
-  );
-
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
   const [profile, setProfile] = useState<Profile>();
   const [users, setUsers] = useState<UserResponse>();
   const [services, setServices] = useState<ServiceResponse>();
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleFinish = () => {
-    const attendanceId = "12345"; // Simula un ID de respuesta del backend
-    router.push(`/${slug}/users/attendances/${attendanceId}`);
+  const handleFinish = async () => {
+    if (
+      !profile ||
+      !selectedServiceId ||
+      !organization ||
+      !user
+    ) {
+      toast.error("Some data are missing to create the attendance.");
+      return;
+    }
+
+    const requestBody = {
+      profile_id: profile.id,
+      organization_id: organization.id,
+      branch_id: user?.branch_id,
+      service_id: selectedServiceId,
+      attended_by: selectedUserId !== 0 ? selectedUserId : null,
+    };
+
+    try {
+      const response: Attendance = await toast.promise(
+        httpInternalApi.httpPostPublic("/attendances", "POST", requestBody),
+        {
+          loading: "Creating attendance...",
+          success: "Attendance successfully created.",
+          error: "An error occurred while creating the attendance.",
+        }
+      );
+
+      router.push(`/${slug}/users/attendances/${response?.id}`);
+
+      setTimeout(() => {
+        router.push(`/${slug}/users/lists`);
+      }, 5000);
+    } catch (error) {
+      console.error("Error in the creation of assistance:", error);
+    }
   };
 
   const handlePhoneSubmit = async () => {
@@ -46,19 +79,17 @@ const AttendanceWizard = ({
       const phoneParam = new URLSearchParams();
       phoneParam.set("phone_number", phone);
 
-      const response = await httpInternalApi.httpGetPublic(`/profiles`, phoneParam) as Promise<ProfileResponse>;
+      const response = (await httpInternalApi.httpGetPublic(`/profiles`, phoneParam)) as Promise<ProfileResponse>;
 
       if ((await response).status === 200) {
-        // Teléfono existe, continuar al paso 2
         setProfile((await response).profile);
         setStep(2);
       } else {
-        // Teléfono no existe, guardar y redirigir
         localStorage.setItem("pendingPhone", phone);
         router.push(`/${slug}/profiles/register`);
       }
     } catch (error) {
-      console.error("Error validando el teléfono:", error);
+      console.error("Phone validation error:", error);
     }
   };
 
@@ -87,23 +118,24 @@ const AttendanceWizard = ({
       if (organization?.id !== undefined) {
         servicesParams.set("organization_id", String(organization.id));
       }
-      
+
       const usersParams = new URLSearchParams();
       if (organization?.id !== undefined) {
         usersParams.set("organization_id", String(organization.id));
-        usersParams.set("profile_id", String("3"));
+        usersParams.set("role_id", String("3"));
       }
+      
       if (user?.branch_id !== undefined) {
         usersParams.set("branch_id", String(user.branch_id));
+      } else {
+        usersParams.set("branch_id", String("1"));
       }
-
-      console.log(user, usersParams);
 
       try {
         setIsLoading(true);
         const [servicesRes, usersRes] = await Promise.all([
           httpInternalApi.httpGetPublic("/services", servicesParams),
-          httpInternalApi.httpGetPublic("/users", usersParams),
+          httpInternalApi.httpGetPublic("/users/working_today", usersParams),
         ]);
         setServices(servicesRes as ServiceResponse);
         setUsers(usersRes as UserResponse);

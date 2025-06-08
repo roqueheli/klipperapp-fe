@@ -38,6 +38,12 @@ export async function middleware(request: NextRequest) {
         console.error("Middleware: Organization validation error", error);
     }
 
+    if (!token && request.nextUrl.pathname.includes("/users/checkin")) {
+        return NextResponse.redirect(
+            new URL(`${slug}/auth/login?redirect=${request.nextUrl.pathname}`, request.url)
+        );
+    }
+
     if (!token && protectedRoutes.includes(section)) {
         return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
     }

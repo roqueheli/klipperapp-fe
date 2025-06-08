@@ -20,7 +20,7 @@ export interface User {
     photo?: string;
     skills?: Array[string];
     premium?: boolean;
-    branches?: Array[];
+    branch_id?: number;
 }
 
 export interface UserResponse {

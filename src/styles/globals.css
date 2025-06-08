@@ -30,12 +30,6 @@
   --hover-foreground: #ffffff;
 }
 
-/* body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-} */
-
 body {
   background: var(--color-background);
   --color-background: var(--background);
@@ -50,4 +44,8 @@ body {
 html,
 body {
   transition: background-color 0.3s, color 0.3s;
+}
+
+button {
+  cursor: pointer;
 }

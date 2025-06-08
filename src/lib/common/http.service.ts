@@ -30,8 +30,6 @@ export class HttpBaseAPI {
     }
 
     async httpPost<T>(endpointSuffix: string, method: string, body?: object, access_token?: string): Promise<T> {
-        console.log(JSON.stringify(body));
-        
         const res = await fetch(`${this.privateEndpoint}${endpointSuffix}`, {
             method: method,
             headers: !access_token ? { "Content-Type": "application/json", } : {

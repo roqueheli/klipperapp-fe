@@ -3,8 +3,9 @@
 import { useTheme } from "@/components/ThemeProvider"; // Asegúrate que el path sea correcto
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
+import { useFilteredMenus } from "@/hooks/useFilteredMenus";
+import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { MenuItem } from "@/types/user";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -22,6 +23,8 @@ const NavBar = ({ auth_token }: NavBarProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
   const [route, setRoute] = useState("/users");
+  const filteredMenus = useFilteredMenus();
+  const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
   useEffect(() => {
     if (!auth_token) {
@@ -29,37 +32,7 @@ const NavBar = ({ auth_token }: NavBarProps) => {
       router.replace(`/${slug}/auth/login`);
     }
   }, [router]);
-
-  const roleId = userData?.role_id;
-
-  const defaultMenus: MenuItem[] = [
-    {
-      label: "Asistencia",
-      path: `/${slug}/users/arrivals`,
-      allowedRoles: [1, 2],
-    },
-    {
-      label: "Atención",
-      path: `/${slug}/users/attendances`,
-      allowedRoles: [1, 2],
-    },
-    { label: "Listas", path: `/${slug}/users/lists`, allowedRoles: [1, 2, 3] },
-    {
-      label: "Dashboard",
-      path: `/${slug}/users/dashboard`,
-      allowedRoles: [1, 2, 3],
-    },
-  ];
-
-  const menus: MenuItem[] =
-    data?.metadata?.menus?.length > 0
-      ? (data?.metadata?.menus as MenuItem[])
-      : defaultMenus;
-
-  const filteredMenus = menus.filter((menu) =>
-    menu.allowedRoles.includes(roleId || 0)
-  );
-
+  
   const initials = userData?.name
     .split(" ") // separa por espacios
     .filter(Boolean) // elimina elementos vacíos
@@ -141,24 +114,40 @@ const NavBar = ({ auth_token }: NavBarProps) => {
                 }}
               >
                 <ul className="py-2">
-                  {filteredMenus.map(({ path, label }) => (
-                    <li key={label}>
-                      <Link
-                        href={path}
-                        className="block px-4 py-2 rounded-md transition-colors duration-200 text-[var(--foreground)] hover:bg-[var(--menu-hover-bg)] hover:text-[var(--hover-foreground)]"
-                        onMouseEnter={(e) =>
-                          ((e.target as HTMLElement).style.backgroundColor =
-                            "var(--menu-hover-bg)")
-                        }
-                        onMouseLeave={(e) =>
-                          ((e.target as HTMLElement).style.backgroundColor =
-                            "transparent")
-                        }
-                      >
-                        {label}
-                      </Link>
-                    </li>
-                  ))}
+                  {filteredMenus.map(({ path, label }, index) => {
+                    const isDisabledAttention =
+                      path.includes("/users/attendances") &&
+                      isWorkingTodayEmpty;
+
+                    return (
+                      <li key={label}>
+                        {isDisabledAttention ? (
+                          <div className="block px-4 py-2 rounded-md cursor-not-allowed text-electric-blue/50 bg-electric-blue/5 dark:bg-electric-blue/10 relative group">
+                            {label}
+                            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black text-red-500 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                              Debe registrar asistencia primero
+                            </div>
+                          </div>
+                        ) : (
+                          <Link
+                            href={path}
+                            className="block px-4 py-2 rounded-md transition-colors duration-200 text-[var(--foreground)] hover:bg-[var(--menu-hover-bg)] hover:text-[var(--hover-foreground)]"
+                            onMouseEnter={(e) =>
+                              ((e.target as HTMLElement).style.backgroundColor =
+                                "var(--menu-hover-bg)")
+                            }
+                            onMouseLeave={(e) =>
+                              ((e.target as HTMLElement).style.backgroundColor =
+                                "transparent")
+                            }
+                          >
+                            {label}
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+
                   <li>
                     <button
                       type="button"

@@ -6,7 +6,7 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import LoginScheme from "@/schemes/login.scheme";
 import { FormData } from "@/types/auth.d";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import InputField from "../../form/InputField";
@@ -17,6 +17,9 @@ const LoginForm = () => {
   const methods = useForm<FormData>({
     resolver: yupResolver(LoginScheme),
   });
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || undefined;
 
   const { handleSubmit } = methods;
 
@@ -36,7 +39,11 @@ const LoginForm = () => {
         }
       )
       .then(() => {
-        window.location.href = `/${slug}/users`;
+        if(!redirectPath) {
+          window.location.href = `/${slug}/users`;
+        } else {
+          router.replace(redirectPath);
+        }
       })
       .catch((error) => {
         if (error instanceof AccesDeniedError) {

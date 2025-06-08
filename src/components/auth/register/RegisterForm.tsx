@@ -16,9 +16,8 @@ import toast from "react-hot-toast";
 const RegisterForm = () => {
   const { slug, data } = useOrganization();
   const router = useRouter();
-  const pathname = usePathname(); // 👈 obtiene la ruta actual
+  const pathname = usePathname();
   const phone = localStorage.getItem("pendingPhone");
-
   const isProfileRegisterRoute = pathname === `/${slug}/profiles/register`;
 
   const methods = useForm<RegisterData>({
