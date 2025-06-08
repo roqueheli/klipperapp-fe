@@ -9,10 +9,10 @@ export async function POST(request: NextRequest) {
     const { email, password } = await LoginScheme.validate(await request.json());
     
     try {
-        const loginResponse = await authAPI.login(email, password);
+        const loginResponse = await authAPI.login(email, password);        
         const expiresAt = Date.now() + (Number(process.env.AUTH_TOKEN_EXP) || 60 * 60) * 1000;
 
-        (await cookies()).set(`${process.env.AUTH_TOKEN_SECRET}`, loginResponse.access_token, {
+        (await cookies()).set(`${process.env.AUTH_TOKEN_SECRET}`, loginResponse.token, {
             expires: expiresAt,
             httpOnly: true,
             secure: true,

@@ -2,12 +2,13 @@ import * as Yup from "yup";
 
 const RegisterScheme = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
-    password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
+    password: Yup.string().min(8, 'Password must be at least 8 characters').optional(),
     confirm_password: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match').optional(),
-    first_name: Yup.string().required('First Name is required'),
-    last_name: Yup.string().required('Last Name is required'),
-    phone: Yup.string().required('Phone Number is required'),
+    name: Yup.string().required('Name is required'),
+    phone_number: Yup.string().required('Phone Number is required'),
     birth_date: Yup.date().required('Birthdate is required'),
 });
+
+export type RegisterData = Yup.InferType<typeof RegisterScheme>;
 
 export default RegisterScheme;

@@ -11,7 +11,7 @@ const SubmitButton = <T extends FieldValues,>({ label, styles, onSubmit }: Submi
 
     return (
         <div className={`${styles ?? ''}`}>
-            <button onClick={handleSubmit(onSubmit)} type="submit">{label}</button>
+            <button className="cursor-pointer" onClick={handleSubmit(onSubmit)} type="submit">{label}</button>
         </div>
     )
 }
