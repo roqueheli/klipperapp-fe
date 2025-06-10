@@ -95,7 +95,7 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${inter.className} flex flex-col bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
+        className={`${inter.className} flex flex-col min-h-screen justify-center items-center bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
       >
         <ThemeProvider>
           <OrganizationProvider initialData={initialData} slug={slug}>
@@ -103,12 +103,10 @@ export default async function RootLayout({
               {!isLoginPage && isValidOrganization(initialData) && (
                 <NavBarContainer />
               )}
-
-              <div className="flex flex-col flex-1 w-full">
-                <main className="flex-1 w-full">{children}</main>
-                <Footer />
-              </div>
-
+              <main className="flex-grow flex items-center justify-center w-full">
+                {children}
+              </main>
+              <Footer />
               <ToasterProvider />
             </UserProvider>
           </OrganizationProvider>

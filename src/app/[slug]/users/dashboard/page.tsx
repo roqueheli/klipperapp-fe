@@ -84,7 +84,7 @@ export default function DashboardPage() {
   const totalPages = Math.ceil(mockServicesToday.length / pageSize);
 
   return (
-    <div className="p-4 space-y-6 max-w-7xl mx-auto">
+    <div className="flex flex-col justify-center p-2 space-y-6 min-w-7xl mx-auto">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <Select value={branch} onValueChange={setBranch}>
           <option value="Todos">Todas las sucursales</option>

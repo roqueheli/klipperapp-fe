@@ -32,7 +32,7 @@ const CheckinQRPage = () => {
       if (data?.id !== undefined) {
         usersParams.set("organization_id", String(data.id));
       }
-      
+
       if (userData?.branch_id !== undefined) {
         usersParams.set("branch_id", String(userData.branch_id));
         usersParams.set("role_id", "3");
@@ -41,8 +41,14 @@ const CheckinQRPage = () => {
 
       try {
         const [allRes, workingRes] = await Promise.all([
-          httpInternalApi.httpGetPublic("/users", usersParams) as Promise<UserResponse>,
-          httpInternalApi.httpGetPublic("/users/working_today", usersParams) as Promise<UserResponse>,
+          httpInternalApi.httpGetPublic(
+            "/users",
+            usersParams
+          ) as Promise<UserResponse>,
+          httpInternalApi.httpGetPublic(
+            "/users/working_today",
+            usersParams
+          ) as Promise<UserResponse>,
         ]);
 
         const allUsers = allRes.users || [];
@@ -144,18 +150,18 @@ const CheckinQRPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen pt-20 bg-white dark:bg-black text-black dark:text-white">
+    <div className="flex flex-col w-full text-black dark:text-white">
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex-1 flex flex-col md:flex-row">
-          {/* Lista de usuarios orden de llegada */}
-          <div className="w-full md:w-1/2 p-4 border-r overflow-y-auto">
+        <div className="flex flex-1 flex-col md:flex-row overflow-y-auto">
+          {/* Orden de llegada */}
+          <div className="w-full md:w-1/2 p-4 border-r border-gray-300 dark:border-gray-700 flex flex-col">
             <h2 className="text-xl font-bold mb-4">Orden de llegada</h2>
             <Droppable droppableId="selected">
               {(provided) => (
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-2 min-h-[300px]"
+                  className="space-y-2 min-h-[300px] flex-1 overflow-auto"
                 >
                   {selectedUsers.map((user, index) => (
                     <Draggable
@@ -179,7 +185,9 @@ const CheckinQRPage = () => {
                 </ul>
               )}
             </Droppable>
-            <div className="absolute bottom-30 left-4 flex space-x-2">
+
+            {/* Botones de acción */}
+            <div className="mt-4 flex flex-wrap gap-2">
               {selectedUsers.length > 0 &&
                 isWorkingTodayEmpty &&
                 isBeforeTwoPM() && (
@@ -194,7 +202,7 @@ const CheckinQRPage = () => {
                 .length > 0 && (
                 <button
                   onClick={handleSend}
-                  className={`px-6 py-2 w-fit rounded transition bg-blue-600 hover:bg-blue-500 text-white`}
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded"
                 >
                   Guardar orden
                 </button>
@@ -202,15 +210,15 @@ const CheckinQRPage = () => {
             </div>
           </div>
 
-          {/* Lista de usuarios disponibles */}
-          <div className="w-full md:w-1/2 p-4 overflow-y-auto">
+          {/* Usuarios disponibles */}
+          <div className="w-full md:w-1/2 p-4 flex flex-col">
             <h2 className="text-xl font-bold mb-4">Usuarios Disponibles</h2>
             <Droppable droppableId="available">
               {(provided) => (
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-2 min-h-[300px]"
+                  className="space-y-2 min-h-[300px] flex-1 overflow-auto"
                 >
                   {availableUsers.map((user, index) => (
                     <Draggable
@@ -238,8 +246,8 @@ const CheckinQRPage = () => {
         </div>
       </DragDropContext>
 
-      {/* Botón Volver */}
-      <div className="p-6 flex justify-center border-t border-gray-200 dark:border-gray-700">
+      {/* Botón volver */}
+      <div className="p-6 flex justify-center border-t border-gray-300 dark:border-gray-700">
         <button
           onClick={() => router.back()}
           className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-blue-400 transition"

@@ -1,3 +1,5 @@
+import { Profile } from "./profile";
+
 export interface User {
     id: number;
     name: string;
@@ -32,4 +34,14 @@ export interface MenuItem {
     label: string;
     path: string;
     allowedRoles: number[];
+}
+
+export interface UserWithProfiles {
+    user: User;
+    profiles: Profile[];
+}
+
+export interface UserWithProfilesResponse {
+    usersAttendances: UserWithProfiles[];
+    status: number;
 }

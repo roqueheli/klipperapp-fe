@@ -1,7 +1,7 @@
 // components/Footer.tsx
 const Footer = () => {
   return (
-    <footer className="bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 mt-12 border-t border-gray-200 dark:border-gray-700">
+    <footer className="w-full bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
         {/* Sección 1: Acerca de */}
         <div>
