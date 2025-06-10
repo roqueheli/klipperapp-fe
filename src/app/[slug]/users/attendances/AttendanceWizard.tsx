@@ -51,7 +51,7 @@ const AttendanceWizard = ({
       service_id: selectedServiceId,
       attended_by: selectedUserId !== 0 ? selectedUserId : null,
     };
-
+    
     try {
       const response: Attendance = await toast.promise(
         httpInternalApi.httpPostPublic("/attendances", "POST", requestBody),
@@ -150,7 +150,7 @@ const AttendanceWizard = ({
   }, []);
 
   return (
-    <div className="mt-24 px-4 max-w-4xl mx-auto">
+    <div className="max-w-4xl">
       {/* Step 1 */}
       {step === 1 && (
         <div className="text-center">
@@ -160,7 +160,7 @@ const AttendanceWizard = ({
           <input
             type="tel"
             className="border px-4 py-2 rounded w-full max-w-sm"
-            placeholder="Ej: +56912345678"
+            placeholder="Ej: 9 1234 5678"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />

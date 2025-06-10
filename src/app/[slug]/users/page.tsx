@@ -1,6 +1,5 @@
 "use client";
 
-import { useOrganization } from "@/contexts/OrganizationContext";
 import { useFilteredMenus } from "@/hooks/useFilteredMenus";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import { MenuItem } from "@/types/user";
@@ -11,7 +10,7 @@ const UsersPage = () => {
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-900 dark:to-black px-6">
+    <div className="flex justify-center items-center from-gray-100 to-gray-300 dark:from-gray-900 dark:to-black px-6">
       <div className="w-full max-w-2xl bg-white/80 dark:bg-black/30 backdrop-blur-md border border-gray-300 dark:border-white/20 rounded-2xl shadow-xl p-12">
         <div className="flex flex-col items-center gap-6">
           {filteredMenus.map((menu: MenuItem, index: number) => {

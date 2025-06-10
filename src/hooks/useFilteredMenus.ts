@@ -24,6 +24,11 @@ export const useFilteredMenus = (): MenuItem[] => {
             allowedRoles: [1, 2, 3],
         },
         {
+            label: "Transacciones",
+            path: `/${slug}/transactions`,
+            allowedRoles: [1, 2],
+        },
+                {
             label: "Dashboard",
             path: `/${slug}/users/dashboard`,
             allowedRoles: [1, 2, 3],

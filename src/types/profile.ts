@@ -1,10 +1,12 @@
 export interface Profile {
-    id: number
+    id: number;
     name: string;
-    email?: string;
+    email: string;
+    birth_date: string;
     phone_number: string;
-    birth_date?: Date;
     organization_id: number;
+    branch_id: number | null;
+    status?: string;
 };
 
 export interface ProfileResponse {

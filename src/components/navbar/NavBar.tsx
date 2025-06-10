@@ -73,8 +73,10 @@ const NavBar = ({ auth_token }: NavBarProps) => {
     };
   }, []);
 
+  // fixed top-0 left-0 
+
   return (
-    <nav className="w-full fixed top-0 left-0 z-50 px-6 py-2 flex justify-between items-center backdrop-blur-md bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(18,18,18,0.7)] border-b border-[rgba(255,255,255,0.3)] dark:border-[rgba(255,255,255,0.1)] text-[var(--foreground)]">
+    <nav className="w-full z-50 px-6 py-2 flex justify-between items-center backdrop-blur-md bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(18,18,18,0.7)] border-b border-[rgba(255,255,255,0.3)] dark:border-[rgba(255,255,255,0.1)] text-[var(--foreground)]">
       <Link
         href={`/${slug}${route}`}
         className="text-xl font-bold transition-colors duration-200 hover:text-[var(--foreground)]"
