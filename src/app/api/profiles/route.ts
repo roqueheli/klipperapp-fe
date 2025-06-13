@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     try {
         const data = await profilesAPI.getProfile(searchParams, token?.value || "");
 
-        if (!data.id) throw new Error('Customer not found');
+        if (!data.profile?.id) throw new Error('Customer not found');
 
         return NextResponse.json({ profile: data, status: 200 });
     } catch (error) {

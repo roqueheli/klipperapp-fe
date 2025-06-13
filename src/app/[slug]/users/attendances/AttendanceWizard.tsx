@@ -1,9 +1,15 @@
 "use client";
 
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Attendance } from "@/types/attendance";
+import { CreateAttendanceResponse } from "@/types/attendance";
 import { Organization } from "@/types/organization";
-import { Profile, ProfileResponse } from "@/types/profile";
+import {
+  Profile,
+  ProfileByNumber,
+  ProfileByNumberResponse,
+  ProfileResponse,
+} from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
 import { useRouter } from "next/navigation";
@@ -27,33 +33,31 @@ const AttendanceWizard = ({
   const [step, setStep] = useState<Step>(1);
   const [phone, setPhone] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(
+    null
+  );
   const [profile, setProfile] = useState<Profile>();
   const [users, setUsers] = useState<UserResponse>();
   const [services, setServices] = useState<ServiceResponse>();
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFinish = async () => {
-    if (
-      !profile ||
-      !selectedServiceId ||
-      !organization ||
-      !user
-    ) {
+    if (!profile || !selectedServiceId || !organization || !user) {
       toast.error("Some data are missing to create the attendance.");
       return;
     }
 
     const requestBody = {
-      profile_id: profile.id,
+      profile_id: profile?.id,
       organization_id: organization.id,
       branch_id: user?.branch_id,
       service_id: selectedServiceId,
       attended_by: selectedUserId !== 0 ? selectedUserId : null,
     };
-    
+
     try {
-      const response: Attendance = await toast.promise(
+      const response: CreateAttendanceResponse = await toast.promise(
         httpInternalApi.httpPostPublic("/attendances", "POST", requestBody),
         {
           loading: "Creating attendance...",
@@ -62,11 +66,11 @@ const AttendanceWizard = ({
         }
       );
 
-      router.push(`/${slug}/users/attendances/${response?.id}`);
+      router.push(`/${slug}/users/attendances/${response?.profile.id}`);
 
       setTimeout(() => {
         router.push(`/${slug}/users/lists`);
-      }, 5000);
+      }, 8000);
     } catch (error) {
       console.error("Error in the creation of assistance:", error);
     }
@@ -79,10 +83,20 @@ const AttendanceWizard = ({
       const phoneParam = new URLSearchParams();
       phoneParam.set("phone_number", phone);
 
-      const response = (await httpInternalApi.httpGetPublic(`/profiles`, phoneParam)) as Promise<ProfileResponse>;
+      //necesito el endpoint me diga si ya el cliente tiene una attendance al menos en pending.
+      const response = (await httpInternalApi.httpGetPublic(
+        `/profiles`,
+        phoneParam
+      )) as Promise<ProfileByNumberResponse>;
 
-      if ((await response).status === 200) {
-        setProfile((await response).profile);
+      if ((await response).profile?.profile?.id !== undefined) {
+        if ((await response).profile?.is_attended_today) {
+          setError("Ya tienes una asistencia registrada hoy.");
+          return;
+        }
+
+        setError(null);
+        setProfile((await response).profile?.profile);
         setStep(2);
       } else {
         localStorage.setItem("pendingPhone", phone);
@@ -124,7 +138,7 @@ const AttendanceWizard = ({
         usersParams.set("organization_id", String(organization.id));
         usersParams.set("role_id", String("3"));
       }
-      
+
       if (user?.branch_id !== undefined) {
         usersParams.set("branch_id", String(user.branch_id));
       } else {
@@ -149,32 +163,35 @@ const AttendanceWizard = ({
     fetchData();
   }, []);
 
+  if (isLoading) return <LoadingSpinner />;
+
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
       {/* Step 1 */}
       {step === 1 && (
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">
+          <h2 className="text-3xl font-extrabold mb-6 text-blue-600 dark:text-blue-400 drop-shadow-sm">
             Ingresa tu número de teléfono
           </h2>
           <input
             type="tel"
-            className="border px-4 py-2 rounded w-full max-w-sm"
+            className="border border-gray-300 dark:border-gray-700 px-4 py-3 rounded-md w-full max-w-sm mx-auto text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 transition"
             placeholder="Ej: 9 1234 5678"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
-          <div className="mt-6 flex justify-between gap-4">
+          <div className="mt-8 flex justify-center gap-6 max-w-sm mx-auto">
             <button
               onClick={() => router.back()}
-              className="cursor-pointer bg-gray-300 hover:bg-gray-400 px-6 py-2 rounded"
+              className="flex-1 bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold px-6 py-3 rounded-md shadow-sm transition"
+              aria-label="Volver"
             >
               Volver
             </button>
             <button
               disabled={!phone}
-              className="cursor-pointer bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded disabled:opacity-50"
               onClick={handlePhoneSubmit}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-md shadow-sm transition"
             >
               Siguiente
             </button>
@@ -182,70 +199,88 @@ const AttendanceWizard = ({
         </div>
       )}
 
+      {error && (
+        <p className="mt-4 text-center text-red-600 dark:text-red-400 font-semibold">
+          {error}
+        </p>
+      )}
+
       {/* Step 2 */}
       {step === 2 && (
         <div>
           {profile?.name && (
-            <p className="text-left mb-2 text-lg font-semibold">
-              Hola, {profile.name}
+            <p className="text-left mb-4 text-xl font-semibold text-blue-700 dark:text-blue-400">
+              Hola, {profile?.name}
             </p>
           )}
-          <h2 className="text-2xl font-bold mb-6 text-center">
+          <h2 className="text-3xl font-extrabold mb-8 text-center text-blue-600 dark:text-blue-400 drop-shadow-sm">
             Selecciona un profesional
           </h2>
 
           {isLoading ? (
-            <div className="text-center">Cargando usuarios...</div>
+            <p className="text-center text-gray-600 dark:text-gray-400">
+              Cargando usuarios...
+            </p>
           ) : (
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               {users?.users.map((user) => (
                 <div
                   key={user.id}
                   onClick={() => setSelectedUserId(user.id)}
-                  className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center gap-2 ${
-                    selectedUserId === user.id
-                      ? "border-cyan-500"
-                      : "hover:border-gray-400"
-                  }`}
+                  className={`cursor-pointer border rounded-lg p-5 flex flex-col items-center gap-3 shadow-sm transition 
+                    ${
+                      selectedUserId === user.id
+                        ? "border-blue-600 shadow-blue-300 dark:shadow-blue-700"
+                        : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500"
+                    }`}
+                  tabIndex={0}
+                  role="button"
+                  aria-pressed={selectedUserId === user.id}
                 >
                   <img
                     src={user.photo}
                     alt={user.name}
-                    className="w-24 h-24 rounded-full object-cover"
+                    className="w-24 h-24 rounded-full object-cover shadow"
                   />
-                  <div className="text-lg font-medium">{user.name}</div>
-                  <div className="flex gap-1 text-xl">
-                    {/* {user?.skills.join(" ")} */}
+                  <div className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    {user.name}
                   </div>
                   {user.premium && (
-                    <div className="text-yellow-500">⭐ Premium</div>
+                    <div className="text-yellow-400 font-semibold">
+                      ⭐ Premium
+                    </div>
                   )}
                 </div>
               ))}
               <div
                 onClick={() => setSelectedUserId(0)}
-                className={`cursor-pointer border rounded-lg p-4 flex items-center justify-center text-center ${
-                  selectedUserId === 0
-                    ? "border-cyan-500"
-                    : "hover:border-gray-400"
-                }`}
+                className={`cursor-pointer border rounded-lg p-5 flex items-center justify-center shadow-sm transition text-lg font-semibold
+                  ${
+                    selectedUserId === 0
+                      ? "border-blue-600 shadow-blue-300 dark:shadow-blue-700"
+                      : "border-blue-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500"
+                  }`}
+                tabIndex={0}
+                role="button"
+                aria-pressed={selectedUserId === 0}
               >
                 Próximo disponible
               </div>
             </div>
           )}
 
-          <div className="mt-6 flex justify-between">
+          <div className="mt-10 flex justify-between max-w-sm mx-auto">
             <button
               onClick={() => setStep(1)}
-              className="cursor-pointer bg-gray-300 hover:bg-gray-400 px-6 py-2 rounded"
+              className="bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold px-6 py-3 rounded-md shadow-sm transition"
+              aria-label="Volver"
             >
               Volver
             </button>
             <button
               disabled={selectedUserId === null}
               onClick={() => setStep(3)}
-              className="cursor-pointer bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded disabled:opacity-50"
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-md shadow-sm transition"
             >
               Siguiente
             </button>
@@ -257,53 +292,60 @@ const AttendanceWizard = ({
       {step === 3 && (
         <div>
           {profile?.name && (
-            <p className="text-left mb-2 text-lg font-semibold">
-              Hola, {profile.name}
+            <p className="text-left mb-4 text-xl font-semibold text-blue-700 dark:text-blue-400">
+              Hola, {profile?.name}
             </p>
           )}
-          <h2 className="text-2xl font-bold mb-6 text-center">
+          <h2 className="text-3xl font-extrabold mb-8 text-center text-blue-600 dark:text-blue-400 drop-shadow-sm">
             Selecciona un servicio
           </h2>
 
           {isLoading ? (
-            <div className="text-center">Cargando servicios...</div>
+            <p className="text-center text-gray-600 dark:text-gray-400">
+              Cargando servicios...
+            </p>
           ) : (
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {services?.services.map((service) => (
                 <div
                   key={service.id}
                   onClick={() => setSelectedServiceId(service.id)}
-                  className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center gap-2 ${
-                    selectedServiceId === service.id
-                      ? "border-cyan-500"
-                      : "hover:border-gray-400"
-                  }`}
+                  className={`cursor-pointer border rounded-lg p-6 shadow-sm transition 
+                    ${
+                      selectedServiceId === service.id
+                        ? "border-blue-600 shadow-blue-300 dark:shadow-blue-700"
+                        : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500"
+                    }`}
+                  tabIndex={0}
+                  role="button"
+                  aria-pressed={selectedServiceId === service.id}
                 >
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="w-full h-32 object-cover rounded"
-                  />
-                  <div className="text-lg font-medium">{service.name}</div>
-                  <div className="text-cyan-600 font-semibold">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+                    {service.name}
+                  </h3>
+                  {/* <p className="text-gray-600 dark:text-gray-300">
+                    {service.description}
+                  </p> */}
+                  <p className="mt-3 font-bold text-blue-700 dark:text-blue-400">
                     ${service.price}
-                  </div>
+                  </p>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="mt-6 flex justify-between">
+          <div className="mt-10 flex justify-between max-w-sm mx-auto">
             <button
               onClick={() => setStep(2)}
-              className="cursor-pointer bg-gray-300 hover:bg-gray-400 px-6 py-2 rounded"
+              className="bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold px-6 py-3 rounded-md shadow-sm transition"
+              aria-label="Volver"
             >
               Volver
             </button>
             <button
               disabled={selectedServiceId === null}
               onClick={handleFinish}
-              className="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded disabled:opacity-50"
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-md shadow-sm transition"
             >
               Finalizar
             </button>

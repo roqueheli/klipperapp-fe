@@ -12,10 +12,6 @@ export async function GET(request: NextRequest) {
     try {
         const response = await attendancessAPI.getAttendancesByUserWorking(searchParams, token?.value);
 
-        if (response.length === 0) {
-            throw new Error('Users attendances not found');
-        }
-
         return NextResponse.json({
             usersAttendances: response,
             status: 200,

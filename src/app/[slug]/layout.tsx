@@ -40,7 +40,7 @@ export async function generateMetadata({
       title: organization?.name || "KlipperApp",
       description: organization?.bio || "Sistema de gestión para barberías",
       icons: {
-        icon: organization?.metadata?.favicon || "/favicon.ico",
+        icon: organization?.metadata?.favicon || "/russo.ico",
       },
     };
   } catch (error) {

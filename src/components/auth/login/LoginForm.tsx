@@ -66,7 +66,7 @@ const LoginForm = () => {
           type="email"
           fieldName="email"
           label="Email"
-          placeholder="jhondoe@interviewai.com"
+          placeholder={`jhondoe@${slug}.com`}
         />
         <InputField
           type="password"

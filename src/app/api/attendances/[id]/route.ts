@@ -12,12 +12,8 @@ export async function GET(request: NextRequest) {
     try {
         const response = await attendancessAPI.getAttendanceById(searchParams, token?.value);
 
-        if (response.attendances.length === 0) {
-            throw new Error('Attendances not found');
-        }
-
         return NextResponse.json({
-            attendances: response.attendances,
+            attendances: response,
             status: 200,
         });
     } catch (error) {

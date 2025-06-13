@@ -22,5 +22,5 @@ export function Card({
 }
 
 export function CardContent({ children }: { children: React.ReactNode }) {
-  return <div className="text-[var(--soft-white)]">{children}</div>;
+  return <div className="overflow-auto h-full flex flex-col text-[var(--soft-white)]">{children}</div>;
 }

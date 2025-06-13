@@ -2,9 +2,10 @@
 
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { isValidOrganization } from "@/utils/organization.utils";
+import { redirect } from "next/navigation";
 
 const OrganizationPage = () => {
-  const { data } = useOrganization();
+  const { slug, data } = useOrganization();
 
   if (!isValidOrganization(data)) {
     return (
@@ -19,7 +20,7 @@ const OrganizationPage = () => {
     );
   }
 
-  return null;
+  return redirect(`/${slug}/users`);
 };
 
 export default OrganizationPage;
