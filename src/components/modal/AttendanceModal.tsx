@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@/contexts/UserContext";
 import { useEffect } from "react";
 
 interface AttendanceModalProps {
@@ -25,6 +26,8 @@ export default function AttendanceModal({
   onPostpone,
   onFinish,
 }: AttendanceModalProps) {
+  const { userData } = useUser();
+
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
   }, [isOpen]);
@@ -97,18 +100,22 @@ export default function AttendanceModal({
 
         {att.status === "pending" && (
           <div className="flex justify-end space-x-3">
-            <button
-              onClick={onClose}
-              className="px-5 py-2 rounded-md font-semibold bg-red-100 text-red-700 dark:bg-red-800 dark:text-white hover:bg-red-200 dark:hover:bg-red-700 transition"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={onPostpone}
-              className="px-5 py-2 rounded-md font-semibold bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-            >
-              Posponer
-            </button>
+            {userData?.role_id !== 3 && (
+              <>
+                <button
+                  onClick={onClose}
+                  className="px-5 py-2 rounded-md font-semibold bg-red-100 text-red-700 dark:bg-red-800 dark:text-white hover:bg-red-200 dark:hover:bg-red-700 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={onPostpone}
+                  className="px-5 py-2 rounded-md font-semibold bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                >
+                  Posponer
+                </button>
+              </>
+            )}
             <button
               onClick={onStart}
               className="px-5 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition"

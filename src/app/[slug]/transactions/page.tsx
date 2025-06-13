@@ -1,5 +1,6 @@
 "use client";
 
+import AttendanceTable from "@/components/attendances/AttendanceTable";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
@@ -8,14 +9,11 @@ import { Attendance, Attendances } from "@/types/attendance";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-const ITEMS_PER_PAGE = 7;
-
 const TransactionsPage = () => {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [isLoading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -50,45 +48,6 @@ const TransactionsPage = () => {
     fetchData();
   }, [data?.id, userData]);
 
-  const filteredAndSorted = useMemo(() => {
-    let filtered = attendances.filter((item) => {
-      const name = item.profile?.name?.toLowerCase() || "";
-      const service = item.service?.name?.toLowerCase() || "";
-      const professional = item.attended_by_user?.name?.toLowerCase() || "";
-
-      return (
-        name.includes(searchTerm.toLowerCase()) ||
-        service.includes(searchTerm.toLowerCase()) ||
-        professional.includes(searchTerm.toLowerCase())
-      );
-    });
-
-    filtered.sort((a, b) => {
-      const aVal = a[sortBy as keyof Attendance];
-      const bVal = b[sortBy as keyof Attendance];
-
-      if (aVal === null || aVal === undefined) return 1;
-      if (bVal === null || bVal === undefined) return -1;
-
-      if (typeof aVal === "string" && typeof bVal === "string") {
-        return sortOrder === "asc"
-          ? aVal.localeCompare(bVal)
-          : bVal.localeCompare(aVal);
-      }
-
-      return sortOrder === "asc" ? +aVal - +bVal : +bVal - +aVal;
-    });
-
-    return filtered;
-  }, [attendances, searchTerm, sortBy, sortOrder]);
-
-  const paginated = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredAndSorted.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredAndSorted, currentPage]);
-
-  const totalPages = Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE);
-
   // Función simulada para editar attendance (deberías implementarla)
   const handleEditAttendance = (attendance: Attendance) => {
     alert(`Editar attendance con ID ${attendance.id}`);
@@ -99,24 +58,66 @@ const TransactionsPage = () => {
     router.push(`/${slug}/payments/${attendance.id}`);
   };
 
+    const handleViewAttendance = (attendance: Attendance) => {
+    router.push(`/${slug}/users/attendances/${attendance.id}`);
+  };
+
+  const pendingGroup = useMemo(
+    () =>
+      attendances
+        .filter((a) =>
+          ["pending", "processing", "completed"].includes(a.status)
+        )
+        .sort((a, b) => {
+          const dateA = new Date(a.created_at ?? 0).getTime();
+          const dateB = new Date(b.created_at ?? 0).getTime();
+          return dateB - dateA;
+        }),
+    [attendances]
+  );
+
+  const finishedGroup = useMemo(
+    () =>
+      attendances
+        .filter((a) => a.status === "finished")
+        .sort((a, b) => {
+          const dateA = new Date(a.created_at ?? 0).getTime();
+          const dateB = new Date(b.created_at ?? 0).getTime();
+          return dateB - dateA;
+        }),
+    [attendances]
+  );
+
+  const canceledGroup = useMemo(
+    () =>
+      attendances
+        .filter((a) => ["canceled", "declined"].includes(a.status))
+        .sort((a, b) => {
+          const dateA = new Date(a.created_at ?? 0).getTime();
+          const dateB = new Date(b.created_at ?? 0).getTime();
+          return dateB - dateA;
+        }),
+    [attendances]
+  );
+
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="w-full px-6 py-10">
+    <div className="w-full px-4 sm:px-6 py-6 sm:py-10">
       <h1 className="mt-15 text-4xl font-bold bg-clip-text bg-gradient-to-r from-blue-600 text-blue-600 via-blue-500 to-indigo-500 drop-shadow-lg mb-6">
         💻 Transacciones
       </h1>
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 w-full flex-wrap">
         <input
           type="text"
           placeholder="🔍 Buscar por nombre, servicio o profesional"
-          className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="w-full md:w-1/2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <label className="text-gray-600 dark:text-gray-300 font-medium">
             Ordenar por:
           </label>
@@ -139,102 +140,29 @@ const TransactionsPage = () => {
         </div>
       </div>
 
-      <div className="h-[44vh] overflow-x-auto shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <table className="w-full table-auto text-sm text-left">
-          <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
-            <tr>
-              <th className="px-4 py-3 w-60">👤 Cliente</th>
-              <th className="px-4 py-3 w-60">🛠️ Servicio</th>
-              <th className="px-4 py-3 w-60">💼 Profesional</th>
-              <th className="px-4 py-3 w-40">📋 Estado</th>
-              <th className="px-4 py-3 w-60">📆 Fecha creación</th>
-              <th className="px-4 py-3 w-30">💰 Precio</th>
-              <th className="px-4 py-3 w-45 text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((attendance) => (
-              <tr
-                key={attendance.id}
-                onClick={() => {
-                  setSelectedAttendance(attendance);
-                  setIsDialogOpen(true);
-                }}
-                className="h-12 border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all cursor-pointer"
-              >
-                <td className="px-4 py-3">{attendance.profile?.name || "-"}</td>
-                <td className="px-4 py-3">{attendance.service?.name || "-"}</td>
-                <td className="px-4 py-3">
-                  {attendance.attended_by_user?.name || "No asignado"}
-                </td>
-                <td className="px-4 py-3 capitalize">{attendance.status}</td>
-                <td className="px-4 py-3">
-                  {new Date(attendance.created_at).toLocaleString()}
-                </td>
-                <td className="px-4 py-3">
-                  ${parseInt(attendance.service?.price || "0").toLocaleString()}
-                </td>
-                <td className="px-4 py-3 flex gap-2 items-center">
-                  <button
-                    onClick={() => {
-                      setSelectedAttendance(attendance);
-                      setIsDialogOpen(true);
-                    }}
-                    className="rounded-sm px-3 py-1 text-sm bg-blue-600 hover:underline"
-                    type="button"
-                  >
-                    Ver detalle
-                  </button>
+      <AttendanceTable
+        attendances={pendingGroup}
+        title="🕐 En Proceso"
+        onEdit={handleEditAttendance}
+        onPay={handlePayAttendance}
+        onDetail={handleViewAttendance}
+      />
 
-                  {attendance.status === "pending" && (
-                    <button
-                      onClick={() => handleEditAttendance(attendance)}
-                      className="rounded-sm px-3 py-1 text-sm bg-yellow-600 hover:underline"
-                      type="button"
-                    >
-                      Editar
-                    </button>
-                  )}
+      <AttendanceTable
+        attendances={finishedGroup}
+        title="✅ Finalizados"
+        onEdit={handleEditAttendance}
+        onPay={handlePayAttendance}
+        onDetail={handleViewAttendance}
+      />
 
-                  {attendance.status === "completed" && (
-                    <button
-                      onClick={() => handlePayAttendance(attendance)}
-                      className="rounded-sm px-3 py-1 text-sm bg-green-600 hover:underline"
-                      type="button"
-                    >
-                      Pagar
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex justify-between items-center mt-6 text-sm text-gray-700 dark:text-gray-200">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 hover:brightness-110 transition disabled:opacity-50"
-        >
-          ⬅ Anterior
-        </button>
-
-        <span className="text-base font-medium">
-          Página {currentPage} de {totalPages}
-        </span>
-
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 hover:brightness-110 transition disabled:opacity-50"
-        >
-          Siguiente ➡
-        </button>
-      </div>
+      <AttendanceTable
+        attendances={canceledGroup}
+        title="❌ Cancelados / Rechazados"
+        onEdit={handleEditAttendance}
+        onPay={handlePayAttendance}
+        onDetail={handleViewAttendance}
+      />
 
       <div className="flex justify-center mt-6">
         <button

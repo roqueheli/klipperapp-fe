@@ -16,13 +16,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const CheckinQRPage = () => {
+const CheckinPage = () => {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isWorkingTodayEmpty, setIsWorkingTodayEmpty] = useState(false);
-  const [originalSelectedUserIds, setOriginalSelectedUserIds] = useState<Set<number>>(new Set());
+  const [originalSelectedUserIds, setOriginalSelectedUserIds] = useState<
+    Set<number>
+  >(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -169,15 +171,15 @@ const CheckinQRPage = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="flex flex-col h-[80vh] w-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 p-6">
-      <h1 className="text-3xl font-extrabold mt-20 mb-8 text-left text-blue-700 dark:text-blue-400 drop-shadow-md">
+    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 p-4 sm:p-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mt-10 sm:mt-20 mb-6 sm:mb-8 text-left bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-md">
         Check-in de Usuarios
       </h1>
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex flex-col md:flex-row gap-8 flex-1 overflow-hidden">
+        <div className="flex flex-col md:flex-row gap-6 sm:gap-8 flex-1">
           {/* Lista Seleccionados */}
-          <section className="flex flex-col w-full md:w-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-semibold mb-4 text-center text-green-700 dark:text-green-400">
+          <section className="flex flex-col w-full md:w-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-green-700 dark:text-green-400">
               Orden de llegada
             </h2>
             <Droppable droppableId="selected">
@@ -185,7 +187,7 @@ const CheckinQRPage = () => {
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-3 min-h-[320px] max-h-[400px] overflow-y-auto rounded border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30 p-3 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100 dark:scrollbar-thumb-green-600 dark:scrollbar-track-green-800"
+                  className="space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30 p-3 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100 dark:scrollbar-thumb-green-600 dark:scrollbar-track-green-800"
                 >
                   {selectedUsers.length === 0 && (
                     <li className="text-center text-green-500 italic">
@@ -204,11 +206,11 @@ const CheckinQRPage = () => {
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           className={`p-4 rounded-xl shadow-md cursor-grab select-none transition
-                            ${
-                              snapshot.isDragging
-                                ? "bg-green-300 dark:bg-green-700 shadow-lg scale-105"
-                                : "bg-green-100 dark:bg-green-800"
-                            }`}
+                          ${
+                            snapshot.isDragging
+                              ? "bg-green-300 dark:bg-green-700 shadow-lg scale-105"
+                              : "bg-green-100 dark:bg-green-800"
+                          }`}
                         >
                           {user.name}
                         </li>
@@ -220,14 +222,13 @@ const CheckinQRPage = () => {
               )}
             </Droppable>
 
-            <div className="mt-6 flex flex-wrap justify-center gap-4">
+            <div className="mt-6 flex flex-col sm:flex-row flex-wrap justify-center gap-4">
               {selectedUsers.length > 0 &&
                 isWorkingTodayEmpty &&
                 isBeforeTwoPM() && (
                   <button
                     onClick={handleReset}
-                    className="px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
-                    title="Resetear lista de usuarios seleccionados"
+                    className="w-full sm:w-auto px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
                   >
                     Resetear lista
                   </button>
@@ -236,8 +237,7 @@ const CheckinQRPage = () => {
                 .length > 0 && (
                 <button
                   onClick={handleSend}
-                  className="px-7 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
-                  title="Guardar orden de llegada"
+                  className="w-full sm:w-auto px-7 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
                 >
                   Guardar orden
                 </button>
@@ -246,8 +246,8 @@ const CheckinQRPage = () => {
           </section>
 
           {/* Lista Disponibles */}
-          <section className="flex flex-col w-full md:w-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-semibold mb-4 text-center text-gray-700 dark:text-gray-300">
+          <section className="flex flex-col w-full md:w-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-gray-700 dark:text-gray-300">
               Usuarios Disponibles
             </h2>
             <Droppable droppableId="available">
@@ -255,7 +255,7 @@ const CheckinQRPage = () => {
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-3 min-h-[320px] max-h-[400px] overflow-y-auto rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/40 p-3 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800"
+                  className="space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/40 p-3 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800"
                 >
                   {availableUsers.length === 0 && (
                     <li className="text-center italic text-gray-500 dark:text-gray-400">
@@ -274,11 +274,11 @@ const CheckinQRPage = () => {
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           className={`p-4 rounded-xl shadow cursor-grab select-none transition
-                            ${
-                              snapshot.isDragging
-                                ? "bg-blue-300 dark:bg-blue-700 shadow-lg scale-105"
-                                : "bg-blue-100 dark:bg-blue-900"
-                            }`}
+                          ${
+                            snapshot.isDragging
+                              ? "bg-blue-300 dark:bg-blue-700 shadow-lg scale-105"
+                              : "bg-blue-100 dark:bg-blue-900"
+                          }`}
                         >
                           {user.name}
                         </li>
@@ -292,12 +292,12 @@ const CheckinQRPage = () => {
           </section>
         </div>
       </DragDropContext>
+
       {/* Botón Volver */}
-      <div className="flex w-full items-center justify-center mt-5">
+      <div className="flex w-full items-center justify-center mt-6 sm:mt-10">
         <button
-          onClick={() => router.push(`/${slug}/users`)} // o router.push('/ruta-deseada')
-          className="px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md shadow-sm transition"
-          aria-label="Volver"
+          onClick={() => router.back()}
+          className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
         >
           Volver
         </button>
@@ -306,4 +306,4 @@ const CheckinQRPage = () => {
   );
 };
 
-export default CheckinQRPage;
+export default CheckinPage;

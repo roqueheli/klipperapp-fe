@@ -85,7 +85,7 @@ const AttendanceDetailPage = () => {
       </DetailSection>
 
       <div className="flex justify-end mb-3">
-        <BackButton onClick={() => router.push(`/${slug}/users`)} />
+        <BackButton onClick={() => router.back()} />
       </div>
     </div>
   );

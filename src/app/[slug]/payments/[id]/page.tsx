@@ -50,7 +50,7 @@ const PaymentsPage = () => {
   };
 
   return (
-    <div className="mt-20 mb-10 max-w-5xl mx-auto p-4">
+    <div className="mt-20 mb-10 w-full mx-auto p-4">
       <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-lg rounded-2xl p-6">
         <h2 className="text-2xl font-semibold mb-6">
           Detalle de la transacción

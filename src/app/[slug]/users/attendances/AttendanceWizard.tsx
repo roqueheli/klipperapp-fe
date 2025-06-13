@@ -6,9 +6,7 @@ import { CreateAttendanceResponse } from "@/types/attendance";
 import { Organization } from "@/types/organization";
 import {
   Profile,
-  ProfileByNumber,
-  ProfileByNumberResponse,
-  ProfileResponse,
+  ProfileByNumberResponse
 } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
