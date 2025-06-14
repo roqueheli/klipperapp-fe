@@ -50,7 +50,15 @@ const TransactionsPage = () => {
 
   // Función simulada para editar attendance (deberías implementarla)
   const handleEditAttendance = (attendance: Attendance) => {
-    alert(`Editar attendance con ID ${attendance.id}`);
+    const dataToStore = {
+      attendanceId: attendance?.id,
+      serviceId: attendance?.service_id,
+      userId: attendance?.profile_id,
+      phoneNumber: attendance.profile?.phone_number,
+    };
+
+    localStorage.setItem("attendanceInfo", JSON.stringify(dataToStore));
+    router.push(`/${slug}/users/attendances`);
   };
 
   // Función simulada para pagar attendance (deberías implementar la lógica real)
@@ -58,7 +66,7 @@ const TransactionsPage = () => {
     router.push(`/${slug}/payments/${attendance.id}`);
   };
 
-    const handleViewAttendance = (attendance: Attendance) => {
+  const handleViewAttendance = (attendance: Attendance) => {
     router.push(`/${slug}/users/attendances/${attendance.id}`);
   };
 

@@ -6,7 +6,7 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { UserWithProfiles, UserWithProfilesResponse } from "@/types/user";
+import { User, UserWithProfiles } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -14,13 +14,11 @@ import toast from "react-hot-toast";
 export default function AttendanceListsPage() {
   const router = useRouter();
   const [users, setUsers] = useState<UserWithProfiles[]>([]);
+  const [queue, setQueue] = useState<User[]>([]);
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{
-    userId: number;
-    userName: string;
-  } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{ userId: number; userName: string; } | null>(null);
   const [selectedAtt, setSelectedAtt] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
@@ -40,12 +38,12 @@ export default function AttendanceListsPage() {
     }
 
     try {
-      const usersRes = (await httpInternalApi.httpGetPublic(
-        "/attendances/by_usersworking_today",
-        usersParams
-      )) as UserWithProfilesResponse;
-
-      setUsers(usersRes.usersAttendances);
+      const [queueRes, usersRes] = await Promise.all([
+        httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
+        httpInternalApi.httpGetPublic("/attendances/by_usersworking_today", usersParams),
+      ]);
+      setQueue(queueRes as User[]);
+      setUsers(usersRes as UserWithProfiles[]);
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
     }
@@ -125,10 +123,11 @@ export default function AttendanceListsPage() {
     }
   };
 
-  const filteredUsers =
-    userData?.role_id === 3
-      ? users.filter((u) => u.user.id === userData.id)
-      : users;
+  // const filteredUsers =
+  //   userData?.role_id === 3
+  //     ? users.filter((u) => u.user.id === userData.id)
+  //     : users;
+
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -149,15 +148,14 @@ export default function AttendanceListsPage() {
             👩‍💻 Orden Profesionales
           </h2>
           <ul className="space-y-3">
-            {users.filter((u) => u.profiles.length === 0).length > 0 ? (
-              users
-                .filter((u) => u.profiles.length === 0)
+            {queue.length > 0 ? (
+              queue
                 .map((user) => (
                   <li
-                    key={user.user.id}
+                    key={user.id}
                     className="rounded-md bg-[--background] text-[--foreground] p-3 shadow hover:bg-[--menu-hover-bg] transition-colors text-sm"
                   >
-                    {user.user.name}
+                    {user.name}
                   </li>
                 ))
             ) : (
@@ -175,7 +173,7 @@ export default function AttendanceListsPage() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredUsers.map((user) => (
+            {users.map((user) => (
               <article
                 key={user.user.id}
                 className="bg-[--cyber-gray] border border-[--electric-blue] rounded-xl p-5 shadow-md shadow-[--electric-blue]/30 flex flex-col"

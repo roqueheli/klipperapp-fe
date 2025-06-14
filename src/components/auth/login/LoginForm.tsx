@@ -62,7 +62,7 @@ const LoginForm = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col items-center justify-center w-full gap-5 sm:gap-6 text-black dark:text-white"
       >
-        <div className="w-[65%] flex items-center justify-center">
+        <div className="w-[65%] flex items-center justify-center bg-transparent">
           <InputField
             type="email"
             fieldName="email"

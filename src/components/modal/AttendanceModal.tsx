@@ -106,7 +106,7 @@ export default function AttendanceModal({
                   onClick={onClose}
                   className="px-5 py-2 rounded-md font-semibold bg-red-100 text-red-700 dark:bg-red-800 dark:text-white hover:bg-red-200 dark:hover:bg-red-700 transition"
                 >
-                  Cancelar
+                  Declinar
                 </button>
                 <button
                   onClick={onPostpone}

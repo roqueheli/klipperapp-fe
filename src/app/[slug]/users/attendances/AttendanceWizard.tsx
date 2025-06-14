@@ -4,10 +4,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { CreateAttendanceResponse } from "@/types/attendance";
 import { Organization } from "@/types/organization";
-import {
-  Profile,
-  ProfileByNumberResponse
-} from "@/types/profile";
+import { Profile, ProfileByNumberResponse } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
 import { useRouter } from "next/navigation";
@@ -38,88 +35,50 @@ const AttendanceWizard = ({
   const [users, setUsers] = useState<UserResponse>();
   const [services, setServices] = useState<ServiceResponse>();
   const [isLoading, setIsLoading] = useState(true);
+  const [hasStoredData, setHasStoredData] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFinish = async () => {
-    if (!profile || !selectedServiceId || !organization || !user) {
-      toast.error("Some data are missing to create the attendance.");
-      return;
-    }
-
-    const requestBody = {
-      profile_id: profile?.id,
-      organization_id: organization.id,
-      branch_id: user?.branch_id,
-      service_id: selectedServiceId,
-      attended_by: selectedUserId !== 0 ? selectedUserId : null,
-    };
-
-    try {
-      const response: CreateAttendanceResponse = await toast.promise(
-        httpInternalApi.httpPostPublic("/attendances", "POST", requestBody),
-        {
-          loading: "Creating attendance...",
-          success: "Attendance successfully created.",
-          error: "An error occurred while creating the attendance.",
+  useEffect(() => {
+    const stored = localStorage.getItem("attendanceInfo");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (
+          parsed?.profile &&
+          parsed?.selectedUserId !== undefined &&
+          parsed?.selectedServiceId !== undefined
+        ) {
+          setProfile(parsed.profile);
+          setSelectedUserId(parsed.selectedUserId);
+          setSelectedServiceId(parsed.selectedServiceId);
+          setHasStoredData(true);
+          localStorage.removeItem("attendanceInfo");
+          setStep(3); // va directo al paso 3 si ya hay user y servicio seleccionados
         }
-      );
-
-      router.push(`/${slug}/users/attendances/${response?.profile.id}`);
-
-      setTimeout(() => {
-        router.push(`/${slug}/users/lists`);
-      }, 8000);
-    } catch (error) {
-      console.error("Error in the creation of assistance:", error);
-    }
-  };
-
-  const handlePhoneSubmit = async () => {
-    if (!phone) return;
-
-    try {
-      const phoneParam = new URLSearchParams();
-      phoneParam.set("phone_number", phone);
-
-      //necesito el endpoint me diga si ya el cliente tiene una attendance al menos en pending.
-      const response = (await httpInternalApi.httpGetPublic(
-        `/profiles`,
-        phoneParam
-      )) as Promise<ProfileByNumberResponse>;
-
-      if ((await response).profile?.profile?.id !== undefined) {
-        if ((await response).profile?.is_attended_today) {
-          setError("Ya tienes una asistencia registrada hoy.");
-          return;
-        }
-
-        setError(null);
-        setProfile((await response).profile?.profile);
-        setStep(2);
-      } else {
-        localStorage.setItem("pendingPhone", phone);
-        router.push(`/${slug}/profiles/register`);
+      } catch (e) {
+        console.error("Error parsing attendanceInfo:", e);
       }
-    } catch (error) {
-      console.error("Phone validation error:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const storedProfile = localStorage.getItem("userAttendance");
     if (storedProfile) {
-      const parsed: Profile = JSON.parse(storedProfile);
-
-      if (
-        parsed?.id &&
-        parsed?.name &&
-        parsed?.email &&
-        parsed?.phone_number &&
-        parsed?.organization_id
-      ) {
-        localStorage.removeItem("userAttendance");
-        setProfile(parsed);
-        setStep(2);
+      try {
+        const parsed: Profile = JSON.parse(storedProfile);
+        if (
+          parsed?.id &&
+          parsed?.name &&
+          parsed?.email &&
+          parsed?.phone_number &&
+          parsed?.organization_id
+        ) {
+          localStorage.removeItem("userAttendance");
+          setProfile(parsed);
+          setStep(2);
+        }
+      } catch (e) {
+        console.error("Error parsing userAttendance:", e);
       }
     }
   }, []);
@@ -127,21 +86,15 @@ const AttendanceWizard = ({
   useEffect(() => {
     const fetchData = async () => {
       const servicesParams = new URLSearchParams();
-      if (organization?.id !== undefined) {
-        servicesParams.set("organization_id", String(organization.id));
-      }
-
       const usersParams = new URLSearchParams();
-      if (organization?.id !== undefined) {
+
+      if (organization?.id) {
+        servicesParams.set("organization_id", String(organization.id));
         usersParams.set("organization_id", String(organization.id));
-        usersParams.set("role_id", String("3"));
+        usersParams.set("role_id", "3");
       }
 
-      if (user?.branch_id !== undefined) {
-        usersParams.set("branch_id", String(user.branch_id));
-      } else {
-        usersParams.set("branch_id", String("1"));
-      }
+      usersParams.set("branch_id", String(user?.branch_id ?? 1));
 
       try {
         setIsLoading(true);
@@ -160,6 +113,78 @@ const AttendanceWizard = ({
 
     fetchData();
   }, []);
+
+  const handleFinish = async () => {
+    if (!profile || !selectedServiceId || !organization || !user) {
+      toast.error("Some data are missing to create the attendance.");
+      return;
+    }
+
+    const requestBody = {
+      profile_id: profile?.id,
+      organization_id: organization.id,
+      branch_id: user?.branch_id,
+      service_id: selectedServiceId,
+      attended_by: selectedUserId !== 0 ? selectedUserId : null,
+    };
+
+
+
+    try {
+      const response: CreateAttendanceResponse = await toast.promise(
+        httpInternalApi.httpPostPublic(
+          "/attendances",
+          hasStoredData ? "PUT" : "POST",
+          requestBody
+        ),
+        {
+          loading: "Creating attendance...",
+          success: "Attendance successfully created.",
+          error: "An error occurred while creating the attendance.",
+        }
+      );
+
+      router.push(`/${slug}/users/attendances/${response?.profile.id}`);
+
+      setTimeout(() => {
+        router.push(`/${slug}/users/lists`);
+      }, 5000);
+    } catch (error) {
+      console.error("Error in the creation of assistance:", error);
+    }
+  };
+
+  const handlePhoneSubmit = async () => {
+    if (!phone) return;
+
+    try {
+      const phoneParam = new URLSearchParams();
+      phoneParam.set("phone_number", phone);
+
+      const response = (await httpInternalApi.httpGetPublic(
+        `/profiles`,
+        phoneParam
+      )) as Promise<ProfileByNumberResponse>;
+
+      const profileResponse = await response;
+
+      if (profileResponse.profile?.profile?.id !== undefined) {
+        if (profileResponse.profile?.is_attended_today) {
+          setError("Ya tienes una asistencia registrada hoy.");
+          return;
+        }
+
+        setError(null);
+        setProfile(profileResponse.profile?.profile);
+        setStep(2);
+      } else {
+        localStorage.setItem("pendingPhone", phone);
+        router.push(`/${slug}/profiles/register`);
+      }
+    } catch (error) {
+      console.error("Phone validation error:", error);
+    }
+  };
 
   if (isLoading) return <LoadingSpinner />;
 
