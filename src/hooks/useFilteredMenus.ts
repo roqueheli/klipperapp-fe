@@ -36,7 +36,7 @@ export const useFilteredMenus = (): MenuItem[] => {
     ];
 
     const menus: MenuItem[] =
-        data?.metadata?.menus?.length > 0
+        Array.isArray(data?.metadata?.menus) && data.metadata!.menus.length > 0
             ? (data?.metadata?.menus as MenuItem[])
             : defaultMenus;
 
