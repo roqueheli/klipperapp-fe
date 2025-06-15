@@ -1,13 +1,14 @@
 import authAPI from "@/lib/auth/auth.service";
 import { AccesDeniedError } from "@/lib/common/http.errors";
-import RegisterScheme, { RegisterData } from "@/schemes/register.scheme";
+import RegisterScheme from "@/schemes/register.scheme";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { RegisterData } from "@/types/auth";
 
 export async function POST(request: NextRequest) {
-    const body: RegisterData = await RegisterScheme.validate(await request.json());
+    const body = await RegisterScheme.validate(await request.json());
     try {
-        const registerResponse = await authAPI.register(body);
+        const registerResponse = await authAPI.register(body as RegisterData);
         const expiresAt = Date.now() + ((Number(process.env.NEXT_AUTH_TOKEN_EXP) || 8 * 60 * 60) * 1000);
 
         (await cookies()).set(`${process.env.AUTH_TOKEN_SECRET}`, registerResponse.data.token, {

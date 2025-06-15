@@ -5,7 +5,8 @@ import SubmitButton from "@/components/form/SubmitButton";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { AccesDeniedError } from "@/lib/common/http.errors";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import RegisterScheme, { RegisterData } from "@/schemes/register.scheme";
+import RegisterScheme from "@/schemes/register.scheme";
+import { RegisterData } from "@/types/auth";
 import { ProfileResponse } from "@/types/profile";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,6 +21,7 @@ const RegisterForm = () => {
   const isProfileRegisterRoute = pathname === `/${slug}/profiles/register`;
 
   const methods = useForm<RegisterData>({
+    // @ts-expect-error: Resolver typing mismatch between yupResolver and RegisterData
     resolver: yupResolver(RegisterScheme, {
       context: {
         requirePassword: !isProfileRegisterRoute,
@@ -64,6 +66,7 @@ const RegisterForm = () => {
   return (
     <FormProvider {...methods}>
       <form
+        // @ts-expect-error: handleSubmit type mismatch with onSubmit
         onSubmit={handleSubmit(onSubmit)}
         className="flex items-center flex-col w-full"
       >
