@@ -1,6 +1,6 @@
+import { RegisterData } from "@/schemes/register.scheme";
 import { LoginResponseType, RegisterResponseType } from "@/types/auth";
 import httpExternalApi from "../common/http.external.service";
-import { RegisterData } from "@/schemes/register.scheme";
 
 class AuthAPI {
     login = async (email: string, password: string): Promise<LoginResponseType> => httpExternalApi.httpPostPublic('/login', 'POST', { email, password });

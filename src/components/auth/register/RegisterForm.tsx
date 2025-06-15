@@ -5,8 +5,7 @@ import SubmitButton from "@/components/form/SubmitButton";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { AccesDeniedError } from "@/lib/common/http.errors";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import RegisterScheme from "@/schemes/register.scheme";
-import { RegisterData } from "@/types/auth";
+import RegisterScheme, { RegisterData } from "@/schemes/register.scheme";
 import { ProfileResponse } from "@/types/profile";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { usePathname, useRouter } from "next/navigation";
@@ -21,8 +20,11 @@ const RegisterForm = () => {
   const isProfileRegisterRoute = pathname === `/${slug}/profiles/register`;
 
   const methods = useForm<RegisterData>({
-    //eslint-disable-next-line
-    resolver: yupResolver(RegisterScheme),
+    resolver: yupResolver(RegisterScheme, {
+      context: {
+        requirePassword: !isProfileRegisterRoute,
+      },
+    }),
   });
 
   const { handleSubmit } = methods;
@@ -62,7 +64,6 @@ const RegisterForm = () => {
   return (
     <FormProvider {...methods}>
       <form
-        //eslint-disable-next-line
         onSubmit={handleSubmit(onSubmit)}
         className="flex items-center flex-col w-full"
       >
@@ -106,7 +107,7 @@ const RegisterForm = () => {
           type="date"
           fieldName="birth_date"
           label="Birthdate"
-          placeholder="31'-12-2000"
+          placeholder="31-12-2000"
         />
         <div className="flex justify-between w-full max-w-md mt-4">
           <button
