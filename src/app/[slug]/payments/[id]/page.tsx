@@ -1,12 +1,15 @@
 "use client";
 
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useOrganization } from "@/contexts/OrganizationContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const PaymentsPage = () => {
+  const { slug, data } = useOrganization();
   const { id } = useParams();
   const [attendance, setAttendance] = useState<Attendance | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,9 +47,35 @@ const PaymentsPage = () => {
   const total = Number(attendance?.service?.price ?? 0);
   const finalTotal = total - discount;
 
-  const handleExecuteTransaction = () => {
-    alert("Transacción ejecutada correctamente");
-    // Aquí podrías hacer un POST con los datos de transacción
+  const handleExecuteTransaction = async () => {
+    const requestBody = {
+      user_id: attendance.attended_by,
+      attendance_id: attendance.id,
+      attendance: {
+        discount: discount || 0,
+        extra_discount: Number(data?.metadata?.billing_configs?.extra_discount ?? 0 ),
+        user_amount: (Number(attendance?.service?.price ?? 0) - (discount || 0)) * (Number((data?.metadata?.billing_configs?.user_percentage ?? 0) / 100 ) || 1) - (Number(data?.metadata?.billing_configs?.extra_discount ?? 0) / 2 || 0),
+        organization_amount: (Number(attendance?.service?.price ?? 0) - (discount || 0)) * (Number((data?.metadata?.billing_configs?.organization_percentage ?? 0) / 100) || 1) - (Number(data?.metadata?.billing_configs?.extra_discount ?? 0) / 2 || 0),
+        total_amount: (Number(amountPaid)),
+        trx_number: transactionNumber,
+        payment_method: paymentType
+      },
+    };
+
+    try {
+      await toast
+        .promise(
+          httpInternalApi.httpPostPublic("/users/finish_attendance", "POST", requestBody),
+          {
+            loading: "Finishing attendance...",
+            success: "Finish attendance successfully starting.",
+            error: "An error occurred while finishing attendance.",
+          }
+        )
+        .then(() => (window.location.href = `/${slug}/transactions`));
+    } catch (error) {
+      console.log("Payment failed", error);
+    }
   };
 
   return (

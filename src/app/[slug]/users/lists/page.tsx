@@ -50,6 +50,8 @@ export default function AttendanceListsPage() {
     setIsLoading(false);
   };
 
+  console.log(users, queue);
+  
   useEffect(() => {
     fetchData();
   }, []);

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 const ITEMS_PER_PAGE = 7;
 
 const getStatusStyle = (status: string) => {
-  const base = "w-[40%] text-center px-3 py-1 rounded-full text-xs font-semibold capitalize inline-block";
+  const base = "w-[40%] sm:w-[55%] xs:w-[70%] text-center px-3 py-1 rounded-full text-xs font-semibold capitalize inline-block";
 
   switch (status) {
     case "pending":
@@ -55,13 +55,13 @@ const AttendanceTable = ({
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
             <tr>
-              <th className="px-4 py-3 w-60">Cliente</th>
-              <th className="px-4 py-3 w-80">Servicio</th>
+              <th className="px-4 py-3 w-70">Cliente</th>
+              <th className="px-4 py-3 w-100">Servicio</th>
               <th className="px-4 py-3 w-60">Profesional</th>
               <th className="px-4 py-3 w-60">Estado</th>
-              <th className="px-4 py-3 w-60">Fecha</th>
-              <th className="px-4 py-3 w-60">Precio</th>
-              <th className="px-4 py-3 w-60 text-center">Acciones</th>
+              <th className="px-4 py-3 w-70">Fecha</th>
+              <th className="px-4 py-3 w-50">Precio</th>
+              <th className="px-4 py-3 w-80 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>

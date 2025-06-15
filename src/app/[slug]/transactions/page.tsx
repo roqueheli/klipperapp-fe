@@ -38,7 +38,7 @@ const TransactionsPage = () => {
       }
 
       const response = (await httpInternalApi.httpGetPublic(
-        "/attendances",
+        "/attendances/today",
         params
       )) as Attendances;
       setAttendances(response.attendances);
@@ -53,7 +53,8 @@ const TransactionsPage = () => {
     const dataToStore = {
       attendanceId: attendance?.id,
       serviceId: attendance?.service_id,
-      userId: attendance?.profile_id,
+      userId: attendance?.attended_by,
+      profile: attendance?.profile,
       phoneNumber: attendance.profile?.phone_number,
     };
 
@@ -70,43 +71,43 @@ const TransactionsPage = () => {
     router.push(`/${slug}/users/attendances/${attendance.id}`);
   };
 
-  const pendingGroup = useMemo(
-    () =>
-      attendances
-        .filter((a) =>
-          ["pending", "processing", "completed"].includes(a.status)
-        )
-        .sort((a, b) => {
-          const dateA = new Date(a.created_at ?? 0).getTime();
-          const dateB = new Date(b.created_at ?? 0).getTime();
-          return dateB - dateA;
-        }),
-    [attendances]
-  );
+  const pendingGroup = useMemo(() => {
+    if (!Array.isArray(attendances)) return [];
 
-  const finishedGroup = useMemo(
-    () =>
-      attendances
-        .filter((a) => a.status === "finished")
-        .sort((a, b) => {
-          const dateA = new Date(a.created_at ?? 0).getTime();
-          const dateB = new Date(b.created_at ?? 0).getTime();
-          return dateB - dateA;
-        }),
-    [attendances]
-  );
+    return attendances
+      .filter((a) => ["pending", "processing", "completed"].includes(a.status))
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at ?? 0).getTime();
+        const dateB = new Date(b.created_at ?? 0).getTime();
+        return dateB - dateA;
+      });
+  }, [attendances]);
 
-  const canceledGroup = useMemo(
-    () =>
-      attendances
-        .filter((a) => ["canceled", "declined"].includes(a.status))
-        .sort((a, b) => {
-          const dateA = new Date(a.created_at ?? 0).getTime();
-          const dateB = new Date(b.created_at ?? 0).getTime();
-          return dateB - dateA;
-        }),
-    [attendances]
-  );
+  const finishedGroup = useMemo(() => {
+    if (!Array.isArray(attendances)) return [];
+    return attendances
+      .filter((a) => a.status === "finished")
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at ?? 0).getTime();
+        const dateB = new Date(b.created_at ?? 0).getTime();
+        return dateB - dateA;
+      });
+  }, [attendances]);
+
+  const canceledGroup = useMemo(() => {
+    if (!Array.isArray(attendances)) return [];
+
+    return attendances
+      .filter((a) => ["canceled", "declined"].includes(a.status))
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at ?? 0).getTime();
+        const dateB = new Date(b.created_at ?? 0).getTime();
+        return dateB - dateA;
+      });
+  }, [attendances]);
+
+  console.log(attendances);
+  
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -149,7 +150,7 @@ const TransactionsPage = () => {
       </div>
 
       <AttendanceTable
-        attendances={pendingGroup}
+        attendances={pendingGroup || []}
         title="🕐 En Proceso"
         onEdit={handleEditAttendance}
         onPay={handlePayAttendance}
@@ -157,7 +158,7 @@ const TransactionsPage = () => {
       />
 
       <AttendanceTable
-        attendances={finishedGroup}
+        attendances={finishedGroup || []}
         title="✅ Finalizados"
         onEdit={handleEditAttendance}
         onPay={handlePayAttendance}
@@ -165,7 +166,7 @@ const TransactionsPage = () => {
       />
 
       <AttendanceTable
-        attendances={canceledGroup}
+        attendances={canceledGroup || []}
         title="❌ Cancelados / Rechazados"
         onEdit={handleEditAttendance}
         onPay={handlePayAttendance}

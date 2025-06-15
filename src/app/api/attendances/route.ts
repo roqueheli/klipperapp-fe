@@ -25,7 +25,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-
 export async function POST(request: NextRequest) {
     const cookiesStore = cookies();
     const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
@@ -35,6 +34,24 @@ export async function POST(request: NextRequest) {
 
     try {
         const data = await attendancessAPI.createAttendance({ profile_id, organization_id, branch_id, service_id, attended_by }, token?.value || "");
+
+        if (!data.id) throw new Error('Creation attendance failure');
+
+        return NextResponse.json({ profile: data, status: 200 });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: "Failed to create an attendance", status: 404 }));
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    const cookiesStore = cookies();
+    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+    const body = await request.json();
+
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    try {
+        const data = await attendancessAPI.updateAttendance(body, token?.value || "");
 
         if (!data.id) throw new Error('Creation attendance failure');
 

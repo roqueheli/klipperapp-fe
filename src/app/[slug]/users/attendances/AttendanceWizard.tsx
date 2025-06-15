@@ -31,35 +31,13 @@ const AttendanceWizard = ({
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(
     null
   );
+  const [attendanceId, setAttendanceId] = useState<number | null>(null);
   const [profile, setProfile] = useState<Profile>();
   const [users, setUsers] = useState<UserResponse>();
   const [services, setServices] = useState<ServiceResponse>();
   const [isLoading, setIsLoading] = useState(true);
   const [hasStoredData, setHasStoredData] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("attendanceInfo");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (
-          parsed?.profile &&
-          parsed?.selectedUserId !== undefined &&
-          parsed?.selectedServiceId !== undefined
-        ) {
-          setProfile(parsed.profile);
-          setSelectedUserId(parsed.selectedUserId);
-          setSelectedServiceId(parsed.selectedServiceId);
-          setHasStoredData(true);
-          localStorage.removeItem("attendanceInfo");
-          setStep(3); // va directo al paso 3 si ya hay user y servicio seleccionados
-        }
-      } catch (e) {
-        console.error("Error parsing attendanceInfo:", e);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     const storedProfile = localStorage.getItem("userAttendance");
@@ -73,12 +51,39 @@ const AttendanceWizard = ({
           parsed?.phone_number &&
           parsed?.organization_id
         ) {
+          console.log("entré 1");
+
           localStorage.removeItem("userAttendance");
           setProfile(parsed);
           setStep(2);
         }
       } catch (e) {
         console.error("Error parsing userAttendance:", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("attendanceInfo");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (
+          parsed?.profile &&
+          parsed?.userId !== undefined &&
+          parsed?.serviceId !== undefined
+        ) {
+          localStorage.removeItem("attendanceInfo");
+          setAttendanceId(parsed.attendanceId);
+          setProfile(parsed.profile);
+          setSelectedUserId(parsed.userId);
+          setSelectedServiceId(parsed.serviceId);
+          setHasStoredData(true);
+          setPhone(parsed.profile?.phone_number);
+          setStep(2);
+        }
+      } catch (e) {
+        console.error("Error parsing attendanceInfo:", e);
       }
     }
   }, []);
@@ -121,14 +126,13 @@ const AttendanceWizard = ({
     }
 
     const requestBody = {
+      id: attendanceId || null,
       profile_id: profile?.id,
       organization_id: organization.id,
       branch_id: user?.branch_id,
       service_id: selectedServiceId,
       attended_by: selectedUserId !== 0 ? selectedUserId : null,
     };
-
-
 
     try {
       const response: CreateAttendanceResponse = await toast.promise(
@@ -294,12 +298,22 @@ const AttendanceWizard = ({
 
           <div className="mt-10 flex justify-between max-w-sm mx-auto">
             <button
-              onClick={() => setStep(1)}
-              className="bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold px-6 py-3 rounded-md shadow-sm transition"
+              onClick={() => {
+                if (!hasStoredData) {
+                  setStep(1);
+                }
+              }}
+              disabled={hasStoredData}
+              className={`${
+                hasStoredData
+                  ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100"
+              } font-semibold px-6 py-3 rounded-md shadow-sm transition`}
               aria-label="Volver"
             >
               Volver
             </button>
+
             <button
               disabled={selectedUserId === null}
               onClick={() => setStep(3)}
