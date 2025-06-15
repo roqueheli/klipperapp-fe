@@ -33,41 +33,39 @@ export default function AttendanceListsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    const usersParams = new URLSearchParams();
-    if (data?.id !== undefined) {
-      usersParams.set("organization_id", String(data.id));
-      usersParams.set("role_id", "3");
-    }
+const fetchData = useCallback(async () => {
+  setIsLoading(true);
+  const usersParams = new URLSearchParams();
+  if (data?.id !== undefined) {
+    usersParams.set("organization_id", String(data.id));
+    usersParams.set("role_id", "3");
+  }
 
-    usersParams.set(
-      "branch_id",
-      userData?.branch_id !== undefined ? String(userData.branch_id) : "1"
-    );
+  usersParams.set(
+    "branch_id",
+    userData?.branch_id !== undefined ? String(userData.branch_id) : "1"
+  );
 
-    try {
-      const [queueRes, usersRes] = await Promise.all([
-        httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
-        httpInternalApi.httpGetPublic(
-          "/attendances/by_usersworking_today",
-          usersParams
-        ),
-      ]);
-      setQueue(queueRes as User[]);
-      setUsers(usersRes as UserWithProfiles[]);
-    } catch (error) {
-      console.error("Error al cargar usuarios:", error);
-    }
-    setIsLoading(false);
-  }, [data?.id, userData?.branch_id]);
+  try {
+    const [queueRes, usersRes] = await Promise.all([
+      httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
+      httpInternalApi.httpGetPublic(
+        "/attendances/by_usersworking_today",
+        usersParams
+      ),
+    ]);
+    setQueue(queueRes as User[]);
+    setUsers(usersRes as UserWithProfiles[]);
+  } catch (error) {
+    console.error("Error al cargar usuarios:", error);
+  }
+  setIsLoading(false);
+}, [data?.id, userData?.branch_id]);
+
 
   useEffect(() => {
-    const load = async () => {
-      await fetchData();
-    };
-    load();
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const handleClick = (
     userId: number,
@@ -208,7 +206,8 @@ export default function AttendanceListsPage() {
                             isClickable &&
                             handleClick(user.user.id, user.user.name, {
                               id: att.id,
-                              attendance_id: (att as AttendanceProfile).attendance_id,
+                              attendance_id: (att as AttendanceProfile)
+                                .attendance_id,
                               name: att.name,
                               status: att.status as
                                 | "pending"
