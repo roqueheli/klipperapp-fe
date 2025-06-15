@@ -10,7 +10,7 @@ interface AttendanceModalProps {
     id: number;
     name: string;
     status: "pending" | "processing" | "finished";
-  };
+  } | null;
   userName: string;
   onStart: () => void;
   onPostpone: () => void;
@@ -87,18 +87,18 @@ export default function AttendanceModal({
           </p>
           <p className="text-sm">
             <span className="font-semibold text-[--accent-pink]">Cliente:</span>{" "}
-            <span className="italic">{att.name}</span>
+            <span className="italic">{att?.name}</span>
           </p>
           <p
             className={`inline-block px-3 py-1 rounded-full text-xs font-semibold select-none ${
-              statusColors[att.status]
+              statusColors[att?.status || "pending"]
             }`}
           >
-            Estado: {att.status.charAt(0).toUpperCase() + att.status.slice(1)}
+            Estado: {att?.status.charAt(0).toUpperCase() + (att?.status.slice(1) || "pending")}
           </p>
         </div>
 
-        {att.status === "pending" && (
+        {att?.status === "pending" && (
           <div className="flex justify-end space-x-3">
             {userData?.role_id !== 3 && (
               <>
@@ -125,7 +125,7 @@ export default function AttendanceModal({
           </div>
         )}
 
-        {att.status === "processing" && (
+        {att?.status === "processing" && (
           <div className="flex justify-end">
             <button
               onClick={onFinish}
@@ -136,7 +136,7 @@ export default function AttendanceModal({
           </div>
         )}
 
-        {att.status === "finished" && (
+        {att?.status === "finished" && (
           <p className="text-center text-sm italic text-gray-500 dark:text-gray-400 mt-4">
             Esta atención ya ha sido finalizada.
           </p>

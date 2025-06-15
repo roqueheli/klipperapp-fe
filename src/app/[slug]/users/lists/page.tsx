@@ -8,8 +8,15 @@ import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { User, UserWithProfiles } from "@/types/user";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
+export interface AttendanceProfile {
+  id: number;
+  attendance_id?: number;
+  name: string;
+  status: "pending" | "processing" | "finished";
+}
 
 export default function AttendanceListsPage() {
   const router = useRouter();
@@ -18,29 +25,34 @@ export default function AttendanceListsPage() {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{ userId: number; userName: string; } | null>(null);
-  const [selectedAtt, setSelectedAtt] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<{
+    userId: number;
+    userName: string;
+  } | null>(null);
+  const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [isLoading, setIsLoading] = useState(true);
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     const usersParams = new URLSearchParams();
     if (data?.id !== undefined) {
       usersParams.set("organization_id", String(data.id));
-      usersParams.set("role_id", String("3"));
+      usersParams.set("role_id", "3");
     }
 
-    if (userData?.branch_id !== undefined) {
-      usersParams.set("branch_id", String(userData.branch_id));
-    } else {
-      usersParams.set("branch_id", String("1"));
-    }
+    usersParams.set(
+      "branch_id",
+      userData?.branch_id !== undefined ? String(userData.branch_id) : "1"
+    );
 
     try {
       const [queueRes, usersRes] = await Promise.all([
         httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
-        httpInternalApi.httpGetPublic("/attendances/by_usersworking_today", usersParams),
+        httpInternalApi.httpGetPublic(
+          "/attendances/by_usersworking_today",
+          usersParams
+        ),
       ]);
       setQueue(queueRes as User[]);
       setUsers(usersRes as UserWithProfiles[]);
@@ -48,13 +60,24 @@ export default function AttendanceListsPage() {
       console.error("Error al cargar usuarios:", error);
     }
     setIsLoading(false);
-  };
-  
+  }, [data?.id, userData?.branch_id]);
+
   useEffect(() => {
     fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    const load = async () => {
+      await fetchData();
+    };
+    load();
   }, []);
 
-  const handleClick = (userId: number, userName: string, att: any) => {
+  const handleClick = (
+    userId: number,
+    userName: string,
+    att: AttendanceProfile
+  ) => {
     setSelectedUser({ userId, userName });
     setSelectedAtt(att);
     setModalOpen(true);
@@ -123,12 +146,6 @@ export default function AttendanceListsPage() {
     }
   };
 
-  // const filteredUsers =
-  //   userData?.role_id === 3
-  //     ? users.filter((u) => u.user.id === userData.id)
-  //     : users;
-
-
   if (isLoading) return <LoadingSpinner />;
 
   return (
@@ -149,15 +166,14 @@ export default function AttendanceListsPage() {
           </h2>
           <ul className="space-y-3">
             {queue.length > 0 ? (
-              queue
-                .map((user) => (
-                  <li
-                    key={user.id}
-                    className="rounded-md bg-[--background] text-[--foreground] p-3 shadow hover:bg-[--menu-hover-bg] transition-colors text-sm"
-                  >
-                    {user.name}
-                  </li>
-                ))
+              queue.map((user) => (
+                <li
+                  key={user.id}
+                  className="rounded-md bg-[--background] text-[--foreground] p-3 shadow hover:bg-[--menu-hover-bg] transition-colors text-sm"
+                >
+                  {user.name}
+                </li>
+              ))
             ) : (
               <li className="text-sm italic text-[--soft-white]/60">
                 No hay profesionales sin clientes.
@@ -194,7 +210,15 @@ export default function AttendanceListsPage() {
                           key={att.id}
                           onClick={() =>
                             isClickable &&
-                            handleClick(user.user.id, user.user.name, att)
+                            handleClick(user.user.id, user.user.name, {
+                              id: att.id,
+                              attendance_id: (att as AttendanceProfile).attendance_id,
+                              name: att.name,
+                              status: att.status as
+                                | "pending"
+                                | "processing"
+                                | "finished",
+                            })
                           }
                           className={`mb-5 flex items-center space-x-3 rounded-md p-3 text-xs text-[--foreground] shadow-[0_2px_8px_rgba(61,217,235,0.3)] transition-shadow select-none ${
                             isClickable
@@ -263,7 +287,7 @@ export default function AttendanceListsPage() {
       <AttendanceModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        att={selectedAtt}
+        att={selectedAtt || null}
         userName={selectedUser?.userName || ""}
         onStart={handleStart}
         onPostpone={handlePostpone}

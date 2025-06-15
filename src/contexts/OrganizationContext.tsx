@@ -2,7 +2,7 @@
 
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Organization } from "@/types/organization";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 interface OrganizationContextType {
   data: Organization | null;
@@ -44,8 +44,11 @@ export function OrganizationProvider({
 
     const loadData = async () => {
       try {
-        const data = await httpInternalApi.httpGetPublic<Organization>("/organizations", new URLSearchParams({slug}));
-       
+        const data = await httpInternalApi.httpGetPublic<Organization>(
+          "/organizations",
+          new URLSearchParams({ slug })
+        );
+
         setState((prev) => ({
           ...prev,
           data,
@@ -63,18 +66,20 @@ export function OrganizationProvider({
     loadData();
   }, [slug, initialData]);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const data = await httpInternalApi.httpGetPublic<Organization>("/organizations", new URLSearchParams({slug}));
-    
-      setState({
+      const data = await httpInternalApi.httpGetPublic<Organization>(
+        "/organizations",
+        new URLSearchParams({ slug })
+      );
+
+      setState((prev) => ({
+        ...prev,
         data,
-        slug,
         loading: false,
         error: null,
-        refresh,
-      });
+      }));
     } catch (err) {
       setState((prev) => ({
         ...prev,
@@ -82,12 +87,12 @@ export function OrganizationProvider({
         loading: false,
       }));
     }
-  };
+  }, [slug]);
 
   // Actualizamos la función refresh en el estado
   useEffect(() => {
     setState((prev) => ({ ...prev, refresh }));
-  }, [slug, refresh]);
+  }, [refresh]);
 
   return (
     <OrganizationContext.Provider value={state}>
