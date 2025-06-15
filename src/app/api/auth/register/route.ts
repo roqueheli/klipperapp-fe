@@ -1,7 +1,6 @@
 import authAPI from "@/lib/auth/auth.service";
 import { AccesDeniedError } from "@/lib/common/http.errors";
-import RegisterScheme from "@/schemes/register.scheme";
-import { RegisterData } from "@/types/auth";
+import RegisterScheme, { RegisterData } from "@/schemes/register.scheme";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -26,7 +25,7 @@ export async function POST(request: NextRequest) {
         if (error instanceof AccesDeniedError) {
             return new Response(JSON.stringify({ error: "Access Denied " + error }), { status: 403 });
         } else {
-            return new Response(JSON.stringify({ error: "Internal server error " + error}), { status: 500 });
+            return new Response(JSON.stringify({ error: "Internal server error " + error }), { status: 500 });
         }
     }
 }

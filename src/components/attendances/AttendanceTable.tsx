@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 const ITEMS_PER_PAGE = 7;
 
 const getStatusStyle = (status: string) => {
-  const base = "w-[40%] sm:w-[55%] xs:w-[70%] text-center px-3 py-1 rounded-full text-xs font-semibold capitalize inline-block";
+  const base = "w-[40%] sm:w-[60%] xs:w-[70%] text-center px-3 py-1 rounded-full text-xs font-semibold capitalize inline-block";
 
   switch (status) {
     case "pending":

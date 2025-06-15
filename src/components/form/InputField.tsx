@@ -25,6 +25,7 @@ const InputField = ({
     register,
     formState: { errors },
   } = useFormContext();
+
   const fieldError = errors[fieldName]?.message as string | undefined;
 
   return (
@@ -35,7 +36,7 @@ const InputField = ({
         type={type}
         className="rounded-md p-2 bg-transparent border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all"
         placeholder={placeholder ?? ""}
-        value={value}
+        defaultValue={value}
         onChange={onChange}
         disabled={disabled}
       />
