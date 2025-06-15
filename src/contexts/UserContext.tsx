@@ -48,7 +48,7 @@ export function UserProvider({
       } catch (err) {
         setState((prev) => ({
           ...prev,
-          error: "Failed to load user data",
+          error: "Failed to load user data " + err,
           loading: false,
         }));
       }
@@ -70,7 +70,7 @@ export function UserProvider({
     } catch (err) {
       setState((prev) => ({
         ...prev,
-        error: "Failed to refresh user data",
+        error: "Failed to refresh user data " + err,
         loading: false,
       }));
     }

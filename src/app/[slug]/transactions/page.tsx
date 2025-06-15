@@ -106,9 +106,6 @@ const TransactionsPage = () => {
       });
   }, [attendances]);
 
-  console.log(attendances);
-  
-
   if (isLoading) return <LoadingSpinner />;
 
   return (

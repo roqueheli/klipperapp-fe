@@ -13,6 +13,6 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(response);
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Users attendances get failure", status: 404 }));
+        return new Response(JSON.stringify({ error: "Users attendances get failure: " + error, status: 404 }));
     }
 }

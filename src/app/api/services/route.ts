@@ -21,6 +21,6 @@ export async function GET(request: NextRequest) {
             status: 200,
         });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Service not found", status: 404 }));
+        return new Response(JSON.stringify({ error: "Service not found " + error, status: 404 }));
     }
 }

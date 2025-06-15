@@ -16,6 +16,6 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ profile: data, status: 200 });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Customer not found", status: 404 }));
+        return new Response(JSON.stringify({ error: "Customer not found " + error, status: 404 }));
     }
 }

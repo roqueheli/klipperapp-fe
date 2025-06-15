@@ -8,7 +8,7 @@ const NavBarContainer = async () => {
 
         return <NavBar auth_token={auth_token?.value} />;
     } catch (err) {
-        throw new Error("Authentication token not found");
+        throw new Error("Authentication token not found " + err);
     }
 };
 

@@ -16,6 +16,6 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ profile: data, status: 200 });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Failed to register a new profile", status: 404 }));
+        return new Response(JSON.stringify({ error: "Failed to register a new profile " + error, status: 404 }));
     }
 }

@@ -1,14 +1,12 @@
 "use client";
 
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { useOrganization } from "@/contexts/OrganizationContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const AttendanceDetailPage = () => {
-  const { slug } = useOrganization();
   const { id } = useParams();
   const router = useRouter();
   const [attendance, setAttendance] = useState<Attendance | null>(null);
