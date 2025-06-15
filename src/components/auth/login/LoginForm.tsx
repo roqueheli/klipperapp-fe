@@ -6,6 +6,7 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import LoginScheme from "@/schemes/login.scheme";
 import { FormData } from "@/types/auth.d";
 import { yupResolver } from "@hookform/resolvers/yup";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -89,12 +90,12 @@ const LoginForm = () => {
         </div>
 
         <div className="text-sm text-center text-gray-400 w-full">
-          <a
+          <Link
             href="/forgot-password"
             className="hover:underline text-electric-blue block w-full text-center"
           >
             ¿Olvidaste tu contraseña?
-          </a>
+          </Link>
         </div>
 
         {/* <div className="text-sm text-center text-gray-400 w-full">

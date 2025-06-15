@@ -21,6 +21,6 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ organization });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Organization not found", status: 404 }));
+        return new Response(JSON.stringify({ error: "Organization not found " + error, status: 404 }));
     }
 }

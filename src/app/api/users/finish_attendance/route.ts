@@ -16,6 +16,6 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ profile: data, status: 200 });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Error starting day failed", status: 404 }));
+        return new Response(JSON.stringify({ error: "Error starting day failed " + error, status: 404 }));
     }
 }

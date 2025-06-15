@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -31,19 +32,19 @@ const Footer = () => {
           </h3>
           <ul className="space-y-2">
             <li>
-              <a href="/about" className="hover:text-electric-blue">
+              <Link href="/about" className="hover:text-electric-blue">
                 Sobre nosotros
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/features" className="hover:text-electric-blue">
+              <Link href="/features" className="hover:text-electric-blue">
                 Características
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/support" className="hover:text-electric-blue">
+              <Link href="/support" className="hover:text-electric-blue">
                 Soporte
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

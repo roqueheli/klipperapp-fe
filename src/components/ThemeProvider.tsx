@@ -1,6 +1,5 @@
 "use client";
 
-import { useOrganization } from "@/contexts/OrganizationContext";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
@@ -25,7 +24,6 @@ export default function ThemeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { data } = useOrganization();
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {

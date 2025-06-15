@@ -3,9 +3,7 @@
 import RegisterForm from "@/components/auth/register/RegisterForm";
 import { useOrganization } from "@/contexts/OrganizationContext";
 
-type Props = {};
-
-const ProfileRegisterPage = (props: Props) => {
+const ProfileRegisterPage = () => {
   const { data } = useOrganization();
 
   return (

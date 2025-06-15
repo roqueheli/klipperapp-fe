@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // await authAPI.logout(token);
         (await cookieStore).set(process.env.AUTH_TOKEN_SECRET || '', '', {
             expires: new Date(0), // Fecha en el pasado
             httpOnly: true,
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         return NextResponse.json(
-            { error: "Internal server error" },
+            { error: "Internal server error" + error },
             { status: 500 }
         );
     }

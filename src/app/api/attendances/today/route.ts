@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
             status: 200,
         });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Attendances get failure", status: 404 }));
+        return new Response(JSON.stringify({ error: "Attendances get failure " + error, status: 404 }));
     }
 }
 

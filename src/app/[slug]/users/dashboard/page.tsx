@@ -61,11 +61,6 @@ export default function DashboardPage() {
     fetchData();
   }, [data?.id, userData]);
 
-  const filteredAttendances = useMemo(() => {
-    if (!filterStatus) return attendances;
-    return attendances.filter((a) => a.status === filterStatus);
-  }, [attendances, filterStatus]);
-
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     attendances.forEach((a) => {

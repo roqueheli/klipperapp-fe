@@ -54,7 +54,7 @@ export function OrganizationProvider({
       } catch (err) {
         setState((prev) => ({
           ...prev,
-          error: "Failed to load organization data",
+          error: "Failed to load organization data " + err,
           loading: false,
         }));
       }
@@ -78,7 +78,7 @@ export function OrganizationProvider({
     } catch (err) {
       setState((prev) => ({
         ...prev,
-        error: "Failed to refresh data",
+        error: "Failed to refresh data " + err,
         loading: false,
       }));
     }

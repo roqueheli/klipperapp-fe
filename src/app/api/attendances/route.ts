@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
             status: 200,
         });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Attendances get failure", status: 404 }));
+        return new Response(JSON.stringify({ error: "Attendances get failure " + error, status: 404 }));
     }
 }
 
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ profile: data, status: 200 });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Failed to create an attendance", status: 404 }));
+        return new Response(JSON.stringify({ error: "Failed to create an attendance " + error, status: 404 }));
     }
 }
 
@@ -57,6 +57,6 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json({ profile: data, status: 200 });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Failed to create an attendance", status: 404 }));
+        return new Response(JSON.stringify({ error: "Failed to create an attendance " + error, status: 404 }));
     }
 }

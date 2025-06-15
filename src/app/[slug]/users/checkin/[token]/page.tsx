@@ -43,6 +43,7 @@ const AutoCheckinPage = ({ params }: { params: { token: string } }) => {
 
         router.push(`/${slug}/users/checkin`);
       } catch (error) {
+        console.log(error);
         router.push(`/${slug}/users/checkin`);
       }
     };
