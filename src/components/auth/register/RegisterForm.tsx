@@ -6,7 +6,7 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { AccesDeniedError } from "@/lib/common/http.errors";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import RegisterScheme from "@/schemes/register.scheme";
-import { RegisterData } from "@/types/auth.d";
+import { RegisterData } from "@/types/auth";
 import { ProfileResponse } from "@/types/profile";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { usePathname, useRouter } from "next/navigation";
@@ -21,6 +21,7 @@ const RegisterForm = () => {
   const isProfileRegisterRoute = pathname === `/${slug}/profiles/register`;
 
   const methods = useForm<RegisterData>({
+    //eslint-disable-next-line
     resolver: yupResolver(RegisterScheme),
   });
 
@@ -61,6 +62,7 @@ const RegisterForm = () => {
   return (
     <FormProvider {...methods}>
       <form
+        //eslint-disable-next-line
         onSubmit={handleSubmit(onSubmit)}
         className="flex items-center flex-col w-full"
       >

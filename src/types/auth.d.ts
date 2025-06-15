@@ -8,8 +8,8 @@ export type RegisterResponseType = {
 
 export type RegisterData = {
     email: string;
-    password?: string;
-    confirm_password?: string;
+    password?: string | null;
+    confirm_password?: string | null;
     name: string;
     phone_number: string;
     birth_date: Date;

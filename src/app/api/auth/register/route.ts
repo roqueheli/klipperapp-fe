@@ -1,6 +1,7 @@
 import authAPI from "@/lib/auth/auth.service";
 import { AccesDeniedError } from "@/lib/common/http.errors";
-import RegisterScheme, { RegisterData } from "@/schemes/register.scheme";
+import RegisterScheme from "@/schemes/register.scheme";
+import { RegisterData } from "@/types/auth";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
