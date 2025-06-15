@@ -39,7 +39,7 @@ const LoginForm = () => {
         }
       )
       .then(() => {
-        if(!redirectPath) {
+        if (!redirectPath) {
           window.location.href = `/${slug}/users`;
         } else {
           router.replace(redirectPath);
@@ -60,45 +60,52 @@ const LoginForm = () => {
     <FormProvider {...methods}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col items-center w-full gap-6 text-black dark:text-white"
+        className="flex flex-col items-center justify-center w-full gap-5 sm:gap-6 text-black dark:text-white"
       >
-        <InputField
-          type="email"
-          fieldName="email"
-          label="Email"
-          placeholder="jhondoe@interviewai.com"
-        />
-        <InputField
-          type="password"
-          fieldName="password"
-          label="Password"
-          placeholder="********"
-        />
+        <div className="w-[65%] flex items-center justify-center bg-transparent">
+          <InputField
+            type="email"
+            fieldName="email"
+            label="Email"
+            placeholder={`jhondoe@${slug}.com`}
+          />
+        </div>
 
-        <SubmitButton
-          label="Iniciar sesión"
-          onSubmit={onSubmit}
-          styles="cursor-pointer bg-white text-black hover:bg-white hover:text-electric-blue transition-all font-semibold py-2 px-4 rounded-md mt-4"
-        />
+        <div className="w-[65%] flex items-center justify-center">
+          <InputField
+            type="password"
+            fieldName="password"
+            label="Password"
+            placeholder="********"
+          />
+        </div>
 
-        <div className="text-sm text-center text-gray-400">
+        <div className="w-[65%] flex items-center justify-center">
+          <SubmitButton
+            label="Iniciar sesión"
+            onSubmit={onSubmit}
+            styles="text-center md:w-[57%] sm:w-full bg-white text-black hover:bg-white hover:text-electric-blue transition-all font-semibold py-2 px-4 rounded-md mt-2"
+          />
+        </div>
+
+        <div className="text-sm text-center text-gray-400 w-full">
           <a
             href="/forgot-password"
-            className="hover:underline text-electric-blue"
+            className="hover:underline text-electric-blue block w-full text-center"
           >
             ¿Olvidaste tu contraseña?
           </a>
         </div>
 
-        {/* <div className="text-sm text-center text-gray-400">
-          ¿Aún no tienes cuenta?{" "}
-          <a
-            href={`/${slug}/auth/register`}
-            className="hover:underline text-electric-blue"
-          >
-            Regístrate
-          </a>
-        </div> */}
+        {/* <div className="text-sm text-center text-gray-400 w-full">
+      ¿Aún no tienes cuenta?{" "}
+      <a
+        href={`/${slug}/auth/register`}
+        className="hover:underline text-electric-blue"
+      >
+        Regístrate
+      </a>
+    </div> */}
       </form>
     </FormProvider>
   );

@@ -3,16 +3,15 @@ export interface Organization {
     name: string;
     slug: string;
     metadata: {
-        menus?: Array
-        primaryColor?: string;
-        secondaryColor?: string;
-        accentColor?: string;
-        favicon?: string;
-        logo?: string;
-        fonts?: {
-            primary?: string;
-            secondary?: string;
-        };
+        billing_configs?: {
+            extra_discount?: number;
+            organization_percentage?: number,
+            user_percentage?: number
+        }
+        media_configs?: {
+            logo_url?: string,
+            favicon?: string
+		}
     } | null;
     bio?: string | null;
     created_at: string;

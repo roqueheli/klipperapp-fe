@@ -1,11 +1,13 @@
 "use client";
 
-import { useTheme } from "@/components/ThemeProvider"; // Asegúrate que el path sea correcto
+import { useTheme } from "@/components/ThemeProvider";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import { useFilteredMenus } from "@/hooks/useFilteredMenus";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
+import clsx from "clsx";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -31,13 +33,13 @@ const NavBar = ({ auth_token }: NavBarProps) => {
       setRoute(`/auth/login`);
       router.replace(`/${slug}/auth/login`);
     }
-  }, [router]);
-  
+  }, [auth_token, router, slug]);
+
   const initials = userData?.name
-    .split(" ") // separa por espacios
-    .filter(Boolean) // elimina elementos vacíos
-    .map((word) => word[0]) // toma la primera letra de cada palabra
-    .slice(0, 2) // toma como máximo las dos primeras
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word[0])
+    .slice(0, 2)
     .join("")
     .toUpperCase();
 
@@ -60,6 +62,7 @@ const NavBar = ({ auth_token }: NavBarProps) => {
       });
   };
 
+  // Cerrar menú con click fuera y tecla Escape
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -67,29 +70,45 @@ const NavBar = ({ auth_token }: NavBarProps) => {
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
-  // fixed top-0 left-0 
-
   return (
-    <nav className="w-full z-50 px-6 py-2 flex justify-between items-center backdrop-blur-md bg-[rgba(255,255,255,0.7)] dark:bg-[rgba(18,18,18,0.7)] border-b border-[rgba(255,255,255,0.3)] dark:border-[rgba(255,255,255,0.1)] text-[var(--foreground)]">
+    <nav className="w-full z-50 px-6 py-3 flex justify-between items-center backdrop-blur-md bg-[rgba(255,255,255,0.85)] dark:bg-[rgba(18,18,18,0.85)] border-b border-[rgba(255,255,255,0.15)] dark:border-[rgba(255,255,255,0.05)] text-[var(--foreground)] fixed top-0 left-0">
       <Link
         href={`/${slug}${route}`}
-        className="text-xl font-bold transition-colors duration-200 hover:text-[var(--foreground)]"
+        className="ml-4 flex items-center text-xl font-extrabold tracking-wide hover:text-[var(--foreground)] transition-colors duration-200"
+        aria-label="Home"
       >
-        {data?.name}
+        <Image
+          src="/russo_logo.jpeg"
+          alt="KlipperApp Logo"
+          width={45}
+          height={45}
+          className="rounded-full"
+        />
+        <span className="ml-4">{data?.name}</span>
       </Link>
-      <div className="flex items-center gap-4">
+
+      <div className="flex items-center gap-5">
         {/* Toggle theme */}
         <button
           onClick={toggleTheme}
-          className="text-2xl focus:outline-none hover:opacity-80 transition cursor-pointer"
+          className="text-3xl focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[var(--accent)] rounded-md transition cursor-pointer"
           title="Toggle dark mode"
-          style={{ color: "var(--foreground)" }}
+          aria-pressed={theme === "dark"}
+          aria-label="Toggle dark mode"
         >
           {theme === "dark" ? "☀️" : "🌙"}
         </button>
@@ -99,77 +118,71 @@ const NavBar = ({ auth_token }: NavBarProps) => {
           <div className="relative" ref={menuRef}>
             <button
               onClick={toggleMenu}
-              className="w-12 h-12 rounded-full flex items-center justify-center font-bold"
-              style={{
-                backgroundColor: "var(--cyber-gray)",
-                color: "white",
-              }}
+              className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[var(--accent)] transition-colors"
+              style={{ backgroundColor: "var(--cyber-gray)" }}
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
+              aria-label="User menu"
+              tabIndex={0}
             >
               {initials}
             </button>
-            {menuOpen && (
-              <div
-                className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg z-10"
-                style={{
-                  backgroundColor: "var(--menu-bg)",
-                  border: "1px solid var(--menu-border)",
-                }}
-              >
-                <ul className="py-2">
-                  {filteredMenus.map(({ path, label }, index) => {
-                    const isDisabledAttention =
-                      path.includes("/users/attendances") &&
-                      isWorkingTodayEmpty;
 
-                    return (
-                      <li key={label}>
-                        {isDisabledAttention ? (
-                          <div className="block px-4 py-2 rounded-md cursor-not-allowed text-electric-blue/50 bg-electric-blue/5 dark:bg-electric-blue/10 relative group">
-                            {label}
-                            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black text-red-500 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                              Debe registrar asistencia primero
-                            </div>
-                          </div>
-                        ) : (
-                          <Link
-                            href={path}
-                            className="block px-4 py-2 rounded-md transition-colors duration-200 text-[var(--foreground)] hover:bg-[var(--menu-hover-bg)] hover:text-[var(--hover-foreground)]"
-                            onMouseEnter={(e) =>
-                              ((e.target as HTMLElement).style.backgroundColor =
-                                "var(--menu-hover-bg)")
-                            }
-                            onMouseLeave={(e) =>
-                              ((e.target as HTMLElement).style.backgroundColor =
-                                "transparent")
-                            }
-                          >
-                            {label}
-                          </Link>
-                        )}
-                      </li>
-                    );
-                  })}
+            <ul
+              className={clsx(
+                "absolute right-0 mt-2 w-48 rounded-lg shadow-lg z-20 border border-[var(--menu-border)] bg-[var(--menu-bg)] transition-opacity duration-200",
+                menuOpen
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 pointer-events-none"
+              )}
+              role="menu"
+              aria-orientation="vertical"
+              aria-labelledby="user-menu-button"
+            >
+              {filteredMenus.map(({ path, label }) => {
+                const isDisabledAttention =
+                  path.includes("/users/attendances") && isWorkingTodayEmpty;
 
-                  <li>
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      className="text-left w-full block px-4 py-2 rounded-md transition-colors duration-200 text-[var(--foreground)] hover:bg-[var(--menu-hover-bg)] hover:text-[var(--hover-foreground)]"
-                      onMouseEnter={(e) =>
-                        ((e.target as HTMLElement).style.backgroundColor =
-                          "var(--menu-hover-bg)")
-                      }
-                      onMouseLeave={(e) =>
-                        ((e.target as HTMLElement).style.backgroundColor =
-                          "transparent")
-                      }
-                    >
-                      Logout
-                    </button>
+                return (
+                  <li key={label} role="none">
+                    {isDisabledAttention ? (
+                      <div
+                        className="block px-4 py-2 rounded-md cursor-not-allowed text-electric-blue/50 bg-electric-blue/10 relative group select-none"
+                        role="menuitem"
+                        aria-disabled="true"
+                        tabIndex={-1}
+                      >
+                        {label}
+                        <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black text-red-500 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
+                          Debe registrar asistencia primero
+                        </span>
+                      </div>
+                    ) : (
+                      <Link
+                        href={path}
+                        className="block px-4 py-2 rounded-sm text-white shadow-md hover:scale-105 hover:shadow-xl dark:from-blue-700 dark:to-blue-900 transition-all duration-200"
+                        role="menuitem"
+                        tabIndex={0}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {label}
+                      </Link>
+                    )}
                   </li>
-                </ul>
-              </div>
-            )}
+                );
+              })}
+              <li role="none">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-left w-full block px-4 py-2 text-white hadow-md hover:scale-105 hover:shadow-xl dark:from-blue-700 dark:to-blue-900 transition-all duration-200"
+                  role="menuitem"
+                  tabIndex={0}
+                >
+                  Logout
+                </button>
+              </li>
+            </ul>
           </div>
         )}
       </div>

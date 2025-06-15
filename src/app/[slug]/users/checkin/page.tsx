@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
@@ -15,19 +16,21 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const CheckinQRPage = () => {
-  const { data } = useOrganization();
+const CheckinPage = () => {
+  const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isWorkingTodayEmpty, setIsWorkingTodayEmpty] = useState(false);
-  const router = useRouter();
   const [originalSelectedUserIds, setOriginalSelectedUserIds] = useState<
     Set<number>
   >(new Set());
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       const usersParams = new URLSearchParams();
       if (data?.id !== undefined) {
         usersParams.set("organization_id", String(data.id));
@@ -67,6 +70,7 @@ const CheckinQRPage = () => {
       } catch (error) {
         console.error("Error al cargar los usuarios:", error);
       }
+      setIsLoading(false);
     };
 
     fetchData();
@@ -90,10 +94,7 @@ const CheckinQRPage = () => {
       } else {
         setAvailableUsers(users);
       }
-    }
-
-    // Movimiento entre listas
-    else {
+    } else {
       const sourceList =
         source.droppableId === "available" ? availableUsers : selectedUsers;
       const destList =
@@ -119,28 +120,46 @@ const CheckinQRPage = () => {
       return;
     }
 
-    const requests = usersToSend.map((u) => {
-      const uniqueToken = Date.now() + Math.floor(Math.random() * 1000);
-      const start_working_date = new Date(uniqueToken).toISOString();
+    try {
+      const loadingToastId = toast.loading("Procesando check-ins...");
 
-      const requestBody = {
-        organization_id: data?.id,
-        branch_id: userData?.branch_id,
-        id: u.id,
-        start_working_at: start_working_date,
-      };
+      const results = [];
+      for (const u of usersToSend) {
+        const uniqueToken = Date.now() + Math.floor(Math.random() * 1000);
+        const start_working_date = new Date(uniqueToken).toISOString();
 
-      return httpInternalApi
-        .httpPostPublic("/users/start_day", "POST", requestBody)
-        .then(() => ({ status: "fulfilled", user: u }))
-        .catch((error) => ({ status: "rejected", user: u, error }));
-    });
+        const requestBody = {
+          organization_id: data?.id,
+          branch_id: userData?.branch_id,
+          id: u.id,
+          start_working_at: start_working_date,
+        };
 
-    toast.promise(Promise.all(requests), {
-      loading: "Procesando check-ins...",
-      success: () => "Todos los check-ins completados.",
-      error: () => "Ocurrió un error al procesar algunos check-ins.",
-    });
+        try {
+          await httpInternalApi.httpPostPublic(
+            "/users/start_day",
+            "POST",
+            requestBody
+          );
+          results.push({ status: "fulfilled", user: u });
+        } catch (error) {
+          results.push({ status: "rejected", user: u, error });
+        }
+      }
+
+      toast.dismiss(loadingToastId);
+
+      if (results.some((result) => result.status === "rejected")) {
+        toast.error("Ocurrió un error al procesar algunos check-ins.");
+      } else {
+        toast.success("Todos los check-ins completados.");
+      }
+
+      return results;
+    } catch (error) {
+      toast.error("Ocurrió un error al procesar los check-ins.");
+      throw error;
+    }
   };
 
   const handleReset = () => {
@@ -149,32 +168,49 @@ const CheckinQRPage = () => {
     setSelectedUsers([]);
   };
 
+  if (isLoading) return <LoadingSpinner />;
+
   return (
-    <div className="flex flex-col w-full text-black dark:text-white">
+    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 p-4 sm:p-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mt-10 sm:mt-20 mb-6 sm:mb-8 text-left bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-md">
+        Check-in de Usuarios
+      </h1>
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex flex-1 flex-col md:flex-row overflow-y-auto">
-          {/* Orden de llegada */}
-          <div className="w-full md:w-1/2 p-4 border-r border-gray-300 dark:border-gray-700 flex flex-col">
-            <h2 className="text-xl font-bold mb-4">Orden de llegada</h2>
+        <div className="flex flex-col md:flex-row gap-6 sm:gap-8 flex-1">
+          {/* Lista Seleccionados */}
+          <section className="flex flex-col w-full md:w-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-green-700 dark:text-green-400">
+              Orden de llegada
+            </h2>
             <Droppable droppableId="selected">
               {(provided) => (
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-2 min-h-[300px] flex-1 overflow-auto"
+                  className="space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30 p-3 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100 dark:scrollbar-thumb-green-600 dark:scrollbar-track-green-800"
                 >
+                  {selectedUsers.length === 0 && (
+                    <li className="text-center text-green-500 italic">
+                      No hay usuarios seleccionados
+                    </li>
+                  )}
                   {selectedUsers.map((user, index) => (
                     <Draggable
                       key={user.id}
                       draggableId={`selected-${user.id}`}
                       index={index}
                     >
-                      {(provided) => (
+                      {(provided, snapshot) => (
                         <li
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className="p-3 bg-green-100 dark:bg-green-800 rounded shadow"
+                          className={`p-4 rounded-xl shadow-md cursor-grab select-none transition
+                          ${
+                            snapshot.isDragging
+                              ? "bg-green-300 dark:bg-green-700 shadow-lg scale-105"
+                              : "bg-green-100 dark:bg-green-800"
+                          }`}
                         >
                           {user.name}
                         </li>
@@ -186,14 +222,13 @@ const CheckinQRPage = () => {
               )}
             </Droppable>
 
-            {/* Botones de acción */}
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-col sm:flex-row flex-wrap justify-center gap-4">
               {selectedUsers.length > 0 &&
                 isWorkingTodayEmpty &&
                 isBeforeTwoPM() && (
                   <button
                     onClick={handleReset}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded"
+                    className="w-full sm:w-auto px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
                   >
                     Resetear lista
                   </button>
@@ -202,36 +237,48 @@ const CheckinQRPage = () => {
                 .length > 0 && (
                 <button
                   onClick={handleSend}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded"
+                  className="w-full sm:w-auto px-7 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
                 >
                   Guardar orden
                 </button>
               )}
             </div>
-          </div>
+          </section>
 
-          {/* Usuarios disponibles */}
-          <div className="w-full md:w-1/2 p-4 flex flex-col">
-            <h2 className="text-xl font-bold mb-4">Usuarios Disponibles</h2>
+          {/* Lista Disponibles */}
+          <section className="flex flex-col w-full md:w-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-gray-700 dark:text-gray-300">
+              Usuarios Disponibles
+            </h2>
             <Droppable droppableId="available">
               {(provided) => (
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-2 min-h-[300px] flex-1 overflow-auto"
+                  className="space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/40 p-3 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800"
                 >
+                  {availableUsers.length === 0 && (
+                    <li className="text-center italic text-gray-500 dark:text-gray-400">
+                      No hay usuarios disponibles
+                    </li>
+                  )}
                   {availableUsers.map((user, index) => (
                     <Draggable
                       key={user.id}
                       draggableId={`available-${user.id}`}
                       index={index}
                     >
-                      {(provided) => (
+                      {(provided, snapshot) => (
                         <li
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className="p-3 bg-gray-100 dark:bg-gray-800 rounded shadow"
+                          className={`p-4 rounded-xl shadow cursor-grab select-none transition
+                          ${
+                            snapshot.isDragging
+                              ? "bg-blue-300 dark:bg-blue-700 shadow-lg scale-105"
+                              : "bg-blue-100 dark:bg-blue-900"
+                          }`}
                         >
                           {user.name}
                         </li>
@@ -242,15 +289,15 @@ const CheckinQRPage = () => {
                 </ul>
               )}
             </Droppable>
-          </div>
+          </section>
         </div>
       </DragDropContext>
 
-      {/* Botón volver */}
-      <div className="p-6 flex justify-center border-t border-gray-300 dark:border-gray-700">
+      {/* Botón Volver */}
+      <div className="flex w-full items-center justify-center mt-6 sm:mt-10">
         <button
           onClick={() => router.back()}
-          className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-blue-400 transition"
+          className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
         >
           Volver
         </button>
@@ -259,4 +306,4 @@ const CheckinQRPage = () => {
   );
 };
 
-export default CheckinQRPage;
+export default CheckinPage;

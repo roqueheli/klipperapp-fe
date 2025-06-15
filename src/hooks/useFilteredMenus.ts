@@ -9,27 +9,27 @@ export const useFilteredMenus = (): MenuItem[] => {
 
     const defaultMenus: MenuItem[] = [
         {
-            label: "Asistencia",
+            label: "Registro de Entrada", // Antes: "Asistencia"
             path: `/${slug}/users/checkin`,
             allowedRoles: [1, 2],
         },
         {
-            label: "Atención",
+            label: "Gestión de Turnos", // Antes: "Atención"
             path: `/${slug}/users/attendances`,
             allowedRoles: [1, 2],
         },
         {
-            label: "Listas",
+            label: "Filas de atención", // Antes: "Listas"
             path: `/${slug}/users/lists`,
             allowedRoles: [1, 2, 3],
         },
         {
-            label: "Transacciones",
+            label: "Historial de Atenciones", // Antes: "Transacciones"
             path: `/${slug}/transactions`,
             allowedRoles: [1, 2],
         },
-                {
-            label: "Dashboard",
+        {
+            label: "Dashboard", // Opcional: "Estadísticas"
             path: `/${slug}/users/dashboard`,
             allowedRoles: [1, 2, 3],
         },

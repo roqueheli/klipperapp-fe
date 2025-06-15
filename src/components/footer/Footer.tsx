@@ -1,13 +1,22 @@
-// components/Footer.tsx
+import Image from "next/image";
+
 const Footer = () => {
   return (
     <footer className="w-full bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
         {/* Sección 1: Acerca de */}
         <div>
-          <h3 className="text-lg font-semibold text-electric-blue mb-2">
-            KlipperApp
-          </h3>
+          <div className="flex items-center mb-2">
+            <Image
+              src="/klipperapp.png"
+              alt="KlipperApp Logo"
+              width={32}
+              height={32}
+            />
+            <h3 className="ml-2 text-lg font-semibold text-electric-blue">
+              KlipperApp
+            </h3>
+          </div>
           <p>
             Plataforma de gestión para barberías, salones de belleza y spas.
             Asigna turnos, ordena al personal y optimiza la atención al cliente

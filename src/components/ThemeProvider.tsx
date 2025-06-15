@@ -25,7 +25,7 @@ export default function ThemeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { organization } = useOrganization();
+  const { data } = useOrganization();
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
@@ -47,14 +47,14 @@ export default function ThemeProvider({
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  useEffect(() => {
-    if (organization?.metadata?.primaryColor) {
-      document.documentElement.style.setProperty(
-        "--primary",
-        organization.metadata.primaryColor
-      );
-    }
-  }, [organization]);
+  // useEffect(() => {
+  //   if (data?.metadata?.primaryColor) {
+  //     document.documentElement.style.setProperty(
+  //       "--primary",
+  //       data.metadata.primaryColor
+  //     );
+  //   }
+  // }, [data]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));

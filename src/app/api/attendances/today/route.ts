@@ -10,13 +10,18 @@ export async function GET(request: NextRequest) {
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const response = await attendancessAPI.getAttendanceById(searchParams, token?.value);
+        const response = await attendancessAPI.getTodayAttendances(searchParams, token?.value);
+
+        if (response.length === 0) {
+            throw new Error('Attendances not found');
+        }
 
         return NextResponse.json({
             attendances: response,
             status: 200,
         });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Ticket not found", status: 404 }));
+        return new Response(JSON.stringify({ error: "Attendances get failure", status: 404 }));
     }
 }
+

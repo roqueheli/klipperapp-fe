@@ -28,7 +28,7 @@ const InputField = ({
   const fieldError = errors[fieldName]?.message as string | undefined;
 
   return (
-    <div className={`w-[57%] flex flex-col mt-4 ${styles ?? ""}`}>
+    <div className={`w-full flex flex-col mt-4 ${styles ?? ""}`}>
       <label className="mb-1">{label}</label>
       <input
         {...register(fieldName)}

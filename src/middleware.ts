@@ -3,7 +3,7 @@ import httpInternalApi from "./lib/common/http.internal.service";
 import { Organization } from "./types/organization";
 import { isValidOrganization } from "./utils/organization.utils";
 
-const protectedRoutes = ["dashboard", "users", "profiles", "attendances", "services"];
+const protectedRoutes = ["dashboard", "users", "profiles", "attendances", "services", "transactions"];
 const publicRoutes = ["login", "register"];
 
 export async function middleware(request: NextRequest) {
@@ -37,6 +37,14 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
         console.error("Middleware: Organization validation error", error);
     }
+    
+    // ❌ Si NO existe la organización, dejarlo pasar (para que la página lo maneje)
+    if (!organizationExists) return NextResponse.next();
+
+    if (token && pathname === `/${slug}` && !isAuthRoute) {
+
+        return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
+    }
 
     if (!token && request.nextUrl.pathname.includes("/users/checkin")) {
         return NextResponse.redirect(
@@ -48,13 +56,6 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
     }
 
-    // ❌ Si NO existe la organización, dejarlo pasar (para que la página lo maneje)
-    if (!organizationExists) return NextResponse.next();
-
-    if (token && pathname === `/${slug}` && !isAuthRoute) {
-        return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
-    }
-
     if (!token && pathname === `/${slug}` && !isAuthRoute) {
         return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
     }
@@ -64,7 +65,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (token && section && publicRoutes.includes(section)) {
-        return NextResponse.redirect(new URL(`/${slug}/user`, request.url));
+        return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
     }
 
     return NextResponse.next();
@@ -78,5 +79,6 @@ export const config = {
         "/:slug/profiles/:path*",
         "/:slug/attendances/:path*",
         "/:slug/services/:path*",
+        "/:slug/transactions/:path*",
     ],
 };

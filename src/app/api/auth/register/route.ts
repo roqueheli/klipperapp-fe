@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const { email, password, first_name, last_name, phone, birth_date } = await RegisterScheme.validate(await request.json());
     try {
         const registerResponse = await authAPI.register({ email, password, first_name, last_name, phone, birth_date });
-        const expiresAt = Date.now() + (Number(process.env.AUTH_TOKEN_EXP) || 60 * 60) * 1000;
+        const expiresAt = Date.now() + ((Number(process.env.NEXT_AUTH_TOKEN_EXP) || 8 * 60 * 60) * 1000);
 
         (await cookies()).set(`${process.env.AUTH_TOKEN_SECRET}`, registerResponse.data.token, {
             expires: expiresAt,
