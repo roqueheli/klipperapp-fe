@@ -63,10 +63,6 @@ export default function AttendanceListsPage() {
   }, [data?.id, userData?.branch_id]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  useEffect(() => {
     const load = async () => {
       await fetchData();
     };
