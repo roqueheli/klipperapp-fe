@@ -1,7 +1,7 @@
 import { cookies, headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
     try {
         const cookieStore = cookies();
         const header = headers();

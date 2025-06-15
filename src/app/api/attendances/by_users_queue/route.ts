@@ -2,7 +2,7 @@ import attendancessAPI from "@/lib/attendances/attendances.service";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
     const cookiesStore = cookies();
     const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
 
