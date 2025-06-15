@@ -1,5 +1,4 @@
-import { RegisterData } from "@/schemes/register.scheme";
-import { LoginResponseType, RegisterResponseType } from "@/types/auth";
+import { LoginResponseType, RegisterData, RegisterResponseType } from "@/types/auth";
 import httpExternalApi from "../common/http.external.service";
 
 class AuthAPI {
