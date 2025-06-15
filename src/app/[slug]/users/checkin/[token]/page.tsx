@@ -7,7 +7,13 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
-const AutoCheckinPage = ({ params }: { params: { token: string } }) => {
+interface AutoCheckinPageProps {
+  params: {
+    token: string;
+  };
+}
+
+const AutoCheckinPage = ({ params }: AutoCheckinPageProps) => {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const router = useRouter();
