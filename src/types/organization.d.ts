@@ -12,6 +12,7 @@ export interface Organization {
             logo_url?: string,
             favicon?: string
 		}
+        menus: [] | undefined
     } | null;
     bio?: string | null;
     created_at: string;
