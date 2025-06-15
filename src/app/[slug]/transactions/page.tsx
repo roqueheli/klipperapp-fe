@@ -17,9 +17,6 @@ const TransactionsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [selectedAttendance, setSelectedAttendance] =
-    useState<Attendance | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -178,53 +175,6 @@ const TransactionsPage = () => {
           ⬅ Volver
         </button>
       </div>
-      {isDialogOpen && selectedAttendance && (
-        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-[90%] max-w-lg">
-            <h2 className="text-2xl font-bold mb-4">
-              💳 Detalle de la Transacción
-            </h2>
-            <p>
-              <strong>Cliente:</strong> {selectedAttendance.profile?.name}
-            </p>
-            <p>
-              <strong>Servicio:</strong> {selectedAttendance.service?.name}
-            </p>
-            <p>
-              <strong>Profesional:</strong>{" "}
-              {selectedAttendance.attended_by_user?.name || "No asignado"}
-            </p>
-            <p>
-              <strong>Estado:</strong> {selectedAttendance.status}
-            </p>
-            <p>
-              <strong>Fecha:</strong>{" "}
-              {new Date(selectedAttendance.created_at).toLocaleString()}
-            </p>
-            <p>
-              <strong>Precio:</strong> $
-              {parseInt(
-                selectedAttendance.service?.price || "0"
-              ).toLocaleString()}
-            </p>
-
-            <div className="mt-6 flex justify-end gap-4">
-              <button
-                onClick={() => setIsDialogOpen(false)}
-                className="px-4 py-2 rounded bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 transition"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => alert("Implementar lógica de pago")}
-                className="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition"
-              >
-                Pagar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
