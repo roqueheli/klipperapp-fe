@@ -87,7 +87,7 @@ export function OrganizationProvider({
   // Actualizamos la función refresh en el estado
   useEffect(() => {
     setState((prev) => ({ ...prev, refresh }));
-  }, [slug]);
+  }, [slug, refresh]);
 
   return (
     <OrganizationContext.Provider value={state}>

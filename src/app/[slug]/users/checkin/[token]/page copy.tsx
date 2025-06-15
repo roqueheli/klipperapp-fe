@@ -29,7 +29,7 @@ const CheckinQRPage = () => {
 
     const interval = setInterval(generateQR, 10000);
     return () => clearInterval(interval);
-  }, [router]);
+  }, [router, slug]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +52,7 @@ const CheckinQRPage = () => {
     };
 
     fetchData();
-  }, [qrValue]);
+  }, [qrValue, data?.id, userData?.branch_id]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-black text-black dark:text-white pt-20">
