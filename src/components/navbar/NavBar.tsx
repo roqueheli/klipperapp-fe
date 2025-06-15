@@ -58,7 +58,7 @@ const NavBar = ({ auth_token }: NavBarProps) => {
         }
       )
       .then(() => {
-        window.location.href = `/${slug}/auth/login`;
+        router.push(`/${slug}/auth/login`);
       });
   };
 
