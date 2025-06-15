@@ -74,7 +74,7 @@ const CheckinPage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [data?.id, userData?.branch_id]);
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;

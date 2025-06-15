@@ -7,6 +7,7 @@ import { Organization } from "@/types/organization";
 import { Profile, ProfileByNumberResponse } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -94,8 +95,8 @@ const AttendanceWizard = ({
       const usersParams = new URLSearchParams();
 
       if (organization?.id) {
-        servicesParams.set("organization_id", String(organization.id));
-        usersParams.set("organization_id", String(organization.id));
+        servicesParams.set("organization_id", String(organization?.id));
+        usersParams.set("organization_id", String(organization?.id));
         usersParams.set("role_id", "3");
       }
 
@@ -117,7 +118,7 @@ const AttendanceWizard = ({
     };
 
     fetchData();
-  }, []);
+  }, [organization?.id, user?.branch_id]);
 
   const handleFinish = async () => {
     if (!profile || !selectedServiceId || !organization || !user) {
@@ -264,8 +265,8 @@ const AttendanceWizard = ({
                   role="button"
                   aria-pressed={selectedUserId === user.id}
                 >
-                  <img
-                    src={user.photo}
+                  <Image
+                    src={user?.photo || ""}
                     alt={user.name}
                     className="w-24 h-24 rounded-full object-cover shadow"
                   />
