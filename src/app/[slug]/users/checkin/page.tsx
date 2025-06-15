@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const CheckinPage = () => {
-  const { slug, data } = useOrganization();
+  const { data } = useOrganization();
   const { userData } = useUser();
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);

@@ -33,17 +33,18 @@ export async function generateMetadata({
         );
       organization = response.organization;
     } catch (error) {
-      console.error("Error loading organization:", error);
+      console.error("Error loading organization: " + error);
     }
 
     return {
       title: organization?.name || "KlipperApp",
       description: organization?.bio || "Sistema de gestión para barberías",
       icons: {
-        icon: organization?.metadata?.favicon || "/favicon.ico",
+        icon: organization?.metadata?.media_configs?.favicon || "/favicon.ico",
       },
     };
   } catch (error) {
+    console.log(error);
     return {
       title: "KlipperApp",
       description: "Sistema de gestión para barberías",
@@ -80,7 +81,7 @@ export default async function RootLayout({
     );
     initialData = response.organization;
   } catch (error) {
-    console.error("Error loading organization:", error);
+    console.error("Error loading organization: " + error);
   }
 
   if (auth_token) {
@@ -88,7 +89,7 @@ export default async function RootLayout({
       const response = await httpInternalApi.httpGetPublic<User>("/auth/me");
       userData = response;
     } catch (error) {
-      console.error("Error loading user data:", error);
+      console.error("Error loading user data: " + error);
     }
   }
 

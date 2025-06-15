@@ -1,4 +1,3 @@
-import authAPI from "@/lib/auth/auth.service";
 import { cookies, headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
