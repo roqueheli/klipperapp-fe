@@ -2,7 +2,7 @@ import authAPI from "@/lib/auth/auth.service";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function GET(_request: Request) {
+export async function GET() {
     const cookiesStore = cookies();
     const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
 
