@@ -11,6 +11,15 @@ export interface Attendance {
 	created_at: string
 	updated_at: string
 	attended_by_user: AttendedByUser
+	discount: number | null
+    extra_discount: number | null
+    user_amount: number | null
+    organization_amount: number | null
+    start_attendance_at: string | null
+    end_attendance_at: string | null
+    total_amount: number | null
+    trx_number: string | null
+    payment_method: string | null
 	profile: Profile
 	service: Service
 }
@@ -40,31 +49,11 @@ export interface Service {
 	updated_at: string
 }
 
-export interface AttendedByUser {
-	id: number
-	name: string
-	email: string
-	phone_number: string
-	address_line1: string | null
-	address_line2: string | null
-	city: string | null
-	state: string | null
-	zip_code: string | null
-	country: string | null
-	active: boolean
-	password_digest: string
-	role_id: number
-	organization_id: number
-	created_at: string
-	updated_at: string
-	start_working_at: string | null
-	work_state: string
-	branch_id: number
-}
 export interface CreateAttendanceResponse {
 	profile: Profile
 	status: number
 }
+
 export interface Attendances {
 	attendances: Attendance[]
 	status: number
