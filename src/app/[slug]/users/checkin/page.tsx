@@ -12,7 +12,6 @@ import {
   Droppable,
   DropResult,
 } from "@hello-pangea/dnd";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -26,7 +25,6 @@ const CheckinPage = () => {
     Set<number>
   >(new Set());
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {

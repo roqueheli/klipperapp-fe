@@ -5,7 +5,6 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
@@ -17,11 +16,10 @@ import {
 } from "recharts";
 
 export default function DashboardPage() {
-  const { slug, data } = useOrganization();
+  const { data } = useOrganization();
   const { userData } = useUser();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [isLoading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
