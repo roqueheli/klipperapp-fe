@@ -1,6 +1,6 @@
 "use client";
 
-import httpInternalApi from "@/lib/common/http.internal.service";
+import httpInternalApi from "../lib/common/http.internal.service";
 import { Organization } from "@/types/organization";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 

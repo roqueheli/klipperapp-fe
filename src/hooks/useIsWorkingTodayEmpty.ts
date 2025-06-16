@@ -1,6 +1,6 @@
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
-import httpInternalApi from "@/lib/common/http.internal.service";
+import httpInternalApi from "../lib/common/http.internal.service";
 import { UserResponse } from "@/types/user";
 import { useEffect, useState } from "react";
 

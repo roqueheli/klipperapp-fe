@@ -1,4 +1,4 @@
-import httpInternalApi from "@/lib/common/http.internal.service";
+import httpInternalApi from "../lib/common/http.internal.service";
 import { ServiceResponse } from "@/types/service";
 import { UserResponse } from "@/types/user";
 import { useEffect, useState, useCallback } from "react";
