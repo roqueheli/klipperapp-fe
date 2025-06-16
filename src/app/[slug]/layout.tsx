@@ -4,7 +4,7 @@ import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
 import { OrganizationProvider } from "@/contexts/OrganizationContext";
 import { UserProvider } from "@/contexts/UserContext";
-import httpInternalApi from "../../lib/common/http.internal.service";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import { Organization, OrganizationResponse } from "@/types/organization";
 import { User } from "@/types/user";
 import { isValidOrganization } from "@/utils/organization.utils";
