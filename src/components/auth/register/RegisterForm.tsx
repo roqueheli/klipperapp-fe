@@ -4,7 +4,7 @@ import InputField from "@/components/form/InputField";
 import SubmitButton from "@/components/form/SubmitButton";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { AccesDeniedError } from "@/lib/common/http.errors";
-import httpInternalApi from "../../../lib/common/http.internal.service";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import RegisterScheme from "@/schemes/register.scheme";
 import { RegisterData } from "@/types/auth";
 import { ProfileResponse } from "@/types/profile";

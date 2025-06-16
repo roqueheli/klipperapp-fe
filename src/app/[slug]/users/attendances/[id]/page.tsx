@@ -1,7 +1,7 @@
 "use client";
 
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import httpInternalApi from "../../../../../lib/common/http.internal.service";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

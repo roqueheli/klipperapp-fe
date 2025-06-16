@@ -5,7 +5,7 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import { useFilteredMenus } from "@/hooks/useFilteredMenus";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
-import httpInternalApi from "../../lib/common/http.internal.service";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";

@@ -1,6 +1,6 @@
 "use client";
 
-import httpInternalApi from "../lib/common/http.internal.service";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import { User } from "@/types/user";
 import { createContext, useContext, useEffect, useState } from "react";
 

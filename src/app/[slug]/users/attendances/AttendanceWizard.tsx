@@ -1,7 +1,7 @@
 "use client";
 
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import httpInternalApi from "../../../../lib/common/http.internal.service";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import { CreateAttendanceResponse } from "@/types/attendance";
 import { Organization } from "@/types/organization";
 import { Profile, ProfileByNumberResponse } from "@/types/profile";

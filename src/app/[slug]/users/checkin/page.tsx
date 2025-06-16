@@ -3,7 +3,7 @@
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
-import httpInternalApi from "../../../../lib/common/http.internal.service";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import { User, UserResponse } from "@/types/user";
 import { isBeforeTwoPM } from "@/utils/date.utils";
 import {
