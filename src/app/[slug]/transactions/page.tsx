@@ -4,7 +4,7 @@ import AttendanceTable from "@/components/attendances/AttendanceTable";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
-import httpInternalApi from "@/lib/common/http.internal.service";
+import httpInternalApi from "../../../lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
