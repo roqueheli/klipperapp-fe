@@ -5,7 +5,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
-import httpInternalApi from "@/lib/common/http.internal.service";
+import httpInternalApi from "../../../../lib/common/http.internal.service";
 import { User, UserWithProfiles } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";

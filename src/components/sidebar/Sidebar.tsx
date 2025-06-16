@@ -3,7 +3,7 @@
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useFilteredMenus } from "@/hooks/useFilteredMenus";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
-import httpInternalApi from "@/lib/common/http.internal.service";
+import httpInternalApi from "../../lib/common/http.internal.service";
 import clsx from "clsx";
 import {
   BarChart3,

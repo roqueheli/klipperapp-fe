@@ -2,7 +2,7 @@
 
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { AccesDeniedError } from "@/lib/common/http.errors";
-import httpInternalApi from "@/lib/common/http.internal.service";
+import httpInternalApi from "../../../lib/common/http.internal.service";
 import LoginScheme from "@/schemes/login.scheme";
 import { FormData } from "@/types/auth.d";
 import { yupResolver } from "@hookform/resolvers/yup";
