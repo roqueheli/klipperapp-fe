@@ -52,8 +52,6 @@ const AttendanceWizard = ({
           parsed?.phone_number &&
           parsed?.organization_id
         ) {
-          console.log("entré 1");
-
           localStorage.removeItem("userAttendance");
           setProfile(parsed);
           setStep(2);
@@ -194,10 +192,10 @@ const AttendanceWizard = ({
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
+    <div className="min-h-screen mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
       {/* Step 1 */}
       {step === 1 && (
-        <div className="text-center">
+        <div className="w-full flex justify-center items-center flex-col min-h-screen text-center">
           <h2 className="text-3xl font-extrabold mb-6 text-blue-600 dark:text-blue-400 drop-shadow-sm">
             Ingresa tu número de teléfono
           </h2>
@@ -224,13 +222,12 @@ const AttendanceWizard = ({
               Siguiente
             </button>
           </div>
+          {error && (
+            <p className="mt-4 text-center text-red-600 dark:text-red-400 font-semibold">
+              {error}
+            </p>
+          )}
         </div>
-      )}
-
-      {error && (
-        <p className="mt-4 text-center text-red-600 dark:text-red-400 font-semibold">
-          {error}
-        </p>
       )}
 
       {/* Step 2 */}
@@ -250,7 +247,7 @@ const AttendanceWizard = ({
               Cargando usuarios...
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {users?.users.map((user) => (
                 <div
                   key={user.id}
@@ -265,11 +262,17 @@ const AttendanceWizard = ({
                   role="button"
                   aria-pressed={selectedUserId === user.id}
                 >
-                  <Image
-                    src={user?.photo || ""}
-                    alt={user.name}
-                    className="w-24 h-24 rounded-full object-cover shadow"
-                  />
+                  <div className="relative w-24 h-24">
+                    <Image
+                      src={
+                        user?.photo ||
+                        "https://instagram.fscl9-2.fna.fbcdn.net/v/t51.29350-15/240413977_270846561219622_5954520995252495588_n.jpg?stp=dst-jpg_e35_p1080x1080_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0uaW1hZ2VfdXJsZ2VuLjE0NDB4MTgwMC5zZHIuZjI5MzUwLmRlZmF1bHRfaW1hZ2UifQ&_nc_ht=instagram.fscl9-2.fna.fbcdn.net&_nc_cat=110&_nc_oc=Q6cZ2QH2P7EuWNQ2eKsvcPQtsazRVru9Ln8J06obthBz6fFdYc8NoYfUJQ3RP9DV7C5nCLoIoHbjnEM8ozQftvTcURHZ&_nc_ohc=3iQveI6yer0Q7kNvwFlzbdg&_nc_gid=fhFIeG8gTfLqf2cgCh0SXA&edm=APoiHPcBAAAA&ccb=7-5&ig_cache_key=MjY0NzY3NDgzMTU0ODMyMDgxMg%3D%3D.3-ccb7-5&oh=00_AfPl4bk8z4290rl8ThpEkOTsaf53PJdpWX78jc2W3uQwLw&oe=6856127B&_nc_sid=22de04"
+                      }
+                      alt={user.name}
+                      fill
+                      className="rounded-full object-fit shadow"
+                    />
+                  </div>
                   <div className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {user.name}
                   </div>
@@ -282,7 +285,7 @@ const AttendanceWizard = ({
               ))}
               <div
                 onClick={() => setSelectedUserId(0)}
-                className={`cursor-pointer border rounded-lg p-5 flex items-center justify-center shadow-sm transition text-lg font-semibold
+                className={`cursor-pointer border rounded-lg p-5 shadow-sm transition text-lg font-semibold
                   ${
                     selectedUserId === 0
                       ? "border-blue-600 shadow-blue-300 dark:shadow-blue-700"
@@ -358,6 +361,17 @@ const AttendanceWizard = ({
                   role="button"
                   aria-pressed={selectedServiceId === service.id}
                 >
+                  <div className="flex w-full justify-center items-center relative w-30 h-40 mb-4">
+                    <Image
+                      src={
+                        user?.photo ||
+                        "https://instagram.fscl9-2.fna.fbcdn.net/v/t51.2885-15/78923615_160450271974390_8616624621741485529_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0uaW1hZ2VfdXJsZ2VuLjE0NDB4MTgwMC5zZHIuZjI4ODUuZGVmYXVsdF9pbWFnZSJ9&_nc_ht=instagram.fscl9-2.fna.fbcdn.net&_nc_cat=110&_nc_oc=Q6cZ2QEWb-Ewn6WEpeItUvu7VU4aXefM0cplGoDu2oEyPscZ4Egbqjm_Xqt0aZO-EVqGhOLuyY94BbCi9bAMA1gip0pe&_nc_ohc=C4cz_pbHQvcQ7kNvwE02SsV&_nc_gid=wKi62QKXsKpk1rl0MMbmng&edm=APoiHPcBAAAA&ccb=7-5&ig_cache_key=MjIwODk3NjgzNjI3MTAzNjgzNQ%3D%3D.3-ccb7-5&oh=00_AfOSC-PJhIloq--wMff7wUTNeTkaebx8f9G4kIM6AR6EPw&oe=68561EAE&_nc_sid=22de04"
+                      }
+                      alt={user.name}
+                      fill
+                      className="rounded-md object-cover shadow"
+                    />
+                  </div>
                   <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
                     {service.name}
                   </h3>
@@ -365,7 +379,10 @@ const AttendanceWizard = ({
                     {service.description}
                   </p> */}
                   <p className="mt-3 font-bold text-blue-700 dark:text-blue-400">
-                    ${service.price}
+                    {Number(service.price).toLocaleString("es-CL", {
+                      style: "currency",
+                      currency: "CLP",
+                    })}
                   </p>
                 </div>
               ))}

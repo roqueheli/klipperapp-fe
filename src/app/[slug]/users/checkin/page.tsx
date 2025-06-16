@@ -171,8 +171,8 @@ const CheckinPage = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 p-4 sm:p-6">
-      <h1 className="text-2xl sm:text-3xl font-bold mt-10 sm:mt-20 mb-6 sm:mb-8 text-left bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-md">
+    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 p-3">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-left bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-md">
         Check-in de Usuarios
       </h1>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -292,16 +292,6 @@ const CheckinPage = () => {
           </section>
         </div>
       </DragDropContext>
-
-      {/* Botón Volver */}
-      <div className="flex w-full items-center justify-center mt-6 sm:mt-10">
-        <button
-          onClick={() => router.back()}
-          className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow-md transition-transform transform hover:scale-105"
-        >
-          Volver
-        </button>
-      </div>
     </div>
   );
 };

@@ -153,7 +153,7 @@ const PaymentsPage = () => {
               type="text"
               readOnly
               className="w-full bg-gray-100 dark:bg-gray-700 rounded px-3 py-2"
-              value={`$${total.toLocaleString()}`}
+              value={`${total.toLocaleString('es-CL', {style: "currency", currency: "CLP"})}`} 
             />
           </div>
           <div>
@@ -162,7 +162,7 @@ const PaymentsPage = () => {
               type="text"
               readOnly
               className="w-full bg-gray-100 dark:bg-gray-700 rounded px-3 py-2"
-              value={new Date(attendance.created_at).toLocaleString()}
+              value={new Date(attendance.created_at).toLocaleString('es-CL')}
             />
           </div>
         </div>
@@ -185,7 +185,7 @@ const PaymentsPage = () => {
               type="text"
               readOnly
               className="w-full bg-gray-100 dark:bg-gray-700 rounded px-3 py-2"
-              value={`$${finalTotal.toLocaleString()}`}
+              value={finalTotal.toLocaleString('es-CL', {style: "currency", currency: "CLP"})}
             />
           </div>
           <div>

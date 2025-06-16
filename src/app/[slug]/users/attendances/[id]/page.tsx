@@ -38,7 +38,7 @@ const AttendanceDetailPage = () => {
   const { profile, attended_by_user, service, created_at, status } = attendance;
 
   return (
-    <div className="w-full mx-auto mt-16 px-4 sm:px-6 lg:px-8">
+    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
       <h1 className="mt-10 mb-4 text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-600">
         🧾 Detalle del Turno
       </h1>

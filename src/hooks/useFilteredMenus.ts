@@ -33,6 +33,11 @@ export const useFilteredMenus = (): MenuItem[] => {
             path: `/${slug}/users/dashboard`,
             allowedRoles: [1, 2, 3],
         },
+        {
+            label: "Configuración",
+            path: `/${slug}/users/settings`,
+            allowedRoles: [1, 2, 3],
+        },
     ];
 
     const menus: MenuItem[] =

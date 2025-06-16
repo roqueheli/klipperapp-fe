@@ -51,13 +51,13 @@ export default function DashboardPage() {
   }, [data?.id, userData]);
 
   const finishedAttendances = useMemo(
-    () => attendances.filter((a) => a.status === "finished"),
+    () => (attendances ?? []).filter((a) => a.status === "finished"),
     [attendances]
   );
 
   const activeAttendances = useMemo(
     () =>
-      attendances.filter((a) =>
+      (attendances ?? []).filter((a) =>
         ["pending", "processing", "completed"].includes(a.status)
       ),
     [attendances]
@@ -65,13 +65,16 @@ export default function DashboardPage() {
 
   const revenue = useMemo(
     () =>
-      finishedAttendances.reduce((sum, a) => sum + (a.total_amount ?? 0), 0),
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.total_amount ?? 0),
+        0
+      ),
     [finishedAttendances]
   );
 
   const organizationRevenue = useMemo(
     () =>
-      finishedAttendances.reduce(
+      (finishedAttendances ?? []).reduce(
         (sum, a) => sum + (a.organization_amount ?? 0),
         0
       ),
@@ -79,24 +82,35 @@ export default function DashboardPage() {
   );
 
   const userRevenue = useMemo(
-    () => finishedAttendances.reduce((sum, a) => sum + (a.user_amount ?? 0), 0),
+    () =>
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.user_amount ?? 0),
+        0
+      ),
     [finishedAttendances]
   );
 
   const totalDiscount = useMemo(
-    () => finishedAttendances.reduce((sum, a) => sum + (a.discount ?? 0), 0),
+    () =>
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.discount ?? 0),
+        0
+      ),
     [finishedAttendances]
   );
 
   const totalExtraDiscount = useMemo(
     () =>
-      finishedAttendances.reduce((sum, a) => sum + (a.extra_discount ?? 0), 0),
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.extra_discount ?? 0),
+        0
+      ),
     [finishedAttendances]
   );
 
   const perService = useMemo(() => {
     const map: Record<string, number> = {};
-    attendances.forEach((a) => {
+    (attendances ?? []).forEach((a) => {
       const name = a.service?.name || "Sin servicio";
       map[name] = (map[name] || 0) + 1;
     });
@@ -105,7 +119,7 @@ export default function DashboardPage() {
 
   const perUser = useMemo(() => {
     const map: Record<string, number> = {};
-    attendances.forEach((a) => {
+    (attendances ?? []).forEach((a) => {
       const name = a.attended_by_user?.name || "Sin asignar";
       map[name] = (map[name] || 0) + 1;
     });
@@ -114,7 +128,7 @@ export default function DashboardPage() {
 
   const perClient = useMemo(() => {
     const map: Record<string, number> = {};
-    attendances.forEach((a) => {
+    (attendances ?? []).forEach((a) => {
       const name = a.profile?.name || "Desconocido";
       map[name] = (map[name] || 0) + 1;
     });
@@ -124,8 +138,8 @@ export default function DashboardPage() {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="w-full flex flex-col justify-center space-y-6 p-10 mx-auto text-white">
-      <h1 className="mt-15 text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+    <div className="w-full flex flex-col justify-center space-y-6 p-6 mx-auto text-white">
+      <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
         Dashboard de Atenciones
       </h1>
 
@@ -136,7 +150,7 @@ export default function DashboardPage() {
             Total Reservas
           </h2>
           <p className="text-2xl font-bold text-blue-500">
-            {attendances.length}
+            {attendances?.length || 0}
           </p>
         </div>
         <div className="bg-white p-4 rounded-2xl shadow-xl">
@@ -144,7 +158,7 @@ export default function DashboardPage() {
             Reservas Activas
           </h2>
           <p className="text-2xl font-bold text-yellow-500">
-            {activeAttendances.length}
+            {activeAttendances?.length || 0}
           </p>
         </div>
         <div className="bg-white p-4 rounded-2xl shadow-xl">
@@ -152,7 +166,7 @@ export default function DashboardPage() {
             Reservas Finalizadas
           </h2>
           <p className="text-2xl font-bold text-green-500">
-            {finishedAttendances.length}
+            {finishedAttendances?.length || 0}
           </p>
         </div>
       </div>
@@ -230,7 +244,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Por cliente */}
-        <div className="bg-white p-4 rounded-2xl shadow-xl h-[350px]">
+        <div className="bg-white mb-10 p-4 rounded-2xl shadow-xl h-[350px]">
           <h2 className="text-xl font-bold text-gray-700 mb-4">Por Cliente</h2>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={perClient}>
@@ -241,15 +255,6 @@ export default function DashboardPage() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={() => router.push(`/${slug}/users`)}
-          className="px-6 py-3 text-white rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-md transition-all"
-        >
-          ⬅ Volver
-        </button>
       </div>
     </div>
   );

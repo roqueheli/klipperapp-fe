@@ -1,7 +1,5 @@
-export const dynamic = "force-dynamic";
-
 import Footer from "@/components/footer/Footer";
-import NavBarContainer from "@/components/navbar/NavBar.Container";
+import SidebarContainer from "@/components/sidebar/Sidebar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
 import { OrganizationProvider } from "@/contexts/OrganizationContext";
@@ -10,12 +8,15 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import { Organization, OrganizationResponse } from "@/types/organization";
 import { User } from "@/types/user";
 import { isValidOrganization } from "@/utils/organization.utils";
+import clsx from "clsx";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import "../../styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -24,17 +25,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const { slug } = await params;
-    let organization: Organization | null = null;
-    try {
-      const response =
-        await httpInternalApi.httpGetPublic<OrganizationResponse>(
-          "/organizations",
-          new URLSearchParams({ slug })
-        );
-      organization = response.organization;
-    } catch (error) {
-      console.error("Error loading organization: " + error);
-    }
+    const response = await httpInternalApi.httpGetPublic<OrganizationResponse>(
+      "/organizations",
+      new URLSearchParams({ slug })
+    );
+    const organization = response.organization;
 
     return {
       title: organization?.name || "KlipperApp",
@@ -44,13 +39,11 @@ export async function generateMetadata({
       },
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
       title: "KlipperApp",
       description: "Sistema de gestión para barberías",
-      icons: {
-        icon: "/favicon.ico",
-      },
+      icons: { icon: "/favicon.ico" },
     };
   }
 }
@@ -63,9 +56,9 @@ export default async function RootLayout({
   params: { slug: string };
 }) {
   const { slug } = await params;
+  const pathname = (await headers()).get("x-next-pathname") || "";
+  const isLoginPage = pathname.includes("/auth/login");
 
-  const pathname = (await headers()).get("x-next-pathname") || ""; // 👈 Detectar ruta actual
-  const isLoginPage = pathname.includes("/auth/login"); // 👈 Ajusta si tu path cambia
   const cookiesStore = cookies();
   const auth_token = (await cookiesStore).get(
     process.env.AUTH_TOKEN_SECRET || ""
@@ -96,18 +89,20 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${inter.className} flex flex-col min-h-screen justify-center items-center bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
+        className={`${inter.className} bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
       >
         <ThemeProvider>
           <OrganizationProvider initialData={initialData} slug={slug}>
             <UserProvider userData={userData}>
-              {!isLoginPage && isValidOrganization(initialData) && (
-                <NavBarContainer />
-              )}
-              <main className="flex-grow flex items-center justify-center w-full">
-                {children}
-              </main>
-              <Footer />
+              <div className="w-full flex min-h-screen">
+                {!isLoginPage && isValidOrganization(initialData) && (
+                  <SidebarContainer token={auth_token?.value} />
+                )}
+                <div className={clsx("transition-all duration-300 flex-grow")}>
+                  <main className="w-full flex-grow">{children}</main>
+                  {!isLoginPage && <Footer />}
+                </div>
+              </div>
               <ToasterProvider />
             </UserProvider>
           </OrganizationProvider>
