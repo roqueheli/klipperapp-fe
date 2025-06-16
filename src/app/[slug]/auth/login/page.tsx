@@ -31,7 +31,7 @@ const LoginPage = () => {
           dark:bg-black/20
         "
       >
-        <h1 className="text-center text-2xl md:text-3xl font-bold text-electric-blue mb-4 md:mb-6">
+        <h1 className="w-full text-center text-2xl md:text-3xl font-bold text-electric-blue mb-4 md:mb-6">
           {data?.name || "Klipper"}
         </h1>
         <LoginForm />

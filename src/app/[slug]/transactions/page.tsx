@@ -76,7 +76,7 @@ const TransactionsPage = () => {
       .sort((a, b) => {
         const dateA = new Date(a.created_at ?? 0).getTime();
         const dateB = new Date(b.created_at ?? 0).getTime();
-        return dateB - dateA;
+        return dateA - dateB;
       });
   }, [attendances]);
 
@@ -106,8 +106,8 @@ const TransactionsPage = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="w-full px-4 sm:px-6 py-6 sm:py-10">
-      <h1 className="mt-15 text-4xl font-bold bg-clip-text bg-gradient-to-r from-blue-600 text-blue-600 via-blue-500 to-indigo-500 drop-shadow-lg mb-6">
+    <div className="w-full min-h-screen px-2 sm:px-6 py-6 sm:py-10">
+      <h1 className="text-4xl font-bold bg-clip-text bg-gradient-to-r from-blue-600 text-blue-600 via-blue-500 to-indigo-500 drop-shadow-lg mb-6">
         💻 Transacciones
       </h1>
 
@@ -166,15 +166,6 @@ const TransactionsPage = () => {
         onPay={handlePayAttendance}
         onDetail={handleViewAttendance}
       />
-
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={() => router.push(`/${slug}/users`)}
-          className="px-4 py-2 text-white rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-md transition-all"
-        >
-          ⬅ Volver
-        </button>
-      </div>
     </div>
   );
 };

@@ -145,7 +145,7 @@ const fetchData = useCallback(async () => {
   return (
     <div className="w-full mx-auto px-4 md:px-6 py-6 min-h-screen flex flex-col">
       {/* Header */}
-      <header className="mt-18 mb-6">
+      <header className="mb-6">
         <h1 className="text-3xl font-extrabold text-blue-700 dark:text-blue-400 drop-shadow-md">
           📢 Filas de Atención
         </h1>
@@ -262,13 +262,6 @@ const fetchData = useCallback(async () => {
 
       {/* Footer */}
       <footer className="mt-10 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <button
-          onClick={() => router.push(`/${slug}/users`)}
-          className="px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md shadow transition"
-        >
-          ⬅ Volver
-        </button>
-
         {!isWorkingTodayEmpty && (
           <button
             onClick={() => router.push(`/${slug}/users/attendances`)}

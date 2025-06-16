@@ -10,29 +10,17 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
-  Cell,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 
-const STATUS_COLORS: Record<string, string> = {
-  pending: "#3DD9EB",
-  processing: "#007bff",
-  finished: "#4CAF50",
-  completed: "#A1E3A1",
-  canceled: "#F55376",
-};
-
 export default function DashboardPage() {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [isLoading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,9 +39,10 @@ export default function DashboardPage() {
       }
 
       const response = (await httpInternalApi.httpGetPublic(
-        "/attendances",
+        "/attendances/today",
         params
       )) as Attendances;
+
       setAttendances(response.attendances);
       setLoading(false);
     };
@@ -61,38 +50,77 @@ export default function DashboardPage() {
     fetchData();
   }, [data?.id, userData]);
 
-  const statusCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    attendances.forEach((a) => {
-      counts[a.status] = (counts[a.status] || 0) + 1;
-    });
-    return Object.entries(counts).map(([status, count]) => ({
-      name: status,
-      value: count,
-      color: STATUS_COLORS[status] || "#ccc",
-    }));
-  }, [attendances]);
+  const finishedAttendances = useMemo(
+    () => (attendances ?? []).filter((a) => a.status === "finished"),
+    [attendances]
+  );
 
-  const revenue = useMemo(() => {
-    return attendances.reduce(
-      (sum, a) => sum + parseFloat(a.service?.price || "0"),
-      0
-    );
-  }, [attendances]);
+  const activeAttendances = useMemo(
+    () =>
+      (attendances ?? []).filter((a) =>
+        ["pending", "processing", "completed"].includes(a.status)
+      ),
+    [attendances]
+  );
 
-  const perBarber = useMemo(() => {
+  const revenue = useMemo(
+    () =>
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.total_amount ?? 0),
+        0
+      ),
+    [finishedAttendances]
+  );
+
+  const organizationRevenue = useMemo(
+    () =>
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.organization_amount ?? 0),
+        0
+      ),
+    [finishedAttendances]
+  );
+
+  const userRevenue = useMemo(
+    () =>
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.user_amount ?? 0),
+        0
+      ),
+    [finishedAttendances]
+  );
+
+  const totalDiscount = useMemo(
+    () =>
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.discount ?? 0),
+        0
+      ),
+    [finishedAttendances]
+  );
+
+  const totalExtraDiscount = useMemo(
+    () =>
+      (finishedAttendances ?? []).reduce(
+        (sum, a) => sum + (a.extra_discount ?? 0),
+        0
+      ),
+    [finishedAttendances]
+  );
+
+  const perService = useMemo(() => {
     const map: Record<string, number> = {};
-    attendances.forEach((a) => {
-      const name = a.attended_by_user?.name || "Sin asignar";
+    (attendances ?? []).forEach((a) => {
+      const name = a.service?.name || "Sin servicio";
       map[name] = (map[name] || 0) + 1;
     });
     return Object.entries(map).map(([name, count]) => ({ name, count }));
   }, [attendances]);
 
-  const perService = useMemo(() => {
+  const perUser = useMemo(() => {
     const map: Record<string, number> = {};
-    attendances.forEach((a) => {
-      const name = a.service?.name || "Sin servicio";
+    (attendances ?? []).forEach((a) => {
+      const name = a.attended_by_user?.name || "Sin asignar";
       map[name] = (map[name] || 0) + 1;
     });
     return Object.entries(map).map(([name, count]) => ({ name, count }));
@@ -100,7 +128,7 @@ export default function DashboardPage() {
 
   const perClient = useMemo(() => {
     const map: Record<string, number> = {};
-    attendances.forEach((a) => {
+    (attendances ?? []).forEach((a) => {
       const name = a.profile?.name || "Desconocido";
       map[name] = (map[name] || 0) + 1;
     });
@@ -110,91 +138,88 @@ export default function DashboardPage() {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="w-full flex flex-col justify-center space-y-6 p-10 mx-auto text-white">
-      <h1 className="mt-15 text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+    <div className="w-full flex flex-col justify-center space-y-6 p-6 mx-auto text-white">
+      <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
         Dashboard de Atenciones
       </h1>
 
+      {/* Resumen de Totales */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-black">
         <div className="bg-white p-4 rounded-2xl shadow-xl">
           <h2 className="text-lg font-semibold text-gray-700">
             Total Reservas
           </h2>
           <p className="text-2xl font-bold text-blue-500">
-            {attendances.length}
+            {attendances?.length || 0}
           </p>
         </div>
         <div className="bg-white p-4 rounded-2xl shadow-xl">
           <h2 className="text-lg font-semibold text-gray-700">
-            Ingresos Totales
+            Reservas Activas
+          </h2>
+          <p className="text-2xl font-bold text-yellow-500">
+            {activeAttendances?.length || 0}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-xl">
+          <h2 className="text-lg font-semibold text-gray-700">
+            Reservas Finalizadas
           </h2>
           <p className="text-2xl font-bold text-green-500">
+            {finishedAttendances?.length || 0}
+          </p>
+        </div>
+      </div>
+
+      {/* Montos */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-black">
+        <div className="bg-white p-4 rounded-2xl shadow-xl">
+          <h2 className="text-lg font-semibold text-gray-700">
+            Ingresos Totales
+          </h2>
+          <p className="text-2xl font-bold text-green-600">
             ${revenue.toLocaleString()}
           </p>
         </div>
         <div className="bg-white p-4 rounded-2xl shadow-xl">
           <h2 className="text-lg font-semibold text-gray-700">
-            Filtrar por Estado
+            Monto Descuentos
           </h2>
-          <select
-            value={filterStatus || ""}
-            onChange={(e) => setFilterStatus(e.target.value || null)}
-            className="w-full mt-2 p-2 border border-gray-300 rounded"
-          >
-            <option value="">Todos</option>
-            {Object.keys(STATUS_COLORS).map((status) => (
-              <option key={status} value={status}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </option>
-            ))}
-          </select>
+          <p className="text-2xl font-bold text-red-500">
+            ${totalDiscount.toLocaleString()}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-xl">
+          <h2 className="text-lg font-semibold text-gray-700">
+            Monto Extra Descuentos
+          </h2>
+          <p className="text-2xl font-bold text-pink-500">
+            ${totalExtraDiscount.toLocaleString()}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-xl">
+          <h2 className="text-lg font-semibold text-gray-700">
+            Ingresos Organización
+          </h2>
+          <p className="text-2xl font-bold text-blue-600">
+            ${organizationRevenue.toLocaleString()}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-xl">
+          <h2 className="text-lg font-semibold text-gray-700">
+            Ingresos Usuarios
+          </h2>
+          <p className="text-2xl font-bold text-cyan-600">
+            ${userRevenue.toLocaleString()}
+          </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-black">
+        {/* Por tipo de servicio */}
         <div className="bg-white p-4 rounded-2xl shadow-xl h-[350px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-4">
-            Distribución por Estado
-          </h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={statusCounts}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={100}
-                label
-              >
-                {statusCounts.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-4 rounded-2xl shadow-xl h-[350px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-4">
-            Atenciones por Barbero
-          </h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={perBarber}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#3DD9EB" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        
-        {/* Gráfico por tipo de servicio */}
-        <div className="bg-white p-4 rounded-2xl shadow-xl h-[350px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-4">
-            Atenciones por Tipo de Servicio
-          </h2>
+          <h2 className="text-xl font-bold text-gray-700 mb-4">Por Servicio</h2>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={perService}>
               <XAxis dataKey="name" />
@@ -205,11 +230,22 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Gráfico por cliente */}
+        {/* Por usuario */}
         <div className="bg-white p-4 rounded-2xl shadow-xl h-[350px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-4">
-            Atenciones por Cliente
-          </h2>
+          <h2 className="text-xl font-bold text-gray-700 mb-4">Por Usuario</h2>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={perUser}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#3DD9EB" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Por cliente */}
+        <div className="bg-white mb-10 p-4 rounded-2xl shadow-xl h-[350px]">
+          <h2 className="text-xl font-bold text-gray-700 mb-4">Por Cliente</h2>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={perClient}>
               <XAxis dataKey="name" />
@@ -219,15 +255,6 @@ export default function DashboardPage() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={() => router.push(`/${slug}/users`)}
-          className="px-6 py-3 text-white rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-md transition-all"
-        >
-          ⬅ Volver
-        </button>
       </div>
     </div>
   );
