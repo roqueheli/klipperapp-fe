@@ -10,11 +10,8 @@ import { User } from "@/types/user";
 import { isValidOrganization } from "@/utils/organization.utils";
 import clsx from "clsx";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import "../../styles/globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +86,7 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${inter.className} bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
+        className={`bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
       >
         <ThemeProvider>
           <OrganizationProvider initialData={initialData} slug={slug}>
