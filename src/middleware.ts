@@ -26,6 +26,10 @@ export async function middleware(request: NextRequest) {
 
     const isAuthRoute = pathname.startsWith(`/${slug}/auth`);
 
+    if (!token && pathname === `/${slug}`) {
+        return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
+    }
+
     // 👇 Validar si la organización existe
     let organizationExists = false;
     try {
@@ -37,14 +41,9 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
         console.error("Middleware: Organization validation error", error);
     }
-    
+
     // ❌ Si NO existe la organización, dejarlo pasar (para que la página lo maneje)
     if (!organizationExists) return NextResponse.next();
-
-    if (token && pathname === `/${slug}` && !isAuthRoute) {
-
-        return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
-    }
 
     if (!token && request.nextUrl.pathname.includes("/users/checkin")) {
         return NextResponse.redirect(
@@ -52,11 +51,12 @@ export async function middleware(request: NextRequest) {
         );
     }
 
-    if (!token && protectedRoutes.includes(section)) {
-        return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
+    if (token && pathname === `/${slug}` && !isAuthRoute) {
+
+        return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
     }
 
-    if (!token && pathname === `/${slug}` && !isAuthRoute) {
+    if (!token && protectedRoutes.includes(section)) {
         return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
     }
 
