@@ -200,8 +200,7 @@ export default function Sidebar({ token }: SidebarProps) {
           <button
             onClick={handleLogout}
             className={clsx(
-              "text-sm text-red-600 dark:text-red-400 px-2 py-2 rounded hover:bg-red-100 dark:hover:bg-red-800 transition-colors w-full flex items-center",
-              !isOpen && "justify-center"
+              "text-sm text-red-600 dark:text-red-400 px-2 py-2 rounded hover:text-white hover:bg-red-100 dark:hover:bg-red-800 transition-colors w-full flex items-center justify-center"
             )}
           >
             {isOpen ? "Cerrar sesión" : <LogIn className="h-5 w-5" />}
