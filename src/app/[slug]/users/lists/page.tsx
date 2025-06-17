@@ -38,7 +38,7 @@ const fetchData = useCallback(async () => {
   const usersParams = new URLSearchParams();
   if (data?.id !== undefined) {
     usersParams.set("organization_id", String(data.id));
-    usersParams.set("role_id", "3");
+    usersParams.set("role_id", "7");
   }
 
   usersParams.set(

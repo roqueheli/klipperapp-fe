@@ -30,7 +30,7 @@ const TransactionsPage = () => {
       if (userData?.id !== undefined && userData?.role_id !== 1) {
         params.set("branch_id", String(userData?.branch_id));
       }
-      if (userData?.role_id === 3) {
+      if (userData?.role_id === 7) {
         params.set("attended_by", String(userData?.id));
       }
 

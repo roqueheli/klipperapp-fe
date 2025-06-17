@@ -12,11 +12,12 @@ import {
   Droppable,
   DropResult,
 } from "@hello-pangea/dnd";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const CheckinPage = () => {
-  const { data } = useOrganization();
+  const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
@@ -25,6 +26,7 @@ const CheckinPage = () => {
     Set<number>
   >(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +38,7 @@ const CheckinPage = () => {
 
       if (userData?.branch_id !== undefined) {
         usersParams.set("branch_id", String(userData.branch_id));
-        usersParams.set("role_id", "3");
+        usersParams.set("role_id", "7");
         usersParams.set("active", "true");
       }
 
@@ -140,6 +142,7 @@ const CheckinPage = () => {
             requestBody
           );
           results.push({ status: "fulfilled", user: u });
+          router.push(`/${slug}/users/attendances`);
         } catch (error) {
           results.push({ status: "rejected", user: u, error });
         }

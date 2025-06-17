@@ -14,7 +14,7 @@ export const useWizardData = (organizationId?: number, branchId?: number) => {
     const params = new URLSearchParams({
       organization_id: String(organizationId),
       branch_id: String(branchId),
-      role_id: "3",
+      role_id: "7",
     });
 
     try {
