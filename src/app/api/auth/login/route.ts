@@ -12,14 +12,14 @@ export async function POST(request: NextRequest) {
         const expiresAt = Date.now() + ((Number(process.env.NEXT_AUTH_TOKEN_EXP) || 8 * 60 * 60) * 1000);
 
         const response = NextResponse.json({ status: 200, loginResponse });
-
+        
         response.cookies.set(`${process.env.AUTH_TOKEN_SECRET}`, loginResponse.token, {
             expires: expiresAt,
             httpOnly: true,
             secure: true,
             sameSite: "lax",
             path: "/",
-            domain: process.env.NODE_ENV === "production" ? ".vercel.app" : "localhost",
+            domain: process.env.NODE_ENV === "production" ? ".klipperapp-fe.vercel.app" : "localhost",
         });
 
         return response;

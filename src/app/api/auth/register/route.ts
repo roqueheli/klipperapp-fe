@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
         //     httpOnly: true,
         //     secure: true,
         //     path: '/',
-        //     domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost',
+        //     domain: process.env.NODE_ENV === 'production' ? '.klipperapp-fe.vercel.app' : 'localhost',
         //     expires: expiresAt,
         //     sameSite: 'lax'
         // });
