@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 
 export async function POST() {
     try {
-        const cookieStore = cookies();
         const header = headers();
         const authorization = (await header).get('Authorization');
         const token = authorization?.replace("Bearer ", "") || '';
@@ -12,10 +11,7 @@ export async function POST() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const response = NextResponse.json({
-            message: "Logged out successfully",
-            status: 200,
-        });
+        const response = NextResponse.json({ message: "Logged out successfully", status: 200 });
 
         response.cookies.set(process.env.AUTH_TOKEN_SECRET || '', '', {
             expires: new Date(0), // Fecha en el pasado
