@@ -87,10 +87,6 @@ export default async function RootLayout({
     }
   }
 
-  if (!auth_token) {
-    redirect(`/${slug}/auth/login`);
-  }
-
   return (
     <html lang="es" suppressHydrationWarning>
       <body
