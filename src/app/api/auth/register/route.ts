@@ -12,11 +12,12 @@ export async function POST(request: NextRequest) {
         const expiresAt = Date.now() + ((Number(process.env.NEXT_AUTH_TOKEN_EXP) || 8 * 60 * 60) * 1000);
 
         (await cookies()).set(`${process.env.AUTH_TOKEN_SECRET}`, registerResponse.data.token, {
-            expires: expiresAt,
             httpOnly: true,
             secure: true,
+            path: '/',
             domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost',
-            path: '/'
+            expires: expiresAt,
+            sameSite: 'lax'
         });
 
         return NextResponse.json(registerResponse, {

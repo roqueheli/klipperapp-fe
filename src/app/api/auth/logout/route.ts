@@ -17,7 +17,8 @@ export async function POST() {
             httpOnly: true,
             secure: true,
             domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost',
-            path: '/'
+            path: '/',
+            sameSite: 'lax'
         });
 
         return NextResponse.json({
