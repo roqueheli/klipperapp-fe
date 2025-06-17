@@ -21,7 +21,7 @@ export const useFilteredMenus = (): MenuItem[] => {
         {
             label: "Filas de atención", // Antes: "Listas"
             path: `/${slug}/users/lists`,
-            allowedRoles: [1, 2, 7],
+            allowedRoles: [1, 2, 7, 3],
         },
         {
             label: "Historial de Atenciones", // Antes: "Transacciones"
@@ -31,12 +31,12 @@ export const useFilteredMenus = (): MenuItem[] => {
         {
             label: "Dashboard", // Opcional: "Estadísticas"
             path: `/${slug}/users/dashboard`,
-            allowedRoles: [1, 2, 7],
+            allowedRoles: [1, 2, 7, 3],
         },
         {
             label: "Configuración",
             path: `/${slug}/users/settings`,
-            allowedRoles: [1, 2, 7],
+            allowedRoles: [1, 2, 7, 3],
         },
     ];
 

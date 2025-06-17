@@ -95,7 +95,7 @@ const AttendanceWizard = ({
       if (organization?.id) {
         servicesParams.set("organization_id", String(organization?.id));
         usersParams.set("organization_id", String(organization?.id));
-        usersParams.set("role_id", "7");
+        usersParams.set("role_id", process.env.NODE_ENV === "production" ? "7" : "3");
       }
 
       usersParams.set("branch_id", String(user?.branch_id ?? 1));

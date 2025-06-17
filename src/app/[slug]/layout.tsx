@@ -1,6 +1,7 @@
 import Footer from "@/components/footer/Footer";
 import SidebarContainer from "@/components/sidebar/Sidebar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import ToasterProvider from "@/components/ui/ToasterProvider";
 import { OrganizationProvider } from "@/contexts/OrganizationContext";
 import { UserProvider } from "@/contexts/UserContext";

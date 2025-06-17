@@ -38,7 +38,7 @@ const CheckinPage = () => {
 
       if (userData?.branch_id !== undefined) {
         usersParams.set("branch_id", String(userData.branch_id));
-        usersParams.set("role_id", "7");
+        usersParams.set("role_id", process.env.NODE_ENV === "production" ? "7" : "3");
         usersParams.set("active", "true");
       }
 
