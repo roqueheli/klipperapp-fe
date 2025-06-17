@@ -1,6 +1,8 @@
 "use client";
 
+import { useTheme } from "@/components/ThemeProvider";
 import { useOrganization } from "@/contexts/OrganizationContext";
+import { useUser } from "@/contexts/UserContext";
 import { useFilteredMenus } from "@/hooks/useFilteredMenus";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
@@ -27,12 +29,22 @@ type SidebarProps = {
 
 export default function Sidebar({ token }: SidebarProps) {
   const { slug, data } = useOrganization();
+  const { userData } = useUser();
+  const { theme, toggleTheme } = useTheme();
   const menus = useFilteredMenus();
   const pathname = usePathname();
   const [route, setRoute] = useState("/users");
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
+
+  const initials = userData?.name
+    ?.split(" ")
+    .filter(Boolean)
+    .map((word) => word[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   const menuIcons: Record<string, JSX.Element> = {
     [`/${slug}/users/checkin`]: <LogIn className="h-5 w-5 shrink-0" />,
@@ -147,8 +159,8 @@ export default function Sidebar({ token }: SidebarProps) {
         })}
       </nav>
 
-      {/* Configuración y logout */}
-      <div className="space-y-2">
+      {/* Configuración, tema, avatar, logout */}
+      <div className="space-y-3">
         {configMenu && (
           <Link
             href={configMenu.path}
@@ -163,12 +175,38 @@ export default function Sidebar({ token }: SidebarProps) {
             {isOpen && <span>{configMenu.label}</span>}
           </Link>
         )}
+
+        {/* Toggle theme */}
         <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 text-sm text-red-600 dark:text-red-400 px-2 py-2 rounded hover:bg-red-100 dark:hover:bg-red-800 transition-colors"
+          onClick={toggleTheme}
+          className="flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full"
+          title="Toggle dark mode"
         >
-          {isOpen ? "Cerrar sesión" : <LogIn className="h-5 w-5" />}
+          <span className="text-xl">{theme === "dark" ? "☀️" : "🌙"}</span>
+          {isOpen && <span>{theme === "dark" ? "Claro" : "Oscuro"}</span>}
         </button>
+
+        {/* Avatar e Logout */}
+        <div className="flex items-center gap-3 px-2 py-2">
+          {/* Avatar */}
+          <div
+            className="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold"
+            style={{ backgroundColor: "var(--cyber-gray, #555)" }}
+          >
+            {initials}
+          </div>
+
+          {/* Botón Logout */}
+          <button
+            onClick={handleLogout}
+            className={clsx(
+              "text-sm text-red-600 dark:text-red-400 px-2 py-2 rounded hover:bg-red-100 dark:hover:bg-red-800 transition-colors w-full flex items-center",
+              !isOpen && "justify-center"
+            )}
+          >
+            {isOpen ? "Cerrar sesión" : <LogIn className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
     </aside>
   );
