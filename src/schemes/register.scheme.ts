@@ -17,10 +17,12 @@ const RegisterScheme = Yup.object().shape({
     phone_number: Yup.string().required('Phone Number is required'),
     birth_date: Yup.date()
         .transform((value, originalValue) => {
+            console.log("orig", originalValue);
+            console.log("val", value);
             return typeof originalValue === "string" ? new Date(originalValue) : value;
         })
         .typeError("Birthdate must be a valid date")
         .required("Birthdate is required"),
-}).strict();
+});
 
 export default RegisterScheme;
