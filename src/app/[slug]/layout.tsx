@@ -13,6 +13,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import "../../styles/globals.css";
+import { redirect } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -84,6 +85,10 @@ export default async function RootLayout({
     } catch (error) {
       console.error("Error loading user data: " + error);
     }
+  }
+
+  if (!auth_token) {
+    redirect(`/${slug}/auth/login`);
   }
 
   return (
