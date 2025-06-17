@@ -12,7 +12,12 @@ export async function POST() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        (await cookieStore).set(process.env.AUTH_TOKEN_SECRET || '', '', {
+        const response = NextResponse.json({
+            message: "Logged out successfully",
+            status: 200,
+        });
+
+        response.cookies.set(process.env.AUTH_TOKEN_SECRET || '', '', {
             expires: new Date(0), // Fecha en el pasado
             httpOnly: true,
             secure: true,
@@ -21,10 +26,7 @@ export async function POST() {
             sameSite: 'lax'
         });
 
-        return NextResponse.json({
-            message: "Logged out successfully",
-            status: 200,
-        });
+        return response;
     } catch (error) {
         return NextResponse.json(
             { error: "Internal server error" + error },
