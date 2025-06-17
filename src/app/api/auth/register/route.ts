@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
             expires: expiresAt,
             httpOnly: true,
             secure: true,
-            domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost',
+            domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost',
             path: '/'
         });
 
