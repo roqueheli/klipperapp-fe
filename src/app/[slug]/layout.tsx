@@ -95,12 +95,12 @@ export default async function RootLayout({
           <OrganizationProvider initialData={initialData} slug={slug}>
             <UserProvider userData={userData}>
               <div className="w-full flex min-h-screen">
-                {!isLoginPage && isValidOrganization(initialData) && (
+                {(auth_token && !isLoginPage) && isValidOrganization(initialData) && (
                   <SidebarContainer token={auth_token?.value} />
                 )}
                 <div className={clsx("transition-all duration-300 flex-grow")}>
                   <main className="w-full flex-grow">{children}</main>
-                  {!isLoginPage && <Footer />}
+                  {(auth_token && !isLoginPage) && <Footer />}
                 </div>
               </div>
               <ToasterProvider />
