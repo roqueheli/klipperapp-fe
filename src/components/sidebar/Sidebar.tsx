@@ -113,7 +113,7 @@ export default function Sidebar({ token }: SidebarProps) {
         aria-label="Home"
       >
         <Image
-          src="/russo_logo.jpeg"
+          src={data?.metadata?.media_configs?.logo_url ?? ""}
           alt="Logo"
           width={40}
           height={40}

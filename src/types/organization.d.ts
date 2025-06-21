@@ -15,11 +15,14 @@ export interface Organization {
         menus: [] | undefined
     } | null;
     bio?: string | null;
-    created_at: string;
-    updated_at: string;
+    photo_url?: string | null;
 }
 
 export interface OrganizationResponse {
     organization: Organization;
+}
+
+export interface UpateOrganization {
+    profile: Organization;
 }
 

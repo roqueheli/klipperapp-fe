@@ -2,7 +2,13 @@
 
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Organization } from "@/types/organization";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface OrganizationContextType {
   data: Organization | null;
@@ -10,6 +16,7 @@ interface OrganizationContextType {
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
+  update: (org: Organization) => void;
 }
 
 const OrganizationContext = createContext<OrganizationContextType>({
@@ -18,6 +25,7 @@ const OrganizationContext = createContext<OrganizationContextType>({
   loading: true,
   error: null,
   refresh: async () => {},
+  update: (org: Organization) => {},
 });
 
 export function OrganizationProvider({
@@ -35,8 +43,12 @@ export function OrganizationProvider({
     loading: !initialData, // Si no hay datos iniciales, cargamos
     error: null,
     refresh: async () => {},
+    update: (org: Organization) => {},
   });
 
+  const update = (org: Organization) => {
+    setState((prev) => ({ ...prev, data: org }));
+  };
   // Efecto para manejar la hidratación
   useEffect(() => {
     // Si tenemos datos iniciales, no necesitamos recargar
@@ -95,7 +107,8 @@ export function OrganizationProvider({
   }, [refresh]);
 
   return (
-    <OrganizationContext.Provider value={state}>
+    <OrganizationContext.Provider
+      value={{...state, update, }}>
       {children}
     </OrganizationContext.Provider>
   );

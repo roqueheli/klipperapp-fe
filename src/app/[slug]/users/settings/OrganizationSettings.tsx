@@ -4,14 +4,16 @@ import ImageUploader from "@/components/settings/ImageUploader";
 import InputField from "@/components/settings/InputField";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
+import { Organization, UpateOrganization } from "@/types/organization";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 const OrganizationSettings = () => {
-  const { data } = useOrganization();
+  const { data, update } = useOrganization();
   const [form, setForm] = useState({
     name: data?.name ?? "",
     bio: data?.bio ?? "",
+    photo_url: data?.photo_url ?? "",
     extra_discount: data?.metadata?.billing_configs?.extra_discount ?? 0,
     organization_percentage:
       data?.metadata?.billing_configs?.organization_percentage ?? 0,
@@ -26,6 +28,7 @@ const OrganizationSettings = () => {
 
   const handleSubmit = async () => {
     const payload = {
+      id: data?.id,
       name: form.name,
       bio: form.bio,
       metadata: {
@@ -39,17 +42,24 @@ const OrganizationSettings = () => {
           favicon: form.favicon,
         },
       },
+      photo_url: form.photo_url,
     };
 
     try {
-      await toast.promise(
-        httpInternalApi.httpPostPublic("/organization", "PUT", payload),
+      const updatedOrg = await toast.promise(
+        httpInternalApi.httpPostPublic(
+          "/organizations",
+          "PUT",
+          payload
+        ) as Promise<UpateOrganization>,
         {
           loading: "Actualizando organization...",
           success: "Organization actualizada exitosamente.",
           error: "Error al actualizar la organization.",
         }
       );
+
+      update(updatedOrg.profile);
     } catch (error) {
       console.error("Error en la actualización de la organization:", error);
     }
@@ -108,6 +118,11 @@ const OrganizationSettings = () => {
         label="Favicon"
         initialUrl={form.favicon}
         onUpload={(url) => handleChange("favicon", url)}
+      />
+      <ImageUploader
+        label="Foto principal"
+        initialUrl={form.photo_url}
+        onUpload={(url) => handleChange("photo_url", url)}
       />
 
       <div className="mt-8 w-full flex justify-end items-center">

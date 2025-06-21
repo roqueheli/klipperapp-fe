@@ -1,12 +1,15 @@
 "use client";
 
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useOrganization } from "@/contexts/OrganizationContext";
 import { useFilteredMenus } from "@/hooks/useFilteredMenus";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import { MenuItem } from "@/types/user";
+import Image from "next/image";
 import Link from "next/link";
 
 const UsersPage = () => {
+  const { data } = useOrganization();
   const filteredMenus = useFilteredMenus();
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
@@ -15,7 +18,7 @@ const UsersPage = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-full bg-gradient-to-br from-gray-50 dark:from-gray-900 to-gray-200 dark:to-gray-800 px-4 sm:px-6 py-12">
+    <div className="flex flex-col justify-center items-center min-h-screen w-full bg-gradient-to-br from-gray-50 dark:from-gray-900 to-gray-200 dark:to-gray-800 px-4 sm:px-6 py-12">
       <div className="w-full max-w-4xl bg-white dark:bg-gray-900 backdrop-blur-md border border-gray-300 dark:border-gray-700 rounded-3xl shadow-2xl p-6 sm:p-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredMenus.map((menu: MenuItem, index: number) => {
