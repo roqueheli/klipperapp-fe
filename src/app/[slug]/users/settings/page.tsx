@@ -5,6 +5,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Branch, BranchResponse } from "@/types/branch";
+import { Role, RoleResponse } from "@/types/role";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
 import { useEffect, useState } from "react";
@@ -19,6 +20,7 @@ const SettingsPage = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,23 +31,29 @@ const SettingsPage = () => {
 
       try {
         setIsLoading(true);
-        const [servicesRes, usersRes, branchesRes] = await Promise.all([
-          httpInternalApi.httpGetPublic(
-            "/services",
-            servicesParams
-          ) as Promise<ServiceResponse>,
-          httpInternalApi.httpGetPublic(
-            "/users",
-            servicesParams
-          ) as Promise<UserResponse>,
-          httpInternalApi.httpGetPublic(
-            "/branches",
-            servicesParams
-          ) as Promise<BranchResponse>,
-        ]);
+        const [servicesRes, usersRes, branchesRes, rolesRes] =
+          await Promise.all([
+            httpInternalApi.httpGetPublic(
+              "/services",
+              servicesParams
+            ) as Promise<ServiceResponse>,
+            httpInternalApi.httpGetPublic(
+              "/users",
+              servicesParams
+            ) as Promise<UserResponse>,
+            httpInternalApi.httpGetPublic(
+              "/branches",
+              servicesParams
+            ) as Promise<BranchResponse>,
+            httpInternalApi.httpGetPublic(
+              "/roles",
+              servicesParams
+            ) as Promise<RoleResponse>,
+          ]);
         setServices(servicesRes.services);
         setUsers(usersRes.users);
         setBranches(branchesRes.branches);
+        setRoles(rolesRes.roles);
       } catch (error) {
         console.error("Error al cargar servicios y usuarios:", error);
       } finally {
@@ -55,8 +63,6 @@ const SettingsPage = () => {
 
     fetchData();
   }, [data?.id]);
-
-  console.log("Servicios iniciales:", services);
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -78,7 +84,11 @@ const SettingsPage = () => {
       </SettingsSection>
 
       <SettingsSection title="Configuración de Usuarios">
-        <UserSettingsList initialUsers={users} />
+        <UserSettingsList
+          initialUsers={users}
+          branches={branches}
+          roles={roles}
+        />
       </SettingsSection>
     </div>
   );

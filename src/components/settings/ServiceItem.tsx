@@ -20,8 +20,6 @@ export default function ServiceItem({
 }: Props) {
   const [open, setOpen] = useState(false);
 
-  console.log("item", service);
-
   return (
     <div className="border border-[--electric-blue] rounded-xl mb-3 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 bg-[--cyber-gray] hover:bg-[--menu-hover-bg] transition">

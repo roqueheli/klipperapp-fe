@@ -2,14 +2,18 @@
 
 import ConfirmModal from "@/components/modal/ConfirmModal";
 import UserItem from "@/components/settings/UserItem";
+import { Branch } from "@/types/branch";
+import { Role } from "@/types/role";
 import { User } from "@/types/user";
 import { useState } from "react";
 
-interface Props {
+interface UserSettingsListProps {
   initialUsers: User[];
+  branches: Branch[];
+  roles: Role[];
 }
 
-export default function UserSettingsList({ initialUsers }: Props) {
+export default function UserSettingsList({ initialUsers, branches, roles }: UserSettingsListProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
 
@@ -44,6 +48,8 @@ export default function UserSettingsList({ initialUsers }: Props) {
           onChange={handleUpdate}
           onToggleActive={handleToggle}
           onDelete={() => setConfirmingId(user.id)}
+          branches={branches}
+          roles={roles}
         />
       ))}
 

@@ -1,12 +1,16 @@
 "use client";
 
 import InputField from "@/components/settings/InputField";
+import { Branch } from "@/types/branch";
+import { Role } from "@/types/role";
 import { User } from "@/types/user";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
   user: User;
+  branches: Branch[];
+  roles: Role[];
   onChange: (id: number, updated: Partial<User>) => void;
   onToggleActive: (id: number, active: boolean) => void;
   onDelete: (id: number) => void;
@@ -14,6 +18,8 @@ interface Props {
 
 export default function UserItem({
   user,
+  branches,
+  roles,
   onChange,
   onToggleActive,
   onDelete,
@@ -87,9 +93,11 @@ export default function UserItem({
               className="w-full border rounded px-3 py-2 text-sm bg-white text-black"
             >
               <option value="">Selecciona un rol</option>
-              <option value={1}>Admin</option>
-              <option value={2}>Profesional</option>
-              {/* reemplazar con roles dinámicos */}
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -104,9 +112,11 @@ export default function UserItem({
               className="w-full border rounded px-3 py-2 text-sm bg-white text-black"
             >
               <option value="">Selecciona una sucursal</option>
-              <option value={1}>Sucursal 1</option>
-              <option value={2}>Sucursal 2</option>
-              {/* reemplazar con sucursales dinámicas */}
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
