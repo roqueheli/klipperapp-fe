@@ -6,6 +6,7 @@ import { Role } from "@/types/role";
 import { User } from "@/types/user";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useState } from "react";
+import ImageUploader from "./ImageUploader";
 
 interface Props {
   user: User;
@@ -74,13 +75,6 @@ export default function UserItem({
             value={user.phone_number ?? ""}
             onChange={(val) => onChange(user.id, { phone_number: String(val) })}
           />
-          <InputField
-            label="Dirección"
-            value={user.address_line1 ?? ""}
-            onChange={(val) =>
-              onChange(user.id, { address_line1: String(val) })
-            }
-          />
 
           {/* Role Select (placeholder) */}
           <div className="space-y-1">
@@ -119,6 +113,11 @@ export default function UserItem({
               ))}
             </select>
           </div>
+          <ImageUploader
+            label="Foto"
+            initialUrl={user.photo_url ?? ""}
+            onUpload={(url) => onChange(user.id, { photo_url: url })}
+          />
         </div>
       )}
     </div>

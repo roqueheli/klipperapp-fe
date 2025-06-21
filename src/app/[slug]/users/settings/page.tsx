@@ -10,7 +10,7 @@ import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
 import { useEffect, useState } from "react";
 import BranchSettingsList from "./BranchSettingsList";
-import ConfigurationSettings from "./ConfigurationSettings";
+import OrganizationSettings from "./OrganizationSettings";
 import ServiceSettingsList from "./ServiceSettingsList";
 import UserSettingsList from "./UserSettingsList";
 
@@ -72,15 +72,15 @@ const SettingsPage = () => {
         Configuraciones
       </h1>
       <SettingsSection title="Configuración de la Organización">
-        <ConfigurationSettings />
+        <OrganizationSettings />
       </SettingsSection>
 
       <SettingsSection title="Configuración de Sucursales">
-        <BranchSettingsList initialBranches={branches} />
+        <BranchSettingsList initialBranches={branches} organization_id={data?.id || 0} />
       </SettingsSection>
 
       <SettingsSection title="Configuración Servicios">
-        <ServiceSettingsList initialServices={services} />
+        <ServiceSettingsList initialServices={services} organization_id={data?.id || 0} />
       </SettingsSection>
 
       <SettingsSection title="Configuración de Usuarios">
@@ -88,6 +88,7 @@ const SettingsPage = () => {
           initialUsers={users}
           branches={branches}
           roles={roles}
+          organization_id={data?.id || 0}
         />
       </SettingsSection>
     </div>

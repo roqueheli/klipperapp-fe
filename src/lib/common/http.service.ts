@@ -15,7 +15,7 @@ export class HttpBaseAPI {
                 "Authorization": `Bearer ${access_token}`,
             },
         });
-        
+
         if (!res.ok) {
             if (res.status === 403) {
                 throw new AccesDeniedError("User has no access");
@@ -30,13 +30,23 @@ export class HttpBaseAPI {
     }
 
     async httpPost<T>(endpointSuffix: string, method: string, body?: object, access_token?: string): Promise<T> {
+        const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+
+        const headers: HeadersInit = {};
+
+        if (access_token) {
+            headers["Authorization"] = `Bearer ${access_token}`;
+        }
+
+        // Solo agrega Content-Type si NO es FormData
+        if (!isFormData) {
+            headers["Content-Type"] = "application/json";
+        }
+
         const res = await fetch(`${this.privateEndpoint}${endpointSuffix}`, {
             method: method,
-            headers: !access_token ? { "Content-Type": "application/json", } : {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${access_token}`
-            },
-            body: JSON.stringify(body),
+            headers,
+            body: isFormData ? body as FormData : JSON.stringify(body),
         });
 
         if (!res.ok) {

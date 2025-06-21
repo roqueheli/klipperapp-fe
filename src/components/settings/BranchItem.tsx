@@ -4,6 +4,7 @@ import InputField from "@/components/settings/InputField";
 import { Branch } from "@/types/branch";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useState } from "react";
+import ImageUploader from "./ImageUploader";
 
 interface Props {
   branch: Branch;
@@ -113,6 +114,11 @@ export default function BranchItem({
             label="País"
             value={branch.country ?? ""}
             onChange={(val) => onChange(branch.id, { country: String(val) })}
+          />
+          <ImageUploader
+            label="Foto Sucursal"
+            initialUrl={branch.photo_url ?? ""}
+            onUpload={(url) => onChange(branch.id, { photo_url: url })}
           />
         </div>
       )}

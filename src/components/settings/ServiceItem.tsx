@@ -4,6 +4,7 @@ import InputField from "@/components/settings/InputField";
 import { Service } from "@/types/service";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useState } from "react";
+import ImageUploader from "./ImageUploader";
 
 interface Props {
   service: Service;
@@ -69,7 +70,7 @@ export default function ServiceItem({
           <InputField
             label="Precio"
             type="number"
-            value={Number(service.price)}
+            value={Number(service.price).toLocaleString("es-CL")}
             onChange={(val) => onChange(service.id, { price: Number(val) })}
           />
           <InputField
@@ -77,6 +78,11 @@ export default function ServiceItem({
             type="number"
             value={service.duration ?? 0}
             onChange={(val) => onChange(service.id, { duration: Number(val) })}
+          />
+          <ImageUploader
+            label="Foto Servicio"
+            initialUrl={service.photo_url ?? ""}
+            onUpload={(url) => onChange(service.id, { photo_url: url })}
           />
         </div>
       )}

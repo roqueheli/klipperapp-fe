@@ -2,21 +2,29 @@
 
 import ConfirmModal from "@/components/modal/ConfirmModal";
 import BranchItem from "@/components/settings/BranchItem";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import { Branch } from "@/types/branch";
 import { useState } from "react";
 
-interface Props {
+interface BranchesProps {
   initialBranches: Branch[];
+  organization_id: number;
 }
 
-export default function BranchSettingsList({ initialBranches }: Props) {
+let tempId = -1;
+
+export default function BranchSettingsList({ initialBranches, organization_id }: BranchesProps) {
   const [branches, setBranches] = useState<Branch[]>(initialBranches);
+  const [modifiedBranchIds, setModifiedBranchIds] = useState<Set<number>>(
+    new Set()
+  );
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
 
   const handleUpdate = (id: number, changes: Partial<Branch>) => {
     setBranches((prev) =>
       prev.map((b) => (b.id === id ? { ...b, ...changes } : b))
     );
+    setModifiedBranchIds((prev) => new Set(prev).add(id));
   };
 
   const handleToggle = (id: number, active: boolean) => {
@@ -25,18 +33,71 @@ export default function BranchSettingsList({ initialBranches }: Props) {
 
   const handleDelete = (id: number) => {
     setBranches((prev) => prev.filter((b) => b.id !== id));
+    setModifiedBranchIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   };
 
   const handleConfirmDelete = () => {
     if (confirmingId !== null) {
-      setBranches((prev) => prev.filter((b) => b.id !== confirmingId));
+      handleDelete(confirmingId);
       setConfirmingId(null);
     }
   };
 
-  const handleSubmit = () => {
-    console.log("Branches actualizadas:", branches);
-    // Aquí podrías hacer PUT o POST al backend por cada branch
+  const handleAddBranch = () => {
+    const newBranch: Branch = {
+      id: tempId--,
+      organization_id: organization_id,
+      name: "",
+      email: "",
+      phone_number: "",
+      address_line1: "",
+      address_line2: "",
+      city: "",
+      state: "",
+      zip_code: "",
+      country: "",
+      active: true,
+      photo_url: "",
+    };
+    setBranches((prev) => [...prev, newBranch]);
+    setModifiedBranchIds((prev) => new Set(prev).add(newBranch.id));
+  };
+
+  const handleSubmit = async () => {
+    const updatedBranches = branches.filter((b) => modifiedBranchIds.has(b.id));
+
+    try {
+      for (const branch of updatedBranches) {
+        const payload = {
+          name: branch.name,
+          email: branch.email,
+          phone_number: branch.phone_number,
+          address_line1: branch.address_line1,
+          address_line2: branch.address_line2,
+          city: branch.city,
+          state: branch.state,
+          zip_code: branch.zip_code,
+          country: branch.country,
+          active: branch.active,
+          photo_url: branch.photo_url,
+        };
+
+        if (branch.id < 0) {
+          await httpInternalApi.httpPost(`/branches`, "POST", payload);
+        } else {
+          await httpInternalApi.httpPost(`/branches/${branch.id}`, "PUT", payload);
+        }
+      }
+
+      console.log("Sucursales actualizadas:", updatedBranches);
+      setModifiedBranchIds(new Set());
+    } catch (err) {
+      console.error("Error al actualizar sucursales:", err);
+    }
   };
 
   return (
@@ -52,10 +113,17 @@ export default function BranchSettingsList({ initialBranches }: Props) {
         />
       ))}
 
-      <div className="flex justify-end mt-6">
+      <div className="flex items-center justify-end mt-6">
+        <button
+          onClick={handleAddBranch}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-xl shadow transition-all mr-2"
+        >
+          + Nueva Sucursal
+        </button>
+
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-all"
         >
           Guardar cambios
         </button>

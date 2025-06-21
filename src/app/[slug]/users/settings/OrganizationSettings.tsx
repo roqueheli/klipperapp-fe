@@ -1,10 +1,13 @@
 "use client";
 
+import ImageUploader from "@/components/settings/ImageUploader";
 import InputField from "@/components/settings/InputField";
 import { useOrganization } from "@/contexts/OrganizationContext";
+import httpInternalApi from "@/lib/common/http.internal.service";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
-const ConfigurationSettings = () => {
+const OrganizationSettings = () => {
   const { data } = useOrganization();
   const [form, setForm] = useState({
     name: data?.name ?? "",
@@ -13,38 +16,50 @@ const ConfigurationSettings = () => {
     organization_percentage:
       data?.metadata?.billing_configs?.organization_percentage ?? 0,
     user_percentage: data?.metadata?.billing_configs?.user_percentage ?? 0,
-    logo_url: "" as string | File,
-    favicon: "" as string | File,
+    logo_url: data?.metadata?.media_configs?.logo_url ?? "",
+    favicon: data?.metadata?.media_configs?.favicon ?? "",
   });
 
   const handleChange = (field: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
-    const formData = new FormData();
-    formData.append("name", form.name);
-    formData.append("bio", form.bio);
-    formData.append("extra_discount", String(form.extra_discount));
-    formData.append(
-      "organization_percentage",
-      String(form.organization_percentage)
-    );
-    formData.append("user_percentage", String(form.user_percentage));
+  const handleSubmit = async () => {
+    const payload = {
+      name: form.name,
+      bio: form.bio,
+      metadata: {
+        billing_configs: {
+          extra_discount: form.extra_discount,
+          organization_percentage: form.organization_percentage,
+          user_percentage: form.user_percentage,
+        },
+        media_configs: {
+          logo_url: form.logo_url,
+          favicon: form.favicon,
+        },
+      },
+    };
 
-    if (form.logo_url instanceof File) {
-      formData.append("logo", form.logo_url);
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic("/organization", "PUT", payload),
+        {
+          loading: "Actualizando organization...",
+          success: "Organization actualizada exitosamente.",
+          error: "Error al actualizar la organization.",
+        }
+      );
+    } catch (error) {
+      console.error("Error en la actualización de la organization:", error);
     }
-    if (form.favicon instanceof File) {
-      formData.append("favicon", form.favicon);
-    }
-    console.log("Enviando cambios:", form);
-    // Aquí iría el POST/PUT al backend.
   };
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h1>Información General</h1>
+      <h1 className="text-xl font-bold mb-4 text-[--electric-blue]">
+        Información General
+      </h1>
       <InputField
         label="Nombre"
         value={form.name}
@@ -59,7 +74,9 @@ const ConfigurationSettings = () => {
         type="text"
       />
 
-      <h1>Configuración de Facturación</h1>
+      <h1 className="text-xl font-bold my-4 text-[--electric-blue]">
+        Configuración de Facturación
+      </h1>
       <InputField
         label="Descuento Extra"
         value={form.extra_discount}
@@ -79,19 +96,18 @@ const ConfigurationSettings = () => {
         type="number"
       />
 
-      <h1>Archivos de Marca</h1>
-      <InputField
-        label="Logo (archivo)"
-        onChange={(val) => handleChange("logo_url", String(val))}
-        type="file"
-        accept="image/png, image/jpeg, image/jpg"
+      <h1 className="text-xl font-bold my-4 text-[--electric-blue]">
+        Archivos de Marca
+      </h1>
+      <ImageUploader
+        label="Logo"
+        initialUrl={form.logo_url}
+        onUpload={(url) => handleChange("logo_url", url)}
       />
-
-      <InputField
-        label="Favicon (archivo)"
-        onChange={(val) => handleChange("favicon", String(val))}
-        type="file"
-        accept="image/png, image/jpeg, image/jpg"
+      <ImageUploader
+        label="Favicon"
+        initialUrl={form.favicon}
+        onUpload={(url) => handleChange("favicon", url)}
       />
 
       <div className="mt-8 w-full flex justify-end items-center">
@@ -106,4 +122,4 @@ const ConfigurationSettings = () => {
   );
 };
 
-export default ConfigurationSettings;
+export default OrganizationSettings;

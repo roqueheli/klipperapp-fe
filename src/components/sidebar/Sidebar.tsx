@@ -85,14 +85,17 @@ export default function Sidebar({ token }: SidebarProps) {
   return (
     <aside
       className={clsx(
-        "min-h-screen bg-white dark:bg-gray-800 border-r dark:border-gray-700 p-4 flex flex-col justify-between transition-all duration-300 ease-in-out",
-        isOpen ? "w-70" : "w-16"
+        "min-h-screen border-r p-4 flex flex-col justify-between transition-all duration-300 ease-in-out",
+        isOpen ? "w-70" : "w-16",
+        theme === "dark"
+          ? "bg-gray-900 dark:bg-gray-800 dark:border-gray-700"
+          : "bg-white border-gray-300"
       )}
     >
       {/* Toggle */}
       <div className="flex justify-end">
         <button
-          className="mb-4 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition"
+          className="mb-4 text-gray-600 dark:text-white hover:text-black dark:hover:text-white transition"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? (
@@ -144,6 +147,9 @@ export default function Sidebar({ token }: SidebarProps) {
                   isDisabledAttention &&
                     "cursor-not-allowed opacity-50 pointer-events-auto"
                 )}
+                style={{
+                  color: theme === "dark" ? "white" : "black",
+                }}
               >
                 {menuIcons[menu.path]}
                 {isOpen && <span>{menu.label}</span>}
@@ -170,6 +176,9 @@ export default function Sidebar({ token }: SidebarProps) {
                 ? "bg-gray-100 dark:bg-gray-700 font-semibold"
                 : "text-gray-700 dark:text-white"
             )}
+            style={{
+              color: theme === "dark" ? "white" : "black",
+            }}
           >
             {menuIcons[configMenu.path]}
             {isOpen && <span>{configMenu.label}</span>}
@@ -179,7 +188,12 @@ export default function Sidebar({ token }: SidebarProps) {
         {/* Toggle theme */}
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full"
+          className={clsx(
+            "flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full",
+            theme === "dark"
+              ? "bg-gray-800 text-white"
+              : "bg-white text-gray-700"
+          )}
           title="Toggle dark mode"
         >
           <span className="text-xl">{theme === "dark" ? "☀️" : "🌙"}</span>

@@ -4,12 +4,10 @@ export interface Service {
   description: string | null
   organization_id: number
   price: number
-  branch_id: number
+  branch_id?: number
   duration: number
   active: boolean
   photo_url: string
-  created_at: string
-  updated_at: string
 }
 
 export type ServiceResponse = {
