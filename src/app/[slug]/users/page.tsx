@@ -19,9 +19,7 @@ const UsersPage = () => {
       <div className="w-full max-w-4xl bg-white/90 dark:bg-gray-800/80 backdrop-blur-md border border-gray-300 dark:border-gray-700 rounded-3xl shadow-2xl p-6 sm:p-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredMenus.map((menu: MenuItem, index: number) => {
-            const isDisabledAttention =
-              menu.path.includes("/users/attendances") && isWorkingTodayEmpty;
-
+            const isDisabledAttention = isWorkingTodayEmpty;
             const baseClasses =
               "w-full text-center text-base sm:text-lg font-semibold py-4 px-6 rounded-2xl shadow-md transition transform duration-300 ease-in-out select-none";
 

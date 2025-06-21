@@ -55,13 +55,12 @@ const AttendanceTable = ({
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
             <tr>
-              <th className="px-4 py-3 w-70">Cliente</th>
-              <th className="px-4 py-3 w-100">Servicio</th>
-              <th className="px-4 py-3 w-60">Profesional</th>
-              <th className="px-4 py-3 w-60">Estado</th>
-              <th className="px-4 py-3 w-70">Fecha</th>
-              <th className="px-4 py-3 w-50">Precio</th>
-              <th className="px-4 py-3 w-80 text-center">Acciones</th>
+              <th className="px-4 py-3 w-20">Código</th>
+              <th className="px-4 py-3 w-60">Cliente</th>
+              <th className="px-4 py-3 w-50">Profesional</th>
+              <th className="px-4 py-3 w-50">Estado</th>
+              <th className="px-4 py-3 w-55">Fecha</th>
+              <th className="px-4 py-3 w-60 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -70,8 +69,8 @@ const AttendanceTable = ({
                 key={a.id}
                 className="border-t hover:bg-gray-50 dark:hover:bg-gray-800 transition"
               >
+                <td className="px-4 py-3">{a.id || "0"}</td>
                 <td className="px-4 py-3">{a.profile?.name || "-"}</td>
-                <td className="px-4 py-3">{a.service?.name || "-"}</td>
                 <td className="px-4 py-3">
                   {a.attended_by_user?.name || "No asignado"}
                 </td>
@@ -80,9 +79,6 @@ const AttendanceTable = ({
                 </td>
                 <td className="px-4 py-3">
                   {new Date(a.created_at).toLocaleString()}
-                </td>
-                <td className="px-4 py-3">
-                  ${parseInt(a.service?.price || "0").toLocaleString()}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2 flex-wrap">

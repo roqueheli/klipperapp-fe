@@ -100,7 +100,7 @@ export default function AttendanceModal({
 
         {att?.status === "pending" && (
           <div className="flex justify-end space-x-3">
-            {userData?.role_id !== 7 && (
+            {(userData?.role_id !== 7 && userData?.role_id !== 3) && (
               <>
                 <button
                   onClick={onClose}

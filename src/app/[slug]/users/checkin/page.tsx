@@ -142,7 +142,7 @@ const CheckinPage = () => {
             requestBody
           );
           results.push({ status: "fulfilled", user: u });
-          router.push(`/${slug}/users/attendances`);
+          window.location.href = `/${slug}/users/lists`;
         } catch (error) {
           results.push({ status: "rejected", user: u, error });
         }

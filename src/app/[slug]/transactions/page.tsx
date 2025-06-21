@@ -74,9 +74,10 @@ const TransactionsPage = () => {
     return attendances
       .filter((a) => ["pending", "processing", "completed"].includes(a.status))
       .sort((a, b) => {
-        const dateA = new Date(a.created_at ?? 0).getTime();
-        const dateB = new Date(b.created_at ?? 0).getTime();
-        return dateA - dateB;
+        const statusOrder = ["pending", "processing", "completed"];
+        const statusComparison = statusOrder.indexOf(b.status) - statusOrder.indexOf(a.status);
+        if (statusComparison !== 0) return statusComparison;
+        return a.id - b.id;
       });
   }, [attendances]);
 

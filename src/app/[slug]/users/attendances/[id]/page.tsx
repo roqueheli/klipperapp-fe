@@ -1,10 +1,11 @@
 "use client";
 
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import httpInternalApi from "../../../../../lib/common/http.internal.service";
+import { Service } from "@/types/service";
 
 const AttendanceDetailPage = () => {
   const { id } = useParams();
@@ -22,6 +23,7 @@ const AttendanceDetailPage = () => {
           `/attendances`,
           attendanceParams
         )) as Attendances;
+
         setAttendance(response?.attendances[0]);
       } catch (error) {
         console.error("Error al cargar asistencia:", error);
@@ -35,7 +37,7 @@ const AttendanceDetailPage = () => {
 
   if (isLoading || !attendance) return <LoadingSpinner />;
 
-  const { profile, attended_by_user, service, created_at, status } = attendance;
+  const { profile, attended_by_user, services, created_at, status } = attendance;
 
   return (
     <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,17 +60,24 @@ const AttendanceDetailPage = () => {
         />
       </DetailSection>
 
-      <DetailSection title="Servicio">
-        <p className="font-medium">{service?.name || "Sin servicio"}</p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Precio:{" "}
-          {service?.price != null
-            ? `${service.price.toLocaleString()} CLP`
-            : "No informado"}
-        </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Duración: {service?.duration ?? "No especificada"} minutos
-        </p>
+      <DetailSection title="Servicios">
+        {services === undefined || services?.length === 0 ? (
+          <p className="text-gray-500">Sin servicios asignados.</p>
+        ) : (
+          <ul className="pl-5 space-y-2">
+            {services.map((service: Service) => (
+              <li className="p-4 w-full flex justify-between items-center" key={service.id}>
+                <p className="font-medium">{service.name}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Precio: {parseInt(service.price).toLocaleString()} CLP
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Duración: {service?.duration} minutos
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </DetailSection>
 
       <DetailSection title="Información adicional">
@@ -106,7 +115,15 @@ const DetailSection = ({
   </section>
 );
 
-const AvatarCard = ({ name, email, phone }: { name?: string; email?: string, phone?: string }) => (
+const AvatarCard = ({
+  name,
+  email,
+  phone,
+}: {
+  name?: string;
+  email?: string;
+  phone?: string;
+}) => (
   <div className="flex items-center gap-4">
     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-gray-700 flex items-center justify-center rounded-full text-gray-400 text-xl">
       {name?.charAt(0) || "?"}

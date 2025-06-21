@@ -22,9 +22,6 @@ export async function POST() {
             sameSite: 'lax'
         });
 
-        console.log("resp", response);
-        
-
         return response;
     } catch (error) {
         return NextResponse.json(

@@ -32,7 +32,7 @@ export default function DashboardPage() {
       if (userData?.id !== undefined && userData?.role_id !== 1) {
         params.set("branch_id", String(userData?.branch_id));
       }
-      if (userData?.role_id === 7) {
+      if (userData?.role_id === 7 || userData?.role_id === 3) {
         params.set("attended_by", String(userData?.id));
       }
 
@@ -108,10 +108,19 @@ export default function DashboardPage() {
 
   const perService = useMemo(() => {
     const map: Record<string, number> = {};
+
     (attendances ?? []).forEach((a) => {
-      const name = a.service?.name || "Sin servicio";
-      map[name] = (map[name] || 0) + 1;
+      const services = a.services ?? [];
+
+      if (services.length === 0) {
+        map["Sin servicio"] = (map["Sin servicio"] || 0) + 1;
+      } else {
+        services.forEach((s) => {
+          map[s.name] = (map[s.name] || 0) + 1;
+        });
+      }
     });
+
     return Object.entries(map).map(([name, count]) => ({ name, count }));
   }, [attendances]);
 

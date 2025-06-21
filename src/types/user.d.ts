@@ -19,7 +19,7 @@ export interface User {
     updated_at?: string;
     start_working_at?: string;
     work_state?: string;
-    photo?: string;
+    photo_url?: string;
     skills?: Array[string];
     premium?: boolean;
     branch_id?: number;
