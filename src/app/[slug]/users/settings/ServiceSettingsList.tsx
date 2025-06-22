@@ -5,20 +5,33 @@ import ServiceItem from "@/components/settings/ServiceItem";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Service } from "@/types/service";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface ServicesProps {
   initialServices: Service[];
-  organization_id: number
+  organization_id: number;
 }
 
 let tempId = -1; // ID temporal para servicios nuevos
 
-export default function ServiceSettingsList({ initialServices, organization_id }: ServicesProps) {
+export default function ServiceSettingsList({
+  initialServices,
+  organization_id,
+}: ServicesProps) {
   const [services, setServices] = useState<Service[]>(initialServices);
   const [modifiedServiceIds, setModifiedServiceIds] = useState<Set<number>>(
     new Set()
   );
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const [expandedServiceIds, setExpandedServiceIds] = useState<Set<number>>(
+    new Set()
+  );
+
+  const isServiceValid = (service: Service) => {
+    return (
+      service.name.trim() !== "" && service.price > 0 && service.duration > 0
+    );
+  };
 
   const handleUpdate = (id: number, changes: Partial<Service>) => {
     setServices((prev) =>
@@ -31,15 +44,34 @@ export default function ServiceSettingsList({ initialServices, organization_id }
     handleUpdate(id, { active });
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (confirmingId !== null) {
-      setServices((prev) => prev.filter((s) => s.id !== confirmingId));
-      setModifiedServiceIds((prev) => {
-        const next = new Set(prev);
-        next.delete(confirmingId);
-        return next;
-      });
-      setConfirmingId(null);
+      const payload = {
+        id: confirmingId,
+      };
+      try {
+        toast.promise(
+          httpInternalApi.httpPostPublic(
+            `/services/${confirmingId}`,
+            "DELETE",
+            payload
+          ),
+          {
+            loading: "Eliminando servicio...",
+            success: "Servicio eliminado exitosamente.",
+            error: "Error al eliminar el servicio.",
+          }
+        );
+        setServices((prev) => prev.filter((s) => s.id !== confirmingId));
+        setModifiedServiceIds((prev) => {
+          const next = new Set(prev);
+          next.delete(confirmingId);
+          return next;
+        });
+        setConfirmingId(null);
+      } catch (error) {
+        console.error("Error al eliminar una sucursal:", error);
+      }
     }
   };
 
@@ -56,6 +88,7 @@ export default function ServiceSettingsList({ initialServices, organization_id }
     };
     setServices((prev) => [...prev, newService]);
     setModifiedServiceIds((prev) => new Set(prev).add(newService.id));
+    setExpandedServiceIds((prev) => new Set(prev).add(newService.id));
   };
 
   const handleSubmit = async () => {
@@ -63,10 +96,19 @@ export default function ServiceSettingsList({ initialServices, organization_id }
       modifiedServiceIds.has(s.id)
     );
 
+    const invalidServices = updatedServices.filter((s) => !isServiceValid(s));
+    if (invalidServices.length > 0) {
+      toast.error("Completa todos los campos requeridos para cada servicio.");
+      return;
+    }
+
     try {
       for (const service of updatedServices) {
         const payload = {
+          organization_id: service.organization_id,
+          id: service.id < 0 ? undefined : service.id,
           name: service.name,
+          branch_id: 1,
           description: service.description,
           price: service.price,
           duration: service.duration,
@@ -74,19 +116,45 @@ export default function ServiceSettingsList({ initialServices, organization_id }
           photo_url: service.photo_url,
         };
 
-        if (service.id < 0) {
-          await httpInternalApi.httpPost(`/services`, "POST", payload);
-        } else {
-          await httpInternalApi.httpPost(`/services/${service.id}`, "PUT", payload);
-        }
+        console.log(payload);
+
+        await toast.promise(
+          service.id < 0
+            ? httpInternalApi.httpPostPublic(`/services`, "POST", payload)
+            : httpInternalApi.httpPostPublic(
+                `/services/${service.id}`,
+                "PUT",
+                payload
+              ),
+          {
+            loading:
+              service.id < 0
+                ? "Creando servicio..."
+                : "Actualizando servicio...",
+            success:
+              service.id < 0
+                ? "Servicio creado con éxito"
+                : "Servicio actualizado con éxito",
+            error:
+              service.id < 0
+                ? "Error al crear el servicio"
+                : "Error al actualizar el servicio",
+          }
+        );
       }
 
-      console.log("Servicios actualizados:", updatedServices);
       setModifiedServiceIds(new Set());
     } catch (err) {
       console.error("Error al actualizar servicios:", err);
     }
   };
+
+  const hasInvalidService = Array.from(modifiedServiceIds).some((id) => {
+    const service = services.find((s) => s.id === id);
+    return service && !isServiceValid(service);
+  });
+
+  const hasChanges = modifiedServiceIds.size > 0 || hasInvalidService;
 
   return (
     <div className="p-4">
@@ -97,6 +165,15 @@ export default function ServiceSettingsList({ initialServices, organization_id }
           onChange={handleUpdate}
           onToggleActive={handleToggle}
           onDelete={() => setConfirmingId(service.id)}
+          expanded={expandedServiceIds.has(service.id)}
+          setExpanded={(open) =>
+            setExpandedServiceIds((prev) => {
+              const next = new Set(prev);
+              if (open) next.add(service.id);
+              else next.delete(service.id);
+              return next;
+            })
+          }
         />
       ))}
 
@@ -110,7 +187,12 @@ export default function ServiceSettingsList({ initialServices, organization_id }
 
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-all"
+          disabled={!hasChanges}
+          className={`py-2 px-4 rounded-xl shadow-lg transition-all font-bold text-white ${
+            hasChanges
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
         >
           Guardar cambios
         </button>

@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
 
     const isAuthRoute = pathname.startsWith(`/${slug}/auth`);
 
-    if (!token && pathname === `/${slug}`) {
+    if ((!token && pathname === `/${slug}`) || (!token && section && protectedRoutes.includes(section))) {
         return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
     }
 
@@ -52,16 +52,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (token && pathname === `/${slug}` && !isAuthRoute) {
-
         return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
-    }
-
-    if (!token && protectedRoutes.includes(section)) {
-        return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
-    }
-
-    if (!token && section && protectedRoutes.includes(section)) {
-        return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
     }
 
     if (token && section && publicRoutes.includes(section)) {

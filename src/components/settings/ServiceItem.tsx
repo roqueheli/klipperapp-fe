@@ -3,7 +3,6 @@
 import InputField from "@/components/settings/InputField";
 import { Service } from "@/types/service";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { useState } from "react";
 import ImageUploader from "./ImageUploader";
 
 interface Props {
@@ -11,6 +10,8 @@ interface Props {
   onChange: (id: number, updated: Partial<Service>) => void;
   onToggleActive: (id: number, active: boolean) => void;
   onDelete: (id: number) => void;
+  expanded: boolean;
+  setExpanded: (open: boolean) => void;
 }
 
 export default function ServiceItem({
@@ -18,8 +19,9 @@ export default function ServiceItem({
   onChange,
   onToggleActive,
   onDelete,
+  expanded,
+  setExpanded,
 }: Props) {
-  const [open, setOpen] = useState(false);
 
   return (
     <div className="border border-[--electric-blue] rounded-xl mb-3 overflow-hidden">
@@ -27,7 +29,7 @@ export default function ServiceItem({
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
-            checked={service.active}
+            checked={!!service.active} // esto fuerza un booleano
             onChange={(e) => onToggleActive(service.id, e.target.checked)}
           />
           <span className="text-[--electric-blue] font-semibold">
@@ -43,16 +45,16 @@ export default function ServiceItem({
             <Trash2 size={18} />
           </button>
           <button
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => setExpanded(!expanded)}
             className="text-[--electric-blue]"
             title="Editar"
           >
-            {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
         </div>
       </div>
 
-      {open && (
+      {expanded && (
         <div className="bg-[--background] px-4 py-4 space-y-4">
           <InputField
             label="Nombre"
@@ -70,7 +72,7 @@ export default function ServiceItem({
           <InputField
             label="Precio"
             type="number"
-            value={Number(service.price).toLocaleString("es-CL")}
+            value={Number(service.price)}
             onChange={(val) => onChange(service.id, { price: Number(val) })}
           />
           <InputField

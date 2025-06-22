@@ -3,7 +3,7 @@
 import { useTheme } from "@/components/ThemeProvider";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
-import { useFilteredMenus } from "@/hooks/useFilteredMenus";
+import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOrganization";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import clsx from "clsx";
@@ -12,6 +12,7 @@ import {
   CalendarCheck,
   ChevronLeft,
   ChevronRight,
+  Clock,
   History,
   ListOrdered,
   LogIn,
@@ -27,11 +28,20 @@ type SidebarProps = {
   token?: string;
 };
 
+const iconMap: Record<string, JSX.Element> = {
+  LogIn: <LogIn className="h-5 w-5 shrink-0" />,
+  CalendarCheck: <CalendarCheck className="h-5 w-5 shrink-0" />,
+  ListOrdered: <ListOrdered className="h-5 w-5 shrink-0" />,
+  History: <History className="h-5 w-5 shrink-0" />,
+  BarChart3: <BarChart3 className="h-5 w-5 shrink-0" />,
+  Clock: <Clock className="h-5 w-5 shrink-0" />,
+  Settings: <Settings className="h-5 w-5 shrink-0" />,
+};
+
 export default function Sidebar({ token }: SidebarProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const { theme, toggleTheme } = useTheme();
-  const menus = useFilteredMenus();
   const pathname = usePathname();
   const [route, setRoute] = useState("/users");
   const router = useRouter();
@@ -46,16 +56,9 @@ export default function Sidebar({ token }: SidebarProps) {
     .join("")
     .toUpperCase();
 
-  const menuIcons: Record<string, JSX.Element> = {
-    [`/${slug}/users/checkin`]: <LogIn className="h-5 w-5 shrink-0" />,
-    [`/${slug}/users/attendances`]: (
-      <CalendarCheck className="h-5 w-5 shrink-0" />
-    ),
-    [`/${slug}/users/lists`]: <ListOrdered className="h-5 w-5 shrink-0" />,
-    [`/${slug}/transactions`]: <History className="h-5 w-5 shrink-0" />,
-    [`/${slug}/users/dashboard`]: <BarChart3 className="h-5 w-5 shrink-0" />,
-    [`/${slug}/users/settings`]: <Settings className="h-5 w-5 shrink-0" />,
-  };
+  const menus = useFilteredMenusFromOrganization();
+  const configMenu = menus.find((m) => m.label === "Configuración");
+  const otherMenus = menus.filter((m) => m.label !== "Configuración");
 
   useEffect(() => {
     if (!token) {
@@ -78,9 +81,6 @@ export default function Sidebar({ token }: SidebarProps) {
         router.push(`/${slug}/auth/login`);
       });
   };
-
-  const configMenu = menus.find((m) => m.label === "Configuración");
-  const otherMenus = menus.filter((m) => m.label !== "Configuración");
 
   return (
     <aside
@@ -125,37 +125,33 @@ export default function Sidebar({ token }: SidebarProps) {
       {/* Menús */}
       <nav className="space-y-3 flex-1">
         {otherMenus.map((menu) => {
-          const isDisabledAttention =
+          const shouldDisable =
             menu.path.includes("/users/attendances") && isWorkingTodayEmpty;
-
           const isActive = pathname === menu.path;
 
           return (
             <div key={menu.path} className="relative group">
               <Link
-                href={isDisabledAttention ? "#" : menu.path}
+                href={shouldDisable ? "#" : menu.path}
                 onClick={(e) => {
-                  if (isDisabledAttention) {
-                    e.preventDefault();
-                  }
+                  if (shouldDisable) e.preventDefault();
                 }}
                 className={clsx(
                   "flex items-center gap-3 px-2 py-2 rounded transition-colors",
                   isActive
                     ? "bg-gray-100 dark:bg-gray-700 font-semibold"
                     : "text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700",
-                  isDisabledAttention &&
-                    "cursor-not-allowed opacity-50 pointer-events-auto"
+                  shouldDisable && "cursor-not-allowed opacity-50"
                 )}
                 style={{
                   color: theme === "dark" ? "white" : "black",
                 }}
               >
-                {menuIcons[menu.path]}
+                {iconMap[menu.icon] || null}
                 {isOpen && <span>{menu.label}</span>}
               </Link>
 
-              {isDisabledAttention && (
+              {shouldDisable && (
                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-800 text-red-500 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                   Debe registrar asistencia primero
                 </div>
@@ -180,7 +176,7 @@ export default function Sidebar({ token }: SidebarProps) {
               color: theme === "dark" ? "white" : "black",
             }}
           >
-            {menuIcons[configMenu.path]}
+            {iconMap[configMenu.icon] || null}
             {isOpen && <span>{configMenu.label}</span>}
           </Link>
         )}
@@ -202,7 +198,6 @@ export default function Sidebar({ token }: SidebarProps) {
 
         {/* Avatar e Logout */}
         <div className="flex items-center gap-3 px-2 py-2">
-          {/* Avatar */}
           <div
             className="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold"
             style={{ backgroundColor: "var(--cyber-gray, #555)" }}
@@ -210,7 +205,6 @@ export default function Sidebar({ token }: SidebarProps) {
             {initials}
           </div>
 
-          {/* Botón Logout */}
           <button
             onClick={handleLogout}
             className={clsx(

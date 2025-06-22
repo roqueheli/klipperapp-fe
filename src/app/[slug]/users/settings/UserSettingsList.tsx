@@ -7,6 +7,7 @@ import { Branch } from "@/types/branch";
 import { Role } from "@/types/role";
 import { User } from "@/types/user";
 import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 
 interface UserSettingsListProps {
   initialUsers: User[];
@@ -29,6 +30,19 @@ export default function UserSettingsList({
   );
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [branchFilter, setBranchFilter] = useState<string>("all");
+  const [expandedUserIds, setExpandedUserIds] = useState<Set<number>>(
+    new Set()
+  );
+
+  const isUserValid = (user: User) => {
+    return (
+      user.name.trim() !== "" &&
+      user.email.trim() !== "" &&
+      user.phone_number?.trim() !== "" &&
+      user.role_id !== null &&
+      user.branch_id !== null
+    );
+  };
 
   const handleUpdate = (id: number, changes: Partial<User>) => {
     setUsers((prev) =>
@@ -41,15 +55,34 @@ export default function UserSettingsList({
     handleUpdate(id, { active });
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (confirmingId !== null) {
-      setUsers((prev) => prev.filter((b) => b.id !== confirmingId));
-      setModifiedUserIds((prev) => {
-        const next = new Set(prev);
-        next.delete(confirmingId);
-        return next;
-      });
-      setConfirmingId(null);
+      const payload = {
+        id: confirmingId,
+      };
+      try {
+        toast.promise(
+          httpInternalApi.httpPostPublic(
+            `/users/${confirmingId}`,
+            "DELETE",
+            payload
+          ),
+          {
+            loading: "Eliminando usuario...",
+            success: "Usuario eliminado exitosamente.",
+            error: "Error al eliminar el usuario.",
+          }
+        );
+        setUsers((prev) => prev.filter((b) => b.id !== confirmingId));
+        setModifiedUserIds((prev) => {
+          const next = new Set(prev);
+          next.delete(confirmingId);
+          return next;
+        });
+        setConfirmingId(null);
+      } catch (error) {
+        console.error("Error al eliminar una sucursal:", error);
+      }
     }
   };
 
@@ -67,32 +100,58 @@ export default function UserSettingsList({
     };
     setUsers((prev) => [...prev, newUser]);
     setModifiedUserIds((prev) => new Set(prev).add(newUser.id));
+    setExpandedUserIds((prev) => new Set(prev).add(newUser.id));
   };
 
   const handleSubmit = async () => {
     const updatedUsers = users.filter((u) => modifiedUserIds.has(u.id));
 
+    const invalidUsers = updatedUsers.filter((u) => !isUserValid(u));
+    if (invalidUsers.length > 0) {
+      toast.error("Completa todos los campos requeridos para cada usuario.");
+      return;
+    }
+
     try {
       for (const user of updatedUsers) {
         const payload = {
-          name: user.name,
-          email: user.email,
-          active: user.active,
-          role_id: user.role_id,
-          branch_id: user.branch_id,
-          phone_number: user.phone_number,
-          photo_url: user.photo_url,
-          organization_id: user.organization_id,
+          user: {
+            id: user.id < 0 ? undefined : user.id,
+            name: user.name,
+            email: user.email,
+            active: user.id < 0 ? undefined : user.active,
+            password: user.password || undefined,
+            role_id: user.role_id,
+            branch_id: user.branch_id,
+            phone_number: user.phone_number,
+            photo_url: user.photo_url,
+            organization_id: user.organization_id,
+          },
         };
 
-        if (user.id < 0) {
-          await httpInternalApi.httpPost(`/users`, "POST", payload);
-        } else {
-          await httpInternalApi.httpPost(`/users/${user.id}`, "PUT", payload);
-        }
+        await toast.promise(
+          user.id < 0
+            ? httpInternalApi.httpPostPublic(`/users`, "POST", payload)
+            : httpInternalApi.httpPostPublic(
+                `/users/${user.id}`,
+                "PUT",
+                payload.user,
+              ),
+          {
+            loading:
+              user.id < 0 ? "Creando usuario..." : "Actualizando usuario...",
+            success:
+              user.id < 0
+                ? "Usuario creado con éxito"
+                : "Usuario actualizado con éxito",
+            error:
+              user.id < 0
+                ? "Error al crear el usuario"
+                : "Error al actualizar el usuario",
+          }
+        );
       }
 
-      console.log("Usuarios actualizados:", updatedUsers);
       setModifiedUserIds(new Set());
     } catch (err) {
       console.error("Error al actualizar usuarios:", err);
@@ -103,6 +162,13 @@ export default function UserSettingsList({
     if (branchFilter === "all") return users;
     return users.filter((u) => u.branch_id === Number(branchFilter));
   }, [users, branchFilter]);
+
+  const hasInvalidUser = Array.from(modifiedUserIds).some((id) => {
+    const user = users.find((u) => u.id === id);
+    return user && !isUserValid(user);
+  });
+
+  const hasChanges = modifiedUserIds.size > 0 || hasInvalidUser;
 
   return (
     <div className="p-4">
@@ -137,6 +203,15 @@ export default function UserSettingsList({
           onDelete={() => setConfirmingId(user.id)}
           branches={branches}
           roles={roles}
+          expanded={expandedUserIds.has(user.id)}
+          setExpanded={(open) =>
+            setExpandedUserIds((prev) => {
+              const next = new Set(prev);
+              if (open) next.add(user.id);
+              else next.delete(user.id);
+              return next;
+            })
+          }
         />
       ))}
 
@@ -150,7 +225,12 @@ export default function UserSettingsList({
 
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-all"
+          disabled={!hasChanges}
+          className={`py-2 px-4 rounded-xl shadow-lg transition-all font-bold text-white ${
+            hasChanges
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
         >
           Guardar cambios
         </button>

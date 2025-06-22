@@ -5,16 +5,17 @@ import { Branch } from "@/types/branch";
 import { Role } from "@/types/role";
 import { User } from "@/types/user";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { useState } from "react";
 import ImageUploader from "./ImageUploader";
 
-interface Props {
+interface UserItemProps {
   user: User;
-  branches: Branch[];
-  roles: Role[];
   onChange: (id: number, updated: Partial<User>) => void;
   onToggleActive: (id: number, active: boolean) => void;
   onDelete: (id: number) => void;
+  branches: Branch[];
+  roles: Role[];
+  expanded: boolean;
+  setExpanded: (open: boolean) => void;
 }
 
 export default function UserItem({
@@ -24,9 +25,9 @@ export default function UserItem({
   onChange,
   onToggleActive,
   onDelete,
-}: Props) {
-  const [open, setOpen] = useState(false);
-
+  expanded,
+  setExpanded,
+}: UserItemProps) {
   return (
     <div className="border border-[--electric-blue] rounded-xl mb-3 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 bg-[--cyber-gray] hover:bg-[--menu-hover-bg] transition">
@@ -49,16 +50,16 @@ export default function UserItem({
             <Trash2 size={18} />
           </button>
           <button
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => setExpanded(!expanded)}
             className="text-[--electric-blue]"
             title="Editar"
           >
-            {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
         </div>
       </div>
 
-      {open && (
+      {expanded && (
         <div className="bg-[--background] px-4 py-4 space-y-4">
           <InputField
             label="Nombre"
@@ -70,6 +71,16 @@ export default function UserItem({
             value={user.email}
             onChange={(val) => onChange(user.id, { email: String(val) })}
           />
+
+          {user.id < 0 && (
+            <InputField
+              label="Provisional Password"
+              value={user.password}
+              type="password"
+              onChange={(val) => onChange(user.id, { password: String(val) })}
+            />
+          )}
+
           <InputField
             label="Teléfono"
             value={user.phone_number ?? ""}

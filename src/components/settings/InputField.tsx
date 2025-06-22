@@ -4,7 +4,7 @@ interface InputFieldProps {
   label: string;
   value?: string | number;
   onChange: (value: string | number | File) => void;
-  type?: "text" | "number" | "file";
+  type?: "text" | "number" | "file" | "password";
   textarea?: boolean;
   accept?: string; // <- NUEVO
 }

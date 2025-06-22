@@ -4,7 +4,7 @@ import ImageUploader from "@/components/settings/ImageUploader";
 import InputField from "@/components/settings/InputField";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Organization, UpateOrganization } from "@/types/organization";
+import { UpateOrganization } from "@/types/organization";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -41,6 +41,7 @@ const OrganizationSettings = () => {
           logo_url: form.logo_url,
           favicon: form.favicon,
         },
+        menus: data?.metadata?.menus,
       },
       photo_url: form.photo_url,
     };
@@ -63,6 +64,23 @@ const OrganizationSettings = () => {
     } catch (error) {
       console.error("Error en la actualización de la organization:", error);
     }
+  };
+
+  const isModified = () => {
+    if (!data) return false;
+
+    return (
+      form.name !== data.name ||
+      form.bio !== data.bio ||
+      form.photo_url !== data.photo_url ||
+      form.extra_discount !== data.metadata?.billing_configs?.extra_discount ||
+      form.organization_percentage !==
+        data.metadata?.billing_configs?.organization_percentage ||
+      form.user_percentage !==
+        data.metadata?.billing_configs?.user_percentage ||
+      form.logo_url !== data.metadata?.media_configs?.logo_url ||
+      form.favicon !== data.metadata?.media_configs?.favicon
+    );
   };
 
   return (
@@ -128,7 +146,12 @@ const OrganizationSettings = () => {
       <div className="mt-8 w-full flex justify-end items-center">
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all"
+          disabled={!isModified()}
+          className={`py-2 px-4 rounded-xl shadow-lg transition-all font-bold text-white ${
+            isModified()
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
         >
           Guardar cambios
         </button>

@@ -7,7 +7,7 @@ export interface User {
     phone_number?: string;
     birth_date?: string;
     active?: boolean;
-    password_digest?: string;
+    password?: string;
     role_id?: number;
     organization_id?: number;
     start_working_at?: string;
@@ -27,6 +27,7 @@ export interface MenuItem {
     label: string;
     path: string;
     allowedRoles: number[];
+    icon: string;
 }
 
 export interface UserWithProfiles {
@@ -37,4 +38,21 @@ export interface UserWithProfiles {
 export interface UserWithProfilesResponse {
     usersAttendances: UserWithProfiles[];
     status: number;
+}
+
+export interface UserCreate {
+    name: string;
+    email: string;
+    phone_number?: string;
+    birth_date?: string;
+    active?: boolean;
+    password_digest?: string;
+    role_id?: number;
+    organization_id?: number;
+    start_working_at?: string;
+    work_state?: string;
+    photo_url?: string;
+    skills?: Array[string];
+    premium?: boolean;
+    branch_id?: number;
 }

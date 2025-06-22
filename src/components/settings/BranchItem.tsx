@@ -3,15 +3,16 @@
 import InputField from "@/components/settings/InputField";
 import { Branch } from "@/types/branch";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { useState } from "react";
 import ImageUploader from "./ImageUploader";
 
-interface Props {
+interface BranchItemProps {
   branch: Branch;
   onChange: (id: number, updated: Partial<Branch>) => void;
   onToggleActive: (id: number, active: boolean) => void;
   onDelete: (id: number) => void;
   totalBranches: number;
+  expanded: boolean;
+  setExpanded: (open: boolean) => void;
 }
 
 export default function BranchItem({
@@ -20,9 +21,9 @@ export default function BranchItem({
   onToggleActive,
   onDelete,
   totalBranches,
-}: Props) {
-  const [open, setOpen] = useState(false);
-
+  expanded,
+  setExpanded,
+}: BranchItemProps) {
   return (
     <div className="border border-[--electric-blue] rounded-xl mb-3 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 bg-[--cyber-gray] hover:bg-[--menu-hover-bg] transition">
@@ -31,7 +32,6 @@ export default function BranchItem({
             type="checkbox"
             checked={branch.active ?? false}
             onChange={(e) => onToggleActive(branch.id, e.target.checked)}
-            disabled={totalBranches <= 1}
           />
           <span className="text-[--electric-blue] font-semibold">
             {branch.name}
@@ -53,16 +53,16 @@ export default function BranchItem({
             <Trash2 size={18} />
           </button>
           <button
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => setExpanded(!expanded)}
             className="text-[--electric-blue]"
             title="Editar"
           >
-            {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
         </div>
       </div>
 
-      {open && (
+      {expanded && (
         <div className="bg-[--background] px-4 py-4 space-y-4">
           <InputField
             label="Nombre"
