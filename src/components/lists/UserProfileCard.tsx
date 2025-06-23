@@ -1,5 +1,6 @@
 import { AttendanceProfile } from "@/app/[slug]/users/lists/page";
 import { UserWithProfiles } from "@/types/user";
+import { UserCircle2 } from "lucide-react";
 
 interface Props {
   user: UserWithProfiles;
@@ -7,44 +8,36 @@ interface Props {
 }
 
 const statusClasses = {
-  pending: {
-    ping: "bg-orange-400",
-    dot: "bg-orange-500",
-  },
-  processing: {
-    ping: "bg-green-400",
-    dot: "bg-green-500",
-  },
-  finished: {
-    ping: "bg-gray-400",
-    dot: "bg-gray-500",
-  },
-  postponed: {
-    ping: "bg-gray-300",
-    dot: "bg-gray-400",
-  },
+  pending: { ping: "bg-orange-400", dot: "bg-orange-500" },
+  processing: { ping: "bg-green-400", dot: "bg-green-500" },
+  finished: { ping: "bg-gray-400", dot: "bg-gray-500" },
+  postponed: { ping: "bg-yellow-300", dot: "bg-yellow-400" },
 } as const;
 
 export default function UserProfileCard({ user, onClick }: Props) {
   return (
-    <article className="bg-[--cyber-gray] border border-[--electric-blue] rounded-xl p-5 shadow-md shadow-[--electric-blue]/30 flex flex-col">
-      <h3 className="text-md font-bold text-[--electric-blue] mb-3">
-        {user.user.name}{" "}
-        <span className="text-sm font-normal text-[--soft-white]">
-          ({user.profiles.length})
+    <article className="bg-gradient-to-br from-[#101522] via-[#1a2337] to-[#202a45] ring-1 ring-[--electric-blue]/30 rounded-2xl p-5 shadow-xl shadow-[0_8px_24px_rgba(61,217,235,0.2)] hover:shadow-[0_12px_36px_rgba(61,217,235,0.35)] transition-shadow duration-300 flex flex-col h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-[--electric-blue] flex items-center gap-2">
+          <UserCircle2 className="w-5 h-5 text-[--accent-pink]" />
+          {user.user.name}
+        </h3>
+        <span className="text-sm text-[--soft-white]/50">
+          {user.profiles.length} turno(s)
         </span>
-      </h3>
-      <ul className="space-y-3 max-h-[300px] overflow-y-auto p-2">
+      </div>
+
+      <ul className="space-y-3 max-h-[300px] overflow-y-auto p-1">
         {user.profiles.length > 0 ? (
           user.profiles.map((att, index) => {
             const isClickable =
               index === 0 ||
               (index === 1 && user.profiles[0]?.status === "postponed");
-            const statusClass = statusClasses as Record<
-              string,
-              { ping: string; dot: string }
-            >;
-            const { ping, dot } = statusClass[att.status ?? "pending"];
+
+            const statusClass =
+              statusClasses[att.status as keyof typeof statusClasses] ??
+              statusClasses.pending;
+            const { ping, dot } = statusClass;
 
             return (
               <li
@@ -53,14 +46,16 @@ export default function UserProfileCard({ user, onClick }: Props) {
                   isClickable &&
                   onClick(user.user.id, user.user.name, att as any)
                 }
-                className={`mb-5 flex items-center space-x-3 rounded-md p-3 text-xs text-[--foreground] shadow-[0_2px_8px_rgba(61,217,235,0.3)] transition-shadow select-none ${
+                className={`flex items-center justify-between gap-3 rounded-md p-3 text-sm transition select-none ${
                   isClickable
-                    ? "cursor-pointer bg-[--background] hover:shadow-[0_2px_12px_rgba(61,217,235,0.5)]"
-                    : "cursor-not-allowed bg-gray-800 opacity-50"
+                    ? "cursor-pointer bg-[#131b2c] shadow-md shadow-[0_4px_16px_rgba(61,217,235,0.2)] hover:shadow-[0_6px_24px_rgba(61,217,235,0.4)] hover:translate-x-0.5"
+                    : "cursor-not-allowed bg-[#1e273b] opacity-50"
                 }`}
                 title={`Atención: ${att.name} - Estado: ${att.status}`}
               >
-                <span className="font-medium flex-grow">{att.name}</span>
+                <span className="truncate font-medium text-[--soft-white]">
+                  {att.name}
+                </span>
                 <span className="relative flex h-3 w-3 shrink-0">
                   <span
                     className={`animate-ping absolute inline-flex h-full w-full rounded-full ${ping} opacity-75`}
@@ -73,8 +68,8 @@ export default function UserProfileCard({ user, onClick }: Props) {
             );
           })
         ) : (
-          <li className="text-sm italic text-[--soft-white]/60">
-            Sin clientes en espera
+          <li className="text-sm italic text-[--soft-white]/60 py-3 text-center">
+            Sin clientes en espera.
           </li>
         )}
       </ul>
