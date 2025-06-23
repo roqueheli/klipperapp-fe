@@ -46,6 +46,7 @@ export class HttpBaseAPI {
         const res = await fetch(`${this.privateEndpoint}${endpointSuffix}`, {
             method: method,
             headers,
+            credentials: "include",
             body: isFormData ? body as FormData : JSON.stringify(body),
         });
 

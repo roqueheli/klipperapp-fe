@@ -258,6 +258,8 @@ export default function AttendanceListsPage() {
     }
   };
 
+  const hasProcessing = users.some(u => u.profiles.some(p => p.status === "processing"));
+
   if (isLoading) return <LoadingSpinner />;
 
   return (
@@ -282,6 +284,7 @@ export default function AttendanceListsPage() {
         onFinish={handleEnd}
         onDecline={handleDecline}
         onResume={handleResume}
+        hasProcessing={hasProcessing}
       />
 
       <Transition

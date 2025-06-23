@@ -17,6 +17,7 @@ interface AttendanceModalProps {
   onFinish: () => void;
   onDecline: () => void;
   onResume: () => void;
+  hasProcessing: boolean;
 }
 
 export default function AttendanceModal({
@@ -29,6 +30,7 @@ export default function AttendanceModal({
   onFinish,
   onDecline,
   onResume,
+  hasProcessing,
 }: AttendanceModalProps) {
   const { userData } = useUser();
 
@@ -42,7 +44,7 @@ export default function AttendanceModal({
     pending: "bg-orange-200/10 text-orange-400 ring-1 ring-orange-400/40",
     processing: "bg-green-200/10 text-green-400 ring-1 ring-green-400/40",
     finished: "bg-gray-300/10 text-gray-300 ring-1 ring-gray-400/40",
-    postponed: "bg-yellow-100/10 text-yellow-300 ring-1 ring-yellow-300/40",
+    postponed: "bg-gray-100/10 text-gray-300 ring-1 ring-gray-300/40",
     canceled: "bg-red-100/10 text-red-400 ring-1 ring-red-400/40",
   };
 
@@ -81,7 +83,10 @@ export default function AttendanceModal({
               statusColors[att?.status ?? "pending"]
             }`}
           >
-            Estado: {att ? att.status.charAt(0).toUpperCase() + att.status.slice(1) : ""}
+            Estado:{" "}
+            {att
+              ? att.status.charAt(0).toUpperCase() + att.status.slice(1)
+              : ""}
           </span>
         </div>
 
@@ -132,12 +137,14 @@ export default function AttendanceModal({
                   >
                     Declinar
                   </button>
-                  <button
-                    onClick={onResume}
-                    className="px-4 py-2 rounded-md font-semibold bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 transition"
-                  >
-                    Reanudar
-                  </button>
+                  {!hasProcessing && (
+                    <button
+                      onClick={onResume}
+                      className="px-4 py-2 rounded-md font-semibold bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 transition"
+                    >
+                      Reanudar
+                    </button>
+                  )}
                 </>
               )}
             </>
