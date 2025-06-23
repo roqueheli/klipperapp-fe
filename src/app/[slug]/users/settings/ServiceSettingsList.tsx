@@ -116,8 +116,6 @@ export default function ServiceSettingsList({
           photo_url: service.photo_url,
         };
 
-        console.log(payload);
-
         await toast.promise(
           service.id < 0
             ? httpInternalApi.httpPostPublic(`/services`, "POST", payload)

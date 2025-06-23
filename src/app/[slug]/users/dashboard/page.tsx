@@ -5,6 +5,7 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
+import { Profile, ProfileDashboardResponse } from "@/types/profile";
 import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const { data } = useOrganization();
   const { userData } = useUser();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,19 +31,26 @@ export default function DashboardPage() {
       if (data?.id !== undefined) {
         params.set("organization_id", String(data.id));
       }
-      if (userData?.id !== undefined && userData?.role_id !== 1) {
+      if (userData?.id !== undefined && userData?.role.name !== "admin") {
         params.set("branch_id", String(userData?.branch_id));
       }
-      if (userData?.role_id === 7 || userData?.role_id === 3) {
+      if (userData?.role.name === "agent") {
         params.set("attended_by", String(userData?.id));
       }
 
-      const response = (await httpInternalApi.httpGetPublic(
-        "/attendances/today",
-        params
-      )) as Attendances;
+      const [attendancesRes, profilesRes] = await Promise.all([
+        httpInternalApi.httpGetPublic(
+          "/attendances/today",
+          params
+        ) as Promise<Attendances>,
+        httpInternalApi.httpGetPublic(
+          "/profiles",
+          params
+        ) as Promise<ProfileDashboardResponse>,
+      ]);
 
-      setAttendances(response.attendances);
+      setAttendances(attendancesRes.attendances);
+      setProfiles(profilesRes.profiles);
       setLoading(false);
     };
 

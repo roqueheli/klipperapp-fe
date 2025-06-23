@@ -30,9 +30,6 @@ export async function PUT(request: NextRequest) {
     const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
     const body = await request.json();
 
-    console.log("body", body);
-    
-
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {

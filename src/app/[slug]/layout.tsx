@@ -80,6 +80,7 @@ export default async function RootLayout({
   if (auth_token) {
     try {
       const response = await httpInternalApi.httpGetPublic<User>("/auth/me");
+      
       userData = response;
     } catch (error) {
       console.error("Error loading user data: " + error);

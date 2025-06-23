@@ -6,7 +6,6 @@ export interface Attendance {
 	date: string | null
 	time: string | null
 	profile_id: number
-	service_id: number
 	organization_id: number
 	branch_id: number
 	attended_by: number | null
@@ -24,18 +23,6 @@ export interface Attendance {
 	payment_method: string | null
 	profile: Profile
 	services: Service[]
-}
-
-export interface Profile {
-	id: number
-	name: string
-	email: string
-	birth_date: string
-	phone_number: string
-	organization_id: number
-	branch_id: number | null
-	created_at: string
-	updated_at: string
 }
 
 export interface ServicesResponse {

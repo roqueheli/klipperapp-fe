@@ -20,6 +20,7 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 
 import { Organization } from "@/types/organization";
 import { User, UserWithProfiles } from "@/types/user";
+import { getRoleByName } from "@/utils/roleUtils";
 
 export interface AttendanceProfile {
   id: number;
@@ -46,10 +47,11 @@ export default function AttendanceListsPage() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     const params = new URLSearchParams();
+    const agentRole = await getRoleByName("agent");
 
     if (data?.id) {
       params.set("organization_id", String(data.id));
-      params.set("role_id", process.env.NODE_ENV === "production" ? "7" : "3");
+      params.set("role_id", String(agentRole?.id));
     }
     params.set("branch_id", String(userData?.branch_id || 1));
 
@@ -101,7 +103,7 @@ export default function AttendanceListsPage() {
   const updateAttendanceStatus = (
     userId: number,
     attId: number,
-    status: "pending" | "processing" | "finished"
+    status: "pending" | "processing" | "finished" | "postponed" | "canceled"
   ) => {
     setUsers((prev) =>
       prev.map((user) => {
@@ -109,7 +111,7 @@ export default function AttendanceListsPage() {
         const updatedProfiles = user.profiles
           .map((att) => (att.id === attId ? { ...att, status } : att))
           .filter(
-            (att) => att.status === "pending" || att.status === "processing"
+            (att) => att.status === "pending" || att.status === "processing" || att.status === "postponed"
           );
 
         return { ...user, profiles: updatedProfiles };
@@ -144,7 +146,89 @@ export default function AttendanceListsPage() {
     }
   };
 
-  const handlePostpone = () => setModalOpen(false);
+  const handlePostpone = async () => {
+    if (!selectedAtt || !selectedUser) return;
+    const requestBody = {
+      user_id: selectedUser.userId,
+      attendance_id: selectedAtt.attendance_id,
+    };
+
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          "/users/postpone_attendance",
+          "POST",
+          requestBody
+        ),
+        {
+          loading: "Postponing attendance...",
+          success: "Attendance successfully postponed.",
+          error: "Error postponing attendance.",
+        }
+      );
+      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "postponed");
+      setModalOpen(false);
+      await fetchQueue();
+    } catch (error) {
+      console.error("Error in postpone process:", error);
+    }
+  };
+
+  const handleDecline = async () => {
+    if (!selectedAtt || !selectedUser) return;
+    const requestBody = {
+      user_id: selectedUser.userId,
+      attendance_id: selectedAtt.attendance_id,
+    };
+
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          "/users/cancel_attendance",
+          "POST",
+          requestBody
+        ),
+        {
+          loading: "Declining attendance...",
+          success: "Attendance successfully declined.",
+          error: "Error declining attendance.",
+        }
+      );
+      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "canceled");
+      setModalOpen(false);
+      await fetchQueue();
+    } catch (error) {
+      console.error("Error in decline process:", error);
+    }
+  };
+
+    const handleResume = async () => {
+    if (!selectedAtt || !selectedUser) return;
+    const requestBody = {
+      user_id: selectedUser.userId,
+      attendance_id: selectedAtt.attendance_id,
+    };
+
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          "/users/resume_attendance",
+          "POST",
+          requestBody
+        ),
+        {
+          loading: "Resuming attendance...",
+          success: "Attendance successfully resumed.",
+          error: "Error resuming attendance.",
+        }
+      );
+      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "pending");
+      setModalOpen(false);
+      await fetchQueue();
+    } catch (error) {
+      console.error("Error in resume process:", error);
+    }
+  };
 
   const handleEnd = async () => {
     if (!selectedAtt || !selectedUser) return;
@@ -196,6 +280,8 @@ export default function AttendanceListsPage() {
         onStart={handleStart}
         onPostpone={handlePostpone}
         onFinish={handleEnd}
+        onDecline={handleDecline}
+        onResume={handleResume}
       />
 
       <Transition

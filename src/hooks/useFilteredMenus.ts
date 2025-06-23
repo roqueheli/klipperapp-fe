@@ -5,7 +5,7 @@ import { MenuItem } from "@/types/user";
 export const useFilteredMenus = (): MenuItem[] => {
     const { data, slug } = useOrganization();
     const { userData } = useUser();
-    const roleId = userData?.role_id ?? 0;
+    const roleId = userData?.role.id ?? 0;
 
     const defaultMenus: MenuItem[] = [
         {

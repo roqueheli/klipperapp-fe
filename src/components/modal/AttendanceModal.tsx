@@ -9,12 +9,14 @@ interface AttendanceModalProps {
   att: {
     id: number;
     name: string;
-    status: "pending" | "processing" | "finished";
+    status: "pending" | "processing" | "finished" | "postponed" | "canceled";
   } | null;
   userName: string;
   onStart: () => void;
   onPostpone: () => void;
   onFinish: () => void;
+  onDecline: () => void;
+  onResume: () => void;
 }
 
 export default function AttendanceModal({
@@ -25,6 +27,8 @@ export default function AttendanceModal({
   onStart,
   onPostpone,
   onFinish,
+  onDecline,
+  onResume,
 }: AttendanceModalProps) {
   const { userData } = useUser();
 
@@ -41,6 +45,8 @@ export default function AttendanceModal({
     processing:
       "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
     finished: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+    postponed:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100",
   };
 
   return (
@@ -91,19 +97,21 @@ export default function AttendanceModal({
           </p>
           <p
             className={`inline-block px-3 py-1 rounded-full text-xs font-semibold select-none ${
-              statusColors[att?.status || "pending"]
+              statusColors[att?.status as keyof typeof statusColors]
             }`}
           >
-            Estado: {att?.status.charAt(0).toUpperCase() + (att?.status.slice(1) || "pending")}
+            Estado:{" "}
+            {att?.status.charAt(0).toUpperCase() +
+              (att?.status.slice(1) || "pending")}
           </p>
         </div>
 
         {att?.status === "pending" && (
           <div className="flex justify-end space-x-3">
-            {(userData?.role_id !== 7 && userData?.role_id !== 3) && (
+            {userData?.role.name !== "agent" && (
               <>
                 <button
-                  onClick={onClose}
+                  onClick={onDecline}
                   className="px-5 py-2 rounded-md font-semibold bg-red-100 text-red-700 dark:bg-red-800 dark:text-white hover:bg-red-200 dark:hover:bg-red-700 transition"
                 >
                   Declinar
@@ -133,6 +141,27 @@ export default function AttendanceModal({
             >
               Finalizar
             </button>
+          </div>
+        )}
+
+        {att?.status === "postponed" && (
+          <div className="flex justify-end space-x-3">
+            {userData?.role.name !== "agent" && (
+              <>
+                <button
+                  onClick={onDecline}
+                  className="px-5 py-2 rounded-md font-semibold bg-red-100 text-red-700 dark:bg-red-800 dark:text-white hover:bg-red-200 dark:hover:bg-red-700 transition"
+                >
+                  Declinar
+                </button>
+                <button
+                  onClick={onResume}
+                  className="px-6 py-2 rounded-md font-semibold bg-blue-500 text-white hover:bg-blue-600 transition"
+                >
+                  Reanudar
+                </button>
+              </>
+            )}
           </div>
         )}
 

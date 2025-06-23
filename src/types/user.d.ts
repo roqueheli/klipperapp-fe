@@ -1,4 +1,5 @@
 import { Profile } from "./profile";
+import { Role } from "./role";
 
 export interface User {
     id: number;
@@ -8,7 +9,7 @@ export interface User {
     birth_date?: string;
     active?: boolean;
     password?: string;
-    role_id?: number;
+    role: Role
     organization_id?: number;
     start_working_at?: string;
     work_state?: string;

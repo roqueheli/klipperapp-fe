@@ -40,7 +40,7 @@ const UnifyPaymentsModal = ({
       if (organization?.id !== undefined) {
         params.set("organization_id", String(organization.id));
       }
-      if (userData?.id !== undefined && userData?.role_id !== 1) {
+      if (userData?.id !== undefined && userData?.role.name !== "admin") {
         params.set("branch_id", String(userData?.branch_id));
       }
 

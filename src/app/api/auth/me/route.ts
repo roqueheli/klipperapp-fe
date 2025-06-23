@@ -11,7 +11,7 @@ export async function GET() {
     }
 
     try {
-        const user = await authAPI.me(token?.value);
+        const user = await authAPI.me(token?.value || "");
         return NextResponse.json(user);
     } catch (error) {
         return new Response(JSON.stringify({ error: "Unauthorized " + error, status: 401 }));

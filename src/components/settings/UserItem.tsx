@@ -91,9 +91,9 @@ export default function UserItem({
           <div className="space-y-1">
             <label className="text-sm font-medium">Rol</label>
             <select
-              value={user.role_id ?? ""}
+              value={user.role.id ?? ""}
               onChange={(e) =>
-                onChange(user.id, { role_id: Number(e.target.value) })
+                onChange(user.id, { role: { id: Number(e.target.value) } })
               }
               className="w-full border rounded px-3 py-2 text-sm bg-white text-black"
             >

@@ -5,8 +5,10 @@ export interface Profile {
     birth_date: string;
     phone_number: string;
     organization_id: number;
-    branch_id: number | null;
+    branch_id?: number | null;
     status?: string;
+	photo_url?: string | null;
+	last_attendance_at?: string | null;
 };
 
 export interface ProfileResponse {
@@ -23,4 +25,9 @@ export interface ProfileByNumber {
 
 export interface ProfileByNumberResponse {
     profile?: ProfileByNumber;
+}
+
+export interface ProfileDashboardResponse {
+    profiles: Profile[];
+    status: number;
 }

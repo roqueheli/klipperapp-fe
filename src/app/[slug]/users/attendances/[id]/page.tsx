@@ -65,11 +65,11 @@ const AttendanceDetailPage = () => {
           <p className="text-gray-500">Sin servicios asignados.</p>
         ) : (
           <ul className="pl-5 space-y-2">
-            {services.map((service: Service) => (
-              <li className="p-4 w-full flex justify-between items-center" key={service.id}>
+            {services.map((service: Service, index) => (
+              <li className="p-4 w-full flex justify-between items-center" key={`${service.id}-${index}`}>
                 <p className="font-medium">{service.name}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Precio: {parseInt(service.price).toLocaleString()} CLP
+                  Precio: {Number(service.price).toLocaleString("es-CL", { style: "currency", currency: "CLP" })}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Duración: {service?.duration} minutos

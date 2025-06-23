@@ -17,6 +17,7 @@ import {
   ListOrdered,
   LogIn,
   Settings,
+  FileBarChart2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -36,6 +37,7 @@ const iconMap: Record<string, JSX.Element> = {
   BarChart3: <BarChart3 className="h-5 w-5 shrink-0" />,
   Clock: <Clock className="h-5 w-5 shrink-0" />,
   Settings: <Settings className="h-5 w-5 shrink-0" />,
+  FileBarChart2: <FileBarChart2 className="h-5 w-5 shrink-0" />,
 };
 
 export default function Sidebar({ token }: SidebarProps) {

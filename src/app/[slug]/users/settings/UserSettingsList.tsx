@@ -39,7 +39,7 @@ export default function UserSettingsList({
       user.name.trim() !== "" &&
       user.email.trim() !== "" &&
       user.phone_number?.trim() !== "" &&
-      user.role_id !== null &&
+      user.role.id !== null &&
       user.branch_id !== null
     );
   };
@@ -95,7 +95,9 @@ export default function UserSettingsList({
       active: true,
       photo_url: "",
       branch_id: branches[0]?.id ?? null,
-      role_id: roles[0]?.id ?? null,
+      role: {
+        id: roles[0]?.id ?? null
+      },
       organization_id,
     };
     setUsers((prev) => [...prev, newUser]);
@@ -121,7 +123,7 @@ export default function UserSettingsList({
             email: user.email,
             active: user.id < 0 ? undefined : user.active,
             password: user.password || undefined,
-            role_id: user.role_id,
+            role_id: user.role.id,
             branch_id: user.branch_id,
             phone_number: user.phone_number,
             photo_url: user.photo_url,

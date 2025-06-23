@@ -14,6 +14,7 @@ import { Organization } from "@/types/organization";
 import { Profile, ProfileByNumberResponse } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
+import { getRoleByName } from "@/utils/roleUtils";
 
 type Step = 1 | 2;
 
@@ -52,14 +53,12 @@ const AttendanceWizard = ({
     const fetchData = async () => {
       const servicesParams = new URLSearchParams();
       const usersParams = new URLSearchParams();
+      const agentRole = await getRoleByName("agent");
 
       if (organization?.id) {
         servicesParams.set("organization_id", String(organization?.id));
         usersParams.set("organization_id", String(organization?.id));
-        usersParams.set(
-          "role_id",
-          process.env.NODE_ENV === "production" ? "7" : "3"
-        );
+        usersParams.set("role_id", String(agentRole?.id));
       }
 
       usersParams.set("branch_id", String(user?.branch_id ?? 1));
@@ -82,6 +81,28 @@ const AttendanceWizard = ({
     fetchData();
   }, [organization?.id, user?.branch_id]);
 
+  useEffect(() => {
+    const stored = localStorage.getItem("attendanceInfo");
+
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        setHasStoredData(true);
+        setAttendanceId(data.attendanceId || null);
+        setSelectedServiceId(data.services[0].id || null);
+        setSelectedUserId(data.userId || null);
+        setProfile(data.profile);
+        setPhone(data.phoneNumber || "");
+        setStep(2);
+
+        // Limpiar el localStorage si ya no lo necesitas
+        localStorage.removeItem("attendanceInfo");
+      } catch (e) {
+        console.error("Error parsing stored attendance data", e);
+      }
+    }
+  }, []);
+  
   const handlePhoneSubmit = async () => {
     if (!phone) return;
 
@@ -119,7 +140,7 @@ const AttendanceWizard = ({
       toast.error("Faltan datos para crear la atención.");
       return;
     }
-
+    
     const requestBody = {
       id: attendanceId || null,
       profile_id: profile.id,
@@ -130,16 +151,19 @@ const AttendanceWizard = ({
     };
 
     try {
+      const action = hasStoredData ? "PUT" : "POST";
+      const message = hasStoredData ? "actualizada" : "creada";
+      
       await toast.promise(
         httpInternalApi.httpPostPublic(
           "/attendances",
-          hasStoredData ? "PUT" : "POST",
+          action,
           requestBody
         ),
         {
-          loading: "Creando atención...",
-          success: "Atención creada exitosamente.",
-          error: "Error al crear la atención.",
+          loading: `Atención ${message}...`,
+          success: `Atención ${message} exitosamente.`,
+          error: `Error al ${message} la atención.`,
         }
       );
 
@@ -172,7 +196,7 @@ const AttendanceWizard = ({
           onUserSelect={setSelectedUserId}
           selectedServiceId={selectedServiceId}
           onServiceSelect={setSelectedServiceId}
-          onBack={() => setStep(1)}
+          {...(!hasStoredData ? { onBack: () => setStep(1) } : { onBack: () => router.back() })}
           onFinish={handleFinish}
         />
       )}

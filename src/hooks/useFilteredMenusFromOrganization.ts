@@ -33,16 +33,22 @@ export function useFilteredMenusFromOrganization(): MenuItem[] {
             icon: "History"
         },
         {
-            label: "Dashboard", // Opcional: "Estadísticas"
-            path: `/${slug}/users/dashboard`,
-            allowedRoles: [1, 2, 7, 3],
-            icon: "BarChart3"
-        },
-        {
             label: "Historial de atenciones", // Opcional: "Estadísticas"
             path: `/${slug}/attendances/history`,
             allowedRoles: [1, 2, 7, 3],
             icon: "Clock"
+        },
+        {
+            "label": "Reporte de gastos",
+            "path": "/barberia-el-russo/organization/costs",
+            "allowedRoles": [1, 2],
+            "icon": "FileBarChart2"
+        },
+        {
+            label: "Dashboard", // Opcional: "Estadísticas"
+            path: `/${slug}/users/dashboard`,
+            allowedRoles: [1, 2, 7, 3],
+            icon: "BarChart3"
         },
         {
             label: "Configuración",
@@ -52,9 +58,9 @@ export function useFilteredMenusFromOrganization(): MenuItem[] {
         },
     ];
 
-    const roleId = userData?.role_id;
+    const roleId = userData?.role?.id;
 
-    if (!organization || !roleId) return [];
+    if (!organization || roleId === undefined) return [];
 
     const allMenus: MenuItem[] = organization.metadata?.menus ?? defaultMenus;
 
