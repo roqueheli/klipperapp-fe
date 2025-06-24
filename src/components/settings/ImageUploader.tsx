@@ -2,6 +2,7 @@
 "use client";
 
 import httpInternalApi from "@/lib/common/http.internal.service";
+import { Cloudinary } from "@/types/cloudinary";
 import Image from "next/image";
 import { useRef, useState } from "react";
 
@@ -30,10 +31,15 @@ export default function ImageUploader({
     formData.append("file", file);
 
     try {
-      const data = await httpInternalApi.httpPostPublic("/upload", "POST", formData) as any;
+      const data = (await httpInternalApi.httpPostPublic(
+        "/upload",
+        "POST",
+        formData
+      )) as Cloudinary;
 
-      if (!data?.secure_url) throw new Error("Falló la subida: secure_url no presente");
-      
+      if (!data?.secure_url)
+        throw new Error("Falló la subida: secure_url no presente");
+
       setPreview(data?.secure_url);
       onUpload(data?.secure_url);
     } catch (err) {

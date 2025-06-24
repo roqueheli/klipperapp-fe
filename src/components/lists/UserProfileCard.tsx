@@ -47,7 +47,7 @@ export default function UserProfileCard({ user, onClick }: Props) {
                 key={att.id}
                 onClick={() =>
                   isClickable &&
-                  onClick(user.user.id, user.user.name, att as any)
+                  onClick(user.user.id, user.user.name, att as AttendanceProfile)
                 }
                 className={`flex items-center justify-between gap-3 rounded-md p-3 text-sm transition select-none ${
                   isClickable

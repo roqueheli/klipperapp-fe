@@ -2,11 +2,12 @@
 
 import AttendancesTable from "@/components/management/payments/AttendancesTable";
 import ExpensesTable from "@/components/management/payments/ExpensesTable";
-import FilterPanel from "@/components/management/payments/FilterPanel";
+import FilterPanel, { FilterValues } from "@/components/management/payments/FilterPanel";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance } from "@/types/attendance";
 import { Branch, BranchResponse } from "@/types/branch";
+import { Expenses } from "@/types/expenses";
 import { User, UserResponse } from "@/types/user";
 import { useEffect, useState } from "react";
 
@@ -15,7 +16,7 @@ const PaymentsManagementPage = () => {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [attendances, setAttendances] = useState<Attendance[]>([]);
-  const [expenses, setExpenses] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<Expenses[]>([]);
   const [totals, setTotals] = useState({
     userEarnings: 0,
     userExpenses: 0,
@@ -55,12 +56,25 @@ const PaymentsManagementPage = () => {
     loadInitialData();
   }, [data?.id]);
 
-  const handleSearch = async (filters: any) => {
+  const handleSearch = async (filters: FilterValues) => {
+    const params = new URLSearchParams();
+    params.set("organization_id", String(data?.id));
+
+    if (filters.branchId) {
+      params.set("branch_id", String(filters.branchId));
+    }
+    if (filters.userId) {
+      params.set("user_id", String(filters.userId));
+    }
+    if (filters.fromDate) {
+      params.set("from_date", filters.fromDate);
+    }
+    if (filters.toDate) {
+      params.set("to_date", filters.toDate);
+    }
+
     try {
-      await httpInternalApi.httpPost(
-        "/payments/search",
-        filters
-      );
+      await httpInternalApi.httpGetPublic("/management", params);
       setAttendances([]);
       setExpenses([]);
       setTotals({

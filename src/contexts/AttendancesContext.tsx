@@ -52,21 +52,6 @@ export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // const handleRouteChange = () => {
-    //   if (!pathname?.includes("/attendances/history")) {
-    //     resetAttendances();
-    //   }
-    // };
-
-    window.addEventListener("beforeunload", clearSessionStorage);
-
-    return () => {
-      // handleRouteChange();
-      window.removeEventListener("beforeunload", clearSessionStorage);
-    };
-  }, [pathname]);
-
-  useEffect(() => {
     if (pathname?.includes("/attendances/history") && isInitialLoad) {
       try {
         const savedAttendances = sessionStorage.getItem("attendancesData");

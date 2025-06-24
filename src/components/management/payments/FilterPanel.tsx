@@ -10,12 +10,11 @@ import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css"; // core styles
 import "react-date-range/dist/theme/default.css"; // theme styles
 
-interface FilterValues {
+export interface FilterValues {
   fromDate: string;
   toDate: string;
   branchId: number | null;
   userId: number | null;
-  organization_id?: number | null;
 }
 
 interface FilterPanelProps {
@@ -52,7 +51,6 @@ const FilterPanel = ({
     const { startDate, endDate } = dateRange[0];
 
     onFilter({
-      organization_id: data?.id,
       fromDate: startDate?.toISOString().split("T")[0] ?? "",
       toDate: endDate?.toISOString().split("T")[0] ?? "",
       branchId,
