@@ -30,7 +30,7 @@ const ExpensesPage = () => {
   const { userData } = useUser();
 
   const [users, setUsers] = useState<User[]>([]);
-  const [branches, setBranches] = useState<Branch[]>([]);
+  // const [branches, setBranches] = useState<Branch[]>([]);
   const [expenses, setExpenses] = useState<Expenses[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -70,11 +70,11 @@ const ExpensesPage = () => {
         usersParams.set("branch_id", String(userData?.branch_id));
       }
 
-      const [branchesRes, usersRes, expensesRes] = await Promise.all([
-        httpInternalApi.httpGetPublic(
-          "/branches",
-          branchesParams
-        ) as Promise<BranchResponse>,
+      const [usersRes, expensesRes] = await Promise.all([
+        // httpInternalApi.httpGetPublic(
+        //   "/branches",
+        //   branchesParams
+        // ) as Promise<BranchResponse>,
         httpInternalApi.httpGetPublic(
           "/users",
           usersParams
@@ -85,7 +85,7 @@ const ExpensesPage = () => {
         ) as Promise<ExpensesResponse>,
       ]);
 
-      setBranches(branchesRes.branches);
+      // setBranches(branchesRes.branches);
       setUsers(usersRes.users);
       setExpenses(sortExpensesByDate(expensesRes.expenses));
       setIsLoading(false);

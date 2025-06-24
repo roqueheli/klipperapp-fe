@@ -4,7 +4,6 @@ import AttendancesTable from "@/components/management/payments/AttendancesTable"
 import ExpensesTable from "@/components/management/payments/ExpensesTable";
 import FilterPanel from "@/components/management/payments/FilterPanel";
 import { useOrganization } from "@/contexts/OrganizationContext";
-import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance } from "@/types/attendance";
 import { Branch, BranchResponse } from "@/types/branch";
@@ -13,7 +12,6 @@ import { useEffect, useState } from "react";
 
 const PaymentsManagementPage = () => {
   const { data } = useOrganization();
-  const { userData } = useUser();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [attendances, setAttendances] = useState<Attendance[]>([]);
@@ -59,7 +57,7 @@ const PaymentsManagementPage = () => {
 
   const handleSearch = async (filters: any) => {
     try {
-      const response = await httpInternalApi.httpPost(
+      await httpInternalApi.httpPost(
         "/payments/search",
         filters
       );

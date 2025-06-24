@@ -1,6 +1,5 @@
 import profilesAPI from "@/lib/profiles/profiles.service";
 import { getToken } from "@/lib/utils/auth.utils";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

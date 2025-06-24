@@ -119,11 +119,11 @@ const AttendancesHistoryPage = () => {
         <div className="mt-4 flex justify-center items-center w-full">
           {!hasSearched ? (
             <p className="text-center text-gray-500 mt-8">
-              Por favor, selecciona uno o más filtros y presiona "Buscar".
+              {`Por favor, selecciona uno o más filtros y presiona "Buscar".`}
             </p>
           ) : attendances.length === 0 ? (
             <p className="text-center text-gray-500 mt-8">
-              No se encontraron resultados con los filtros aplicados.
+              {"No se encontraron resultados con los filtros aplicados."}
             </p>
           ) : (
             <AttendancesTable attendances={attendances} branches={branches} />

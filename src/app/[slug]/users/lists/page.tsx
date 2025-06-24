@@ -105,7 +105,7 @@ export default function AttendanceListsPage() {
       }
     };
     checkUserRole();
-  }, [userData?.role.id]);
+  }, [userData]);
 
   useEffect(() => {
     fetchData();

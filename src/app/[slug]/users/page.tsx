@@ -3,13 +3,13 @@
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOrganization";
-import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
+// import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import Image from "next/image";
 
 const UsersPage = () => {
   const { data } = useOrganization();
   const filteredMenus = useFilteredMenusFromOrganization();
-  const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
+  // const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
   if (!filteredMenus || filteredMenus.length === 0) {
     return <LoadingSpinner />;

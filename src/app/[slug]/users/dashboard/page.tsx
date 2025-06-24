@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const { data } = useOrganization();
   const { userData } = useUser();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  // const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,19 +38,19 @@ export default function DashboardPage() {
         params.set("attended_by", String(userData?.id));
       }
 
-      const [attendancesRes, profilesRes] = await Promise.all([
+      const [attendancesRes] = await Promise.all([
         httpInternalApi.httpGetPublic(
           "/attendances/today",
           params
         ) as Promise<Attendances>,
-        httpInternalApi.httpGetPublic(
-          "/profiles",
-          params
-        ) as Promise<ProfileDashboardResponse>,
+        // httpInternalApi.httpGetPublic(
+        //   "/profiles",
+        //   params
+        // ) as Promise<ProfileDashboardResponse>,
       ]);
 
       setAttendances(attendancesRes.attendances);
-      setProfiles(profilesRes.profiles);
+      // setProfiles(profilesRes.profiles);
       setLoading(false);
     };
 

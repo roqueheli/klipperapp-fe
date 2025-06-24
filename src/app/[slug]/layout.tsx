@@ -5,15 +5,15 @@ import ToasterProvider from "@/components/ui/ToasterProvider";
 import { OrganizationProvider } from "@/contexts/OrganizationContext";
 import { UserProvider } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
+import { getToken } from "@/lib/utils/auth.utils";
 import { Organization, OrganizationResponse } from "@/types/organization";
 import { User } from "@/types/user";
 import { isValidOrganization } from "@/utils/organization.utils";
 import clsx from "clsx";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import "../../styles/globals.css";
-import { getToken } from "@/lib/utils/auth.utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
