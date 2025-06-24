@@ -15,9 +15,6 @@ const statusClasses = {
 } as const;
 
 export default function UserProfileCard({ user, onClick }: Props) {
-
-  console.log('user', user);
-  
   return (
     <article className="bg-gradient-to-br from-[#101522] via-[#1a2337] to-[#202a45] ring-1 ring-[--electric-blue]/30 rounded-2xl p-5 shadow-xl shadow-[0_8px_24px_rgba(61,217,235,0.2)] hover:shadow-[0_12px_36px_rgba(61,217,235,0.35)] transition-shadow duration-300 flex flex-col h-full">
       <div className="flex items-center justify-between mb-4">

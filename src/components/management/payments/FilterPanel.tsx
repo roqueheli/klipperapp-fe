@@ -30,7 +30,6 @@ const FilterPanel = ({
   onFilter,
   onReset,
 }: FilterPanelProps) => {
-  const { data } = useOrganization();
   const [dateRange, setDateRange] = useState([
     {
       startDate: new Date(),
