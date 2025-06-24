@@ -5,7 +5,6 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
-import { Profile, ProfileDashboardResponse } from "@/types/profile";
 import { useEffect, useMemo, useState } from "react";
 import {
   Bar,

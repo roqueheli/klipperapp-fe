@@ -52,16 +52,16 @@ export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    const handleRouteChange = () => {
-      if (!pathname?.includes("/attendances/history")) {
-        resetAttendances();
-      }
-    };
+    // const handleRouteChange = () => {
+    //   if (!pathname?.includes("/attendances/history")) {
+    //     resetAttendances();
+    //   }
+    // };
 
     window.addEventListener("beforeunload", clearSessionStorage);
 
     return () => {
-      handleRouteChange();
+      // handleRouteChange();
       window.removeEventListener("beforeunload", clearSessionStorage);
     };
   }, [pathname]);

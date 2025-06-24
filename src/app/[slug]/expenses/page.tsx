@@ -7,7 +7,6 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Branch, BranchResponse } from "@/types/branch";
 import { Expenses, ExpensesResponse } from "@/types/expenses";
 import { User, UserResponse } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
@@ -134,7 +133,7 @@ const ExpensesPage = () => {
       setExpenses((prev) => prev.filter((e) => e.id !== expenseToDelete.id));
       toast.success("Gasto eliminado correctamente");
     } catch (error) {
-      toast.error("Error al eliminar el gasto");
+      toast.error("Error al eliminar el gasto" + error);
     } finally {
       setExpenseToDelete(null);
       setIsConfirmOpen(false);
