@@ -2,7 +2,7 @@
 
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   createContext,
   ReactNode,
@@ -38,7 +38,6 @@ const AttendancesContext = createContext<AttendancesContextType | undefined>(
 
 export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<AttendanceFilters>({});
@@ -168,4 +167,3 @@ export const useAttendances = () => {
   }
   return context;
 };
-

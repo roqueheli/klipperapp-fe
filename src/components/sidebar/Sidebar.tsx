@@ -45,7 +45,7 @@ const iconMap: Record<string, JSX.Element> = {
 export default function Sidebar({ token }: SidebarProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const pathname = usePathname();
   const [route, setRoute] = useState("/users");
   const router = useRouter();

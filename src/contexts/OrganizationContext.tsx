@@ -25,7 +25,7 @@ const OrganizationContext = createContext<OrganizationContextType>({
   loading: true,
   error: null,
   refresh: async () => {},
-  update: (org: Organization) => {},
+  update: () => {},
 });
 
 export function OrganizationProvider({
@@ -43,7 +43,7 @@ export function OrganizationProvider({
     loading: !initialData, // Si no hay datos iniciales, cargamos
     error: null,
     refresh: async () => {},
-    update: (org: Organization) => {},
+    update: () => {},
   });
 
   const update = (org: Organization) => {
