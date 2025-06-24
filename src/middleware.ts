@@ -3,7 +3,7 @@ import httpInternalApi from "./lib/common/http.internal.service";
 import { Organization } from "./types/organization";
 import { isValidOrganization } from "./utils/organization.utils";
 
-const protectedRoutes = ["dashboard", "users", "profiles", "attendances", "services", "transactions"];
+const protectedRoutes = ["dashboard", "users", "profiles", "attendances", "services", "transactions", "expenses", "management", "payments"];
 const publicRoutes = ["login", "register"];
 
 export async function middleware(request: NextRequest) {
@@ -71,5 +71,8 @@ export const config = {
         "/:slug/attendances/:path*",
         "/:slug/services/:path*",
         "/:slug/transactions/:path*",
+        "/:slug/management/:path*",
+        "/:slug/expenses/:path*",
+        "/:slug/payments/:path*",
     ],
 };

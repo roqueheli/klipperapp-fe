@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useAttendances } from "@/contexts/AttendancesContext";
@@ -25,25 +26,23 @@ const FilterPanel = ({
   const isAttendancesPage = pathname?.includes("/attendances/history");
   const [isOpen, setIsOpen] = useState(true);
   const { filters, fetchAttendances, resetAttendances } = useAttendances();
-
+  
   const today = new Date();
   const currentYear = today.getFullYear();
   const years = [currentYear, currentYear - 1];
   const [availableDays, setAvailableDays] = useState<string[]>([]);
 
-  // Estado local sincronizado con los filtros del contexto
   const [localFilters, setLocalFilters] = useState({
     year: filters.year || "",
     month: filters.month || "",
     day: filters.day || "",
-    branch_id: filters.branch_id || "",
-    attended_by: filters.attended_by || "",
+    branch_id: branches.length === 1 && users.length === 1 ? String(branches[0].id) : (filters.branch_id || ""),
+    attended_by: users.length === 1 ? String(users[0].id) : (filters.attended_by || ""),
     status: filters.status || "",
-    order_by: filters.order_by || "date",
-    order_dir: filters.order_dir || "desc",
+    sort: filters.sort || "created_at",
+    dir: filters.dir || "desc",
   });
 
-  // Actualizar días disponibles cuando cambia mes/año
   useEffect(() => {
     if (localFilters.month && localFilters.year) {
       const daysInMonth = new Date(
@@ -59,19 +58,18 @@ const FilterPanel = ({
     }
   }, [localFilters.month, localFilters.year]);
 
-  // Sincronizar con cambios en el contexto
   useEffect(() => {
     setLocalFilters({
       year: filters.year || "",
       month: filters.month || "",
       day: filters.day || "",
-      branch_id: filters.branch_id || "",
-      attended_by: filters.attended_by || "",
+      branch_id: branches.length === 1 && users.length === 1 ? String(branches[0].id) : (filters.branch_id || ""),
+      attended_by: users.length === 1 ? String(users[0].id) : (filters.attended_by || ""),
       status: filters.status || "",
-      order_by: filters.order_by || "date",
-      order_dir: filters.order_dir || "desc",
+      sort: filters.sort || "created_at",
+      dir: filters.dir || "desc",
     });
-  }, [filters]);
+  }, [filters, branches, users]);
 
   const handleReset = () => {
     resetAttendances();
@@ -79,18 +77,17 @@ const FilterPanel = ({
       year: "",
       month: "",
       day: "",
-      branch_id: "",
-      attended_by: "",
+      branch_id: branches.length === 1 && users.length === 1 ? String(branches[0].id) : "",
+      attended_by: users.length === 1 ? String(users[0].id) : "",
       status: "",
-      order_by: "date",
-      order_dir: "desc",
+      sort: "created_at",
+      dir: "desc",
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Crear objeto de filtros limpio (sin propiedades vacías)
     const appliedFilters = {
       ...(localFilters.year && { year: localFilters.year }),
       ...(localFilters.month && { month: localFilters.month }),
@@ -100,14 +97,13 @@ const FilterPanel = ({
       ...(localFilters.attended_by && {
         attended_by: localFilters.attended_by,
       }),
-      order_by: localFilters.order_by as "date" | "total_amount",
-      order_dir: localFilters.order_dir as "asc" | "desc",
+      sort: localFilters.sort as "created_at" | "total_amount",
+      dir: localFilters.dir as "asc" | "desc",
     };
 
     if (isAttendancesPage) {
       fetchAttendances(appliedFilters);
     } else {
-      // Manejo alternativo si no estamos en la página
       fetchAttendances(appliedFilters);
     }
   };
@@ -116,12 +112,10 @@ const FilterPanel = ({
     setLocalFilters((prev) => {
       const newFilters = { ...prev, [key]: value };
 
-      // Resetear día si cambia mes o año
       if ((key === "month" || key === "year") && value) {
         newFilters.day = "";
       }
 
-      // Resetear attended_by si cambia branch_id
       if (key === "branch_id") {
         newFilters.attended_by = "";
       }
@@ -157,7 +151,6 @@ const FilterPanel = ({
         }`}
       >
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Filtros por fecha */}
           <div>
             <h3 className="text-gray-700 dark:text-gray-200 font-semibold mb-2">
               Filtrar por fecha
@@ -205,7 +198,6 @@ const FilterPanel = ({
             </div>
           </div>
 
-          {/* Filtros por ubicación */}
           <div>
             <h3 className="text-gray-700 dark:text-gray-200 font-semibold mb-2">
               Filtrar por ubicación
@@ -218,7 +210,7 @@ const FilterPanel = ({
                 }
                 className={inputStyle}
               >
-                <option value="">Todas las sucursales</option>
+                {branches.length > 1 || (branches.length === 1 && users.length > 1) && <option value="">Todas las sucursales</option>}
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name}
@@ -233,14 +225,14 @@ const FilterPanel = ({
                 }
                 className={inputStyle}
               >
-                <option value="">Todos los usuarios</option>
+                {users.length > 1 && <option value="">Todos los usuarios</option>}
                 {filteredUsers.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.name}
                   </option>
                 ))}
               </select>
-              {/* Nueva Sección de Filtro por Status */}
+              
               <select
                 value={localFilters.status}
                 onChange={(e) => handleFilterChange("status", e.target.value)}
@@ -256,15 +248,14 @@ const FilterPanel = ({
             </div>
           </div>
 
-          {/* Orden de resultados */}
           <div>
             <h3 className="text-gray-700 dark:text-gray-200 font-semibold mb-2">
               Ordenar resultados
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <select
-                value={localFilters.order_by}
-                onChange={(e) => handleFilterChange("order_by", e.target.value)}
+                value={localFilters.sort}
+                onChange={(e) => handleFilterChange("sort", e.target.value)}
                 className={inputStyle}
               >
                 <option value="date">Fecha</option>
@@ -272,9 +263,9 @@ const FilterPanel = ({
               </select>
 
               <select
-                value={localFilters.order_dir}
+                value={localFilters.dir}
                 onChange={(e) =>
-                  handleFilterChange("order_dir", e.target.value)
+                  handleFilterChange("dir", e.target.value)
                 }
                 className={inputStyle}
               >
@@ -284,7 +275,6 @@ const FilterPanel = ({
             </div>
           </div>
 
-          {/* Botones de acción */}
           <div className="flex justify-between flex-wrap gap-4 pt-2">
             <div className="flex gap-2">
               <button
@@ -320,3 +310,4 @@ const FilterPanel = ({
 };
 
 export default FilterPanel;
+

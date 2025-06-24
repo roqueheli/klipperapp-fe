@@ -1,16 +1,15 @@
 import servicesAPI from "@/lib/services/services.service";
-import { cookies } from "next/headers";
+import { getToken } from "@/lib/utils/auth.utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+    const token = await getToken();
     const body = await request.json();
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const data = await servicesAPI.updateService(body, token?.value || "");
+        const data = await servicesAPI.updateService(body, token);
 
         if (!data.id) throw new Error('Failed service update');
 
@@ -21,14 +20,13 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+    const token = await getToken();
     const body = await request.json();
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const data = await servicesAPI.deleteService(body, token?.value || "");
+        const data = await servicesAPI.deleteService(body, token);
 
         if (!data.id) throw new Error('Failed service update');
 

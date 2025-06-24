@@ -10,6 +10,7 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import { Branch, BranchResponse } from "@/types/branch";
 import { User, UserResponse } from "@/types/user";
 import { translateStatus } from "@/utils/organization.utils";
+import { getRoleByName } from "@/utils/roleUtils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useEffect, useState } from "react";
@@ -17,9 +18,7 @@ import { useEffect, useState } from "react";
 const AttendancesHistoryPage = () => {
   const { data } = useOrganization();
   const { userData } = useUser();
-  const { attendances, isLoading, fetchAttendances, hasSearched } =
-    useAttendances();
-
+  const { attendances, isLoading, hasSearched } = useAttendances();
   const [users, setUsers] = useState<User[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
 
@@ -30,9 +29,17 @@ const AttendancesHistoryPage = () => {
         const branchesParams = new URLSearchParams();
         const usersParams = new URLSearchParams();
 
+        const agentRole = await getRoleByName("agent");
+
         if (data?.id) {
           branchesParams.set("organization_id", String(data.id));
           usersParams.set("organization_id", String(data.id));
+        }
+
+        if (userData?.role.id === agentRole.id) {
+          branchesParams.set("branch_id", String(userData?.branch_id));
+          usersParams.set("id", String(userData?.id));
+          usersParams.set("branch_id", String(userData?.branch_id));
         }
 
         const [branchesRes, usersRes] = await Promise.all([
@@ -54,7 +61,7 @@ const AttendancesHistoryPage = () => {
     };
 
     loadInitialData();
-  }, [data?.id]);
+  }, [data?.id, userData]);
 
   const handleDownloadPdf = () => {
     if (attendances.length === 0) return;
@@ -78,7 +85,7 @@ const AttendancesHistoryPage = () => {
       startY: 30,
       head: [
         [
-          "ID",
+          "Id",
           "Fecha",
           "Cliente",
           "Servicios",
@@ -96,20 +103,20 @@ const AttendancesHistoryPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center flex-col w-full min-h-screen p-6 max-w-7xl mx-auto">
+    <div className="flex items-center flex-col w-full min-h-screen p-6 max-w-7xl mx-auto">
       <h1 className="w-full text-left text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
         Historial de Asistencias
       </h1>
       <FilterPanel
         onDownloadPdf={handleDownloadPdf}
-        hasResults={attendances.length > 0 || false}
+        hasResults={attendances !== undefined && attendances.length > 0 || false}
         users={users}
         branches={branches}
       />
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        <div className="min-h-screen flex justify-center items-center w-full h-full">
+        <div className="mt-4 flex justify-center items-center w-full">
           {!hasSearched ? (
             <p className="text-center text-gray-500 mt-8">
               Por favor, selecciona uno o más filtros y presiona "Buscar".

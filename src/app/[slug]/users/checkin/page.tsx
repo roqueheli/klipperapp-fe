@@ -4,7 +4,6 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Role } from "@/types/role";
 import { User, UserResponse } from "@/types/user";
 import { isBeforeTwoPM } from "@/utils/date.utils";
 import { getRoleByName } from "@/utils/roleUtils";

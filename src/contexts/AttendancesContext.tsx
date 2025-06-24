@@ -1,4 +1,3 @@
-// contexts/AttendancesContext.tsx
 "use client";
 
 import httpInternalApi from "@/lib/common/http.internal.service";
@@ -29,8 +28,8 @@ export interface AttendanceFilters {
   branch_id?: string;
   attended_by?: string;
   status?: string;
-  order_by?: "date" | "total_amount";
-  order_dir?: "asc" | "desc";
+  sort?: "created_at" | "total_amount";
+  dir?: "asc" | "desc";
 }
 
 const AttendancesContext = createContext<AttendancesContextType | undefined>(
@@ -46,35 +45,30 @@ export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Track if we're on the attendances page
-  const isAttendancesPage = pathname?.includes("/attendances/history");
+  const clearSessionStorage = () => {
+    sessionStorage.removeItem("attendancesData");
+    sessionStorage.removeItem("attendancesPage");
+    sessionStorage.removeItem("attendancesFilters");
+    sessionStorage.removeItem("attendancesHasSearched");
+  };
 
-  // Limpiar datos cuando se sale de la página
   useEffect(() => {
     const handleRouteChange = () => {
-      if (!isAttendancesPage) {
+      if (!pathname?.includes("/attendances/history")) {
         resetAttendances();
       }
     };
 
-    // Limpiar en el evento beforeunload (cuando se cierra la pestaña/ventana)
-    const handleBeforeUnload = () => {
-      sessionStorage.removeItem("attendancesData");
-      sessionStorage.removeItem("attendancesFilters");
-      sessionStorage.removeItem("attendancesHasSearched");
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("beforeunload", clearSessionStorage);
 
     return () => {
       handleRouteChange();
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("beforeunload", clearSessionStorage);
     };
-  }, [isAttendancesPage]);
+  }, [pathname]);
 
-  // Cargar datos iniciales del sessionStorage solo si estamos en la página de attendances
   useEffect(() => {
-    if (isAttendancesPage && isInitialLoad) {
+    if (pathname?.includes("/attendances/history") && isInitialLoad) {
       try {
         const savedAttendances = sessionStorage.getItem("attendancesData");
         const savedFilters = sessionStorage.getItem("attendancesFilters");
@@ -82,7 +76,6 @@ export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
           "attendancesHasSearched"
         );
 
-        // Manejo seguro de los datos del sessionStorage
         if (
           savedAttendances &&
           savedAttendances !== "undefined" &&
@@ -106,13 +99,10 @@ export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
         setIsInitialLoad(false);
       } catch (error) {
         console.error("Error parsing sessionStorage data:", error);
-        // Limpiar datos corruptos
-        sessionStorage.removeItem("attendancesData");
-        sessionStorage.removeItem("attendancesFilters");
-        sessionStorage.removeItem("attendancesHasSearched");
+        clearSessionStorage();
       }
     }
-  }, [isAttendancesPage, isInitialLoad]);
+  }, [pathname, isInitialLoad]);
 
   const fetchAttendances = async (newFilters: AttendanceFilters) => {
     setIsLoading(true);
@@ -124,7 +114,7 @@ export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const response = (await httpInternalApi.httpGetPublic(
-        "/attendances",
+        "/attendances/history",
         params
       )) as Attendances;
 
@@ -132,7 +122,6 @@ export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
       setFilters(newFilters);
       setHasSearched(true);
 
-      // Persistir en sessionStorage
       sessionStorage.setItem(
         "attendancesData",
         JSON.stringify(response.attendances)
@@ -150,9 +139,7 @@ export const AttendancesProvider = ({ children }: { children: ReactNode }) => {
     setAttendances([]);
     setFilters({});
     setHasSearched(false);
-    sessionStorage.removeItem("attendancesData");
-    sessionStorage.removeItem("attendancesFilters");
-    sessionStorage.removeItem("attendancesHasSearched");
+    clearSessionStorage();
   };
 
   return (
@@ -181,3 +168,4 @@ export const useAttendances = () => {
   }
   return context;
 };
+

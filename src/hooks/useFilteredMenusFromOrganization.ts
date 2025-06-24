@@ -9,43 +9,49 @@ export function useFilteredMenusFromOrganization(): MenuItem[] {
     const { userData } = useUser();
     const defaultMenus: MenuItem[] = [
         {
-            label: "Registro de Entrada", // Antes: "Asistencia"
+            label: "Registro de Entrada",
             path: `/${slug}/users/checkin`,
             allowedRoles: [1, 2],
             icon: "LogIn"
         },
         {
-            label: "Gestión de Turnos", // Antes: "Atención"
+            label: "Gestión de Turnos",
             path: `/${slug}/users/attendances`,
             allowedRoles: [1, 2],
             icon: "CalendarCheck"
         },
         {
-            label: "Filas de atención", // Antes: "Listas"
+            label: "Filas de atención",
             path: `/${slug}/users/lists`,
             allowedRoles: [1, 2, 7, 3],
             icon: "ListOrdered"
         },
         {
-            label: "Atenciones del día", // Antes: "Transacciones"
+            label: "Atenciones del día",
             path: `/${slug}/transactions`,
-            allowedRoles: [1, 2],
+            allowedRoles: [1, 2, 3, 7],
             icon: "History"
         },
         {
-            label: "Historial de atenciones", // Opcional: "Estadísticas"
+            label: "Atenciones anteriores",
             path: `/${slug}/attendances/history`,
             allowedRoles: [1, 2, 7, 3],
             icon: "Clock"
         },
         {
             "label": "Reporte de gastos",
-            "path": "/barberia-el-russo/organization/costs",
+            "path": `/${slug}/organization/expenses`,
             "allowedRoles": [1, 2],
             "icon": "FileBarChart2"
         },
         {
-            label: "Dashboard", // Opcional: "Estadísticas"
+            "label": "Gestión de pagos",
+            "path": `/${slug}/management/payments`,
+            "allowedRoles": [1, 2],
+            "icon": "Wallet"
+        },
+        {
+            label: "Dashboard",
             path: `/${slug}/users/dashboard`,
             allowedRoles: [1, 2, 7, 3],
             icon: "BarChart3"

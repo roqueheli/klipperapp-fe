@@ -42,6 +42,7 @@ export default function AttendanceListsPage() {
   } | null>(null);
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [isLoading, setIsLoading] = useState(true);
+  const [isAgent, setIsAgent] = useState<User>();
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
   const fetchData = useCallback(async () => {
@@ -53,6 +54,7 @@ export default function AttendanceListsPage() {
       params.set("organization_id", String(data.id));
       params.set("role_id", String(agentRole?.id));
     }
+
     params.set("branch_id", String(userData?.branch_id || 1));
 
     try {
@@ -87,6 +89,25 @@ export default function AttendanceListsPage() {
   }, []);
 
   useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        if (!userData?.role.id) return;
+
+        // Obtener el rol "agent"
+        const agentRole = await getRoleByName("agent");
+        // Comparar con el role_id del usuario
+        if (userData.role.id === agentRole.id) {
+          setIsAgent(userData);
+        }
+      } catch (error) {
+        console.error("Error verificando rol del usuario:", error);
+        setIsAgent(undefined);
+      }
+    };
+    checkUserRole();
+  }, [userData?.role.id]);
+
+  useEffect(() => {
     fetchData();
   }, [fetchData]);
 
@@ -111,7 +132,10 @@ export default function AttendanceListsPage() {
         const updatedProfiles = user.profiles
           .map((att) => (att.id === attId ? { ...att, status } : att))
           .filter(
-            (att) => att.status === "pending" || att.status === "processing" || att.status === "postponed"
+            (att) =>
+              att.status === "pending" ||
+              att.status === "processing" ||
+              att.status === "postponed"
           );
 
         return { ...user, profiles: updatedProfiles };
@@ -202,7 +226,7 @@ export default function AttendanceListsPage() {
     }
   };
 
-    const handleResume = async () => {
+  const handleResume = async () => {
     if (!selectedAtt || !selectedUser) return;
     const requestBody = {
       user_id: selectedUser.userId,
@@ -258,7 +282,9 @@ export default function AttendanceListsPage() {
     }
   };
 
-  const hasProcessing = users.some(u => u.profiles.some(p => p.status === "processing"));
+  const hasProcessing = users.some((u) =>
+    u.profiles.some((p) => p.status === "processing")
+  );
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -267,12 +293,18 @@ export default function AttendanceListsPage() {
       <HeaderSection />
       <main className="grid grid-cols-1 md:grid-cols-4 gap-6 flex-grow">
         <QueueSection queue={queue} />
-        <UsersSection users={users} onUserClick={handleClick} />
+        <UsersSection
+          users={users}
+          userLogged={isAgent || undefined }
+          onUserClick={handleClick}
+        />
       </main>
-      <FooterSection
-        isEmpty={isWorkingTodayEmpty}
-        onStartWizard={() => setWizardOpen(true)}
-      />
+      {!isAgent && (
+        <FooterSection
+          isEmpty={isWorkingTodayEmpty}
+          onStartWizard={() => setWizardOpen(true)}
+        />
+      )}
 
       <AttendanceModal
         isOpen={modalOpen}

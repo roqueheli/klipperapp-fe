@@ -23,6 +23,8 @@ export interface Attendance {
 	payment_method: string | null
 	profile: Profile
 	services: Service[]
+	parent_attendance_id: number | null
+	child_attendances: Attendance[] | []
 }
 
 export interface ServicesResponse {

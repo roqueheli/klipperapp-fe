@@ -1,16 +1,16 @@
 import profilesAPI from "@/lib/profiles/profiles.service";
+import { getToken } from "@/lib/utils/auth.utils";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
-    const { name, email, phone_number, birth_date, organization_id } = await request.json();
+    const token = await getToken();
+    const body = await request.json();
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const data = await profilesAPI.registerProfile({ name, email, phone_number, birth_date, organization_id }, token?.value || "");
+        const data = await profilesAPI.registerProfile(body, token);
 
         if (!data.id) throw new Error('Register failed');
 

@@ -13,11 +13,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  FileBarChart2,
   History,
   ListOrdered,
   LogIn,
   Settings,
-  FileBarChart2,
+  Wallet,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,6 +39,7 @@ const iconMap: Record<string, JSX.Element> = {
   Clock: <Clock className="h-5 w-5 shrink-0" />,
   Settings: <Settings className="h-5 w-5 shrink-0" />,
   FileBarChart2: <FileBarChart2 className="h-5 w-5 shrink-0" />,
+  Wallet: <Wallet className="h-5 w-5 shrink-0" />,
 };
 
 export default function Sidebar({ token }: SidebarProps) {
@@ -69,6 +71,34 @@ export default function Sidebar({ token }: SidebarProps) {
     }
   }, [token, router, slug]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const shouldBeOpen = window.innerWidth >= 768;
+      setIsOpen(shouldBeOpen);
+    };
+
+    handleResize(); // ejecuta al montar
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const shouldBeOpen = window.innerWidth >= 768;
+      setIsOpen(shouldBeOpen);
+    };
+
+    // Ejecutar una vez al cargar
+    handleResize();
+
+    // Agregar listener
+    window.addEventListener("resize", handleResize);
+
+    // Limpiar al desmontar
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleLogout = async () => {
     await toast
       .promise(
@@ -80,6 +110,10 @@ export default function Sidebar({ token }: SidebarProps) {
         }
       )
       .then(() => {
+        sessionStorage.removeItem("attendancesData");
+        sessionStorage.removeItem("attendancesPage");
+        sessionStorage.removeItem("attendancesFilters");
+        sessionStorage.removeItem("attendancesHasSearched");
         router.push(`/${slug}/auth/login`);
       });
   };
@@ -95,7 +129,7 @@ export default function Sidebar({ token }: SidebarProps) {
       )}
     >
       {/* Toggle */}
-      <div className="flex justify-end">
+      <div className="flex justify-end block xs:hidden">
         <button
           className="mb-4 text-gray-600 dark:text-white hover:text-black dark:hover:text-white transition"
           onClick={() => setIsOpen(!isOpen)}
@@ -184,7 +218,7 @@ export default function Sidebar({ token }: SidebarProps) {
         )}
 
         {/* Toggle theme */}
-        <button
+        {/* <button
           onClick={toggleTheme}
           className={clsx(
             "flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full",
@@ -196,7 +230,7 @@ export default function Sidebar({ token }: SidebarProps) {
         >
           <span className="text-xl">{theme === "dark" ? "☀️" : "🌙"}</span>
           {isOpen && <span>{theme === "dark" ? "Claro" : "Oscuro"}</span>}
-        </button>
+        </button> */}
 
         {/* Avatar e Logout */}
         <div className="flex items-center gap-3 px-2 py-2">

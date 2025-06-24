@@ -13,6 +13,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import "../../styles/globals.css";
+import { getToken } from "@/lib/utils/auth.utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -58,11 +59,7 @@ export default async function RootLayout({
   const { slug } = await params;
   const pathname = (await headers()).get("x-next-pathname") || "";
   const isLoginPage = pathname.includes("/auth/login");
-
-  const cookiesStore = cookies();
-  const auth_token = (await cookiesStore).get(
-    process.env.AUTH_TOKEN_SECRET || ""
-  );
+  const auth_token = await getToken();
 
   let initialData: Organization | null = null;
   let userData: User | null = null;
@@ -97,7 +94,7 @@ export default async function RootLayout({
             <UserProvider userData={userData}>
               <div className="w-full flex min-h-screen">
                 {(auth_token && !isLoginPage) && isValidOrganization(initialData) && (
-                  <SidebarContainer token={auth_token?.value} />
+                  <SidebarContainer token={auth_token} />
                 )}
                 <div className={clsx("transition-all duration-300 flex-grow")}>
                   <main className="w-full flex-grow">{children}</main>
@@ -112,3 +109,4 @@ export default async function RootLayout({
     </html>
   );
 }
+

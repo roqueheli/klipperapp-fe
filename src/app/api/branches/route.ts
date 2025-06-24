@@ -1,62 +1,49 @@
 import branchesAPI from "@/lib/branches/branches.service";
-import { cookies } from "next/headers";
+import { getToken } from "@/lib/utils/auth.utils";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
-    const searchParams = request.nextUrl.searchParams;
+async function handleRequest(request: NextRequest, action: string) {
+    const token = await getToken();
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const branches = await branchesAPI.getBranches(searchParams, token?.value || "");
+        let result;
+        const body = action !== 'GET' ? await request.json() : undefined;
+        const searchParams = action === 'GET' ? new URLSearchParams(request.nextUrl.searchParams) : new URLSearchParams();
 
-        if (!branches) {
-            throw new Error('Branches not found');
+        switch (action) {
+            case 'GET':
+                result = await branchesAPI.getBranches(searchParams, token);
+                if (!result) throw new Error('Branches not found');
+                return NextResponse.json({ branches: result, status: 200 });
+
+            case 'PUT':
+                result = await branchesAPI.updateBranch(body, token);
+                if (!result.id) throw new Error('Failed branch update');
+                return NextResponse.json({ profile: result, status: 200 });
+
+            case 'POST':
+                result = await branchesAPI.createBranch(body, token);
+                if (!result.id) throw new Error('Failed branch create');
+                return NextResponse.json({ profile: result, status: 200 });
+
+            default:
+                return NextResponse.json({ error: "Invalid action" }, { status: 400 });
         }
-
-        return NextResponse.json({
-            branches,
-            status: 200,
-        });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Branches failure " + error, status: 404 }));
+        return new Response(JSON.stringify({ error: `${action} failure ${error}`, status: 404 }));
     }
+}
+
+export async function GET(request: NextRequest) {
+    return handleRequest(request, 'GET');
 }
 
 export async function PUT(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
-    const body = await request.json();
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    try {
-        const data = await branchesAPI.updateBranch(body, token?.value || "");
-
-        if (!data.id) throw new Error('Failed branch update');
-
-        return NextResponse.json({ profile: data, status: 200 });
-    } catch (error) {
-        return new Response(JSON.stringify({ error: "Branch update failure " + error, status: 404 }));
-    }
+    return handleRequest(request, 'PUT');
 }
 
 export async function POST(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
-    const body = await request.json();
-
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    try {
-        const data = await branchesAPI.createBranch(body, token?.value || "");
-
-        if (!data.id) throw new Error('Failed branch create');
-
-        return NextResponse.json({ profile: data, status: 200 });
-    } catch (error) {
-        return new Response(JSON.stringify({ error: "Branch create failure " + error, status: 404 }));
-    }
+    return handleRequest(request, 'POST');
 }

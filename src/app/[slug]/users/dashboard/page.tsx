@@ -156,7 +156,7 @@ export default function DashboardPage() {
   return (
     <div className="w-full flex flex-col justify-center space-y-6 p-6 mx-auto text-white">
       <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-        Dashboard de Atenciones
+        Dashboard del día
       </h1>
 
       {/* Resumen de Totales */}
