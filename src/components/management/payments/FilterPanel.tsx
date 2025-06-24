@@ -1,6 +1,5 @@
 "use client";
 
-import { useOrganization } from "@/contexts/OrganizationContext";
 import { Branch } from "@/types/branch";
 import { User } from "@/types/user";
 import { es } from "date-fns/locale";
