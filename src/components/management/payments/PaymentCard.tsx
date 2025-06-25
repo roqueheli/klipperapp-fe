@@ -73,9 +73,7 @@ export default function PaymentCard({
       doc.text("Sin turnos finalizados.", 14, 35);
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // vercel-disable-line
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const offsetY = (doc as any).lastAutoTable?.finalY || 40;
     if (otherAttendances.length > 0) {
       autoTable(doc, {
@@ -89,9 +87,7 @@ export default function PaymentCard({
       doc.text("Sin otros turnos.", 14, offsetY + 10);
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // vercel-disable-line
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const finalY = (doc as any).lastAutoTable?.finalY || offsetY + 20;
     doc.setFontSize(12);
     doc.text("Resumen:", 14, finalY + 10);
