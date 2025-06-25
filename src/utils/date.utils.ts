@@ -19,7 +19,7 @@ export function getWeeksOfMonth(
     const lastDayOfMonth = new Date(year, month + 1, 0);
 
     // Mover al primer día de la semana que contenga el primer día del mes
-    let current = new Date(firstDayOfMonth);
+    const current = new Date(firstDayOfMonth);
     const shiftBack = (current.getDay() - weekStartDay + 7) % 7;
     current.setDate(current.getDate() - shiftBack);
 

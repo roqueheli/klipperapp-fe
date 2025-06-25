@@ -1,13 +1,11 @@
 "use client";
 
-import { useUser } from "@/contexts/UserContext";
 import { Attendance } from "@/types/attendance";
 import { User } from "@/types/user";
-import { getRoleByName } from "@/utils/roleUtils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { ChevronDown, ChevronUp, FileDown, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PaymentDetailsSection from "./PaymentDetailsSection";
 
 export interface ExportData {

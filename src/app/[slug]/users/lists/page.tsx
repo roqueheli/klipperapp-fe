@@ -23,7 +23,6 @@ import { Organization } from "@/types/organization";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserWithProfiles } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
-import { Attendance } from "@/types/attendance";
 
 export interface AttendanceProfile {
   id: number;

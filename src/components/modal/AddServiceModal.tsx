@@ -63,7 +63,7 @@ export default function AddServiceModal({
       }
     };
     fetchAttendance();
-  }, [attendanceProfile]);
+  }, [attendanceProfile, setSelectedServices]);
 
   if (!isOpen) return null;
 

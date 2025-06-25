@@ -1,7 +1,6 @@
-import { CalculatePayment, CalculatePaymentResponse } from "@/types/calculate";
+import { CalculatePaymentResponse } from "@/types/calculate";
 import { User, UserResponse } from "@/types/user";
 import httpExternalApi from "../common/http.external.service";
-import { SearchParams } from "next/dist/server/request/search-params";
 
 class UsersAPI {
     getUsers = async (params: URLSearchParams, token: string): Promise<UserResponse> => httpExternalApi.httpGet(`/users`, params, token);

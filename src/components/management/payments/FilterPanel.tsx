@@ -42,7 +42,7 @@ const FilterPanel = ({
         data?.metadata?.payment_config?.week_start,
         data?.metadata?.payment_config?.week_end
       ),
-    [year, month]
+    [year, month, data]
   );
 
   const filteredUsers = useMemo(() => {

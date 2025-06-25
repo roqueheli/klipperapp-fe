@@ -115,6 +115,7 @@ const ExpenseModal = ({
     isEditMode,
     expense,
     quantity,
+    data,
     onExpenseUpdated,
     onExpenseAdded,
     onClose,
