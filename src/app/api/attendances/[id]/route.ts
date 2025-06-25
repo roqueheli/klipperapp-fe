@@ -19,3 +19,20 @@ export async function GET(request: NextRequest) {
         return new Response(JSON.stringify({ error: `Ticket not found: ${error}`, status: 404 }));
     }
 }
+
+export async function PUT(request: NextRequest) {
+    const token = await getToken();
+    const body = await request.json();
+
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    try {
+        const data = await attendancessAPI.updateAttendance(body, token);
+
+        if (!data.id) throw new Error('Creation attendance failure');
+
+        return NextResponse.json({ profile: data, status: 200 });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: "Failed to create an attendance " + error, status: 404 }));
+    }
+}

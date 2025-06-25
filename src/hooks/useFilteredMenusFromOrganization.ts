@@ -46,8 +46,8 @@ export function useFilteredMenusFromOrganization(): MenuItem[] {
         },
         {
             "label": "Gestión de pagos",
-            "path": `/${slug}/management/payments`,
-            "allowedRoles": [1, 2],
+            "path": `/${slug}/management`,
+            "allowedRoles": [1, 2, 3, 7],
             "icon": "Wallet"
         },
         {

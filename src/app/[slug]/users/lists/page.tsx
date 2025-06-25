@@ -18,15 +18,18 @@ import { useUser } from "@/contexts/UserContext";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
 
+import AddServiceModal from "@/components/modal/AddServiceModal";
 import { Organization } from "@/types/organization";
+import { Service, ServiceResponse } from "@/types/service";
 import { User, UserWithProfiles } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
+import { Attendance } from "@/types/attendance";
 
 export interface AttendanceProfile {
   id: number;
   attendance_id?: number;
   name: string;
-  status: "pending" | "processing" | "finished";
+  status: "pending" | "processing" | "finished" | "postponed" | "canceled";
 }
 
 export default function AttendanceListsPage() {
@@ -43,14 +46,20 @@ export default function AttendanceListsPage() {
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [isLoading, setIsLoading] = useState(true);
   const [isAgent, setIsAgent] = useState<User>();
+  const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
+  const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+  const [search, setSearch] = useState("");
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     const params = new URLSearchParams();
+    const servicesParams = new URLSearchParams();
     const agentRole = await getRoleByName("agent");
 
     if (data?.id) {
+      servicesParams.set("organization_id", String(data.id));
       params.set("organization_id", String(data.id));
       params.set("role_id", String(agentRole?.id));
     }
@@ -58,17 +67,16 @@ export default function AttendanceListsPage() {
     params.set("branch_id", String(userData?.branch_id || 1));
 
     try {
-      const [queueRes, usersRes] = await Promise.all([
+      const [queueRes, usersRes, servicesRes] = await Promise.all([
         httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
-        httpInternalApi.httpGetPublic(
-          "/attendances/by_usersworking_today",
-          params
-        ),
+        httpInternalApi.httpGetPublic("/attendances/by_usersworking_today", params),
+        httpInternalApi.httpGetPublic("/services/", servicesParams) as Promise<ServiceResponse>,
       ]);
 
       startTransition(() => {
         setQueue(queueRes as User[]);
         setUsers(usersRes as UserWithProfiles[]);
+        setFilteredServices(servicesRes.services)
       });
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
@@ -282,6 +290,43 @@ export default function AttendanceListsPage() {
     }
   };
 
+  const handleAddService = () => {
+    setAddServiceModalOpen(true);
+  };
+
+  const handleConfirmServices = async (servicesToAdd: Service[]) => {
+    if (!selectedAtt || !selectedUser) return;
+
+    try {
+      const requestBody = {
+        id: selectedAtt.attendance_id,
+        attendance: {
+          id: selectedAtt.attendance_id,
+          service_ids: servicesToAdd.map((s) => s.id),
+        }
+      };
+
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          `/attendances/${selectedAtt.attendance_id}`,
+          "PUT",
+          requestBody
+        ),
+        {
+          loading: "Agregando servicios...",
+          success: "Servicios agregados exitosamente.",
+          error: "Error al agregar servicios.",
+        }
+      );
+
+      setAddServiceModalOpen(false);
+      setModalOpen(false);
+      setSelectedServices([]);
+    } catch (error) {
+      console.error("Error al agregar servicios:", error);
+    }
+  };
+
   const hasProcessing = users.some((u) =>
     u.profiles.some((p) => p.status === "processing")
   );
@@ -295,7 +340,7 @@ export default function AttendanceListsPage() {
         <QueueSection queue={queue} />
         <UsersSection
           users={users}
-          userLogged={isAgent || undefined }
+          userLogged={isAgent || undefined}
           onUserClick={handleClick}
         />
       </main>
@@ -316,8 +361,27 @@ export default function AttendanceListsPage() {
         onFinish={handleEnd}
         onDecline={handleDecline}
         onResume={handleResume}
+        onAddService={handleAddService}
         hasProcessing={hasProcessing}
       />
+
+      {selectedAtt && addServiceModalOpen && (
+        <AddServiceModal
+          isOpen={addServiceModalOpen}
+          onClose={() => setAddServiceModalOpen(false)}
+          attendanceProfile={selectedAtt as AttendanceProfile}
+          setSelectedServices={setSelectedServices}
+          selectedServices={selectedServices}
+          filteredServices={filteredServices}
+          search={search}
+          onSearchChange={setSearch}
+          onAddService={(s) => setSelectedServices((prev) => [...prev, s])}
+          onRemoveService={(id) =>
+            setSelectedServices((prev) => prev.filter((s) => s.id !== id))
+          }
+          onConfirm={handleConfirmServices}
+        />
+      )}
 
       <Transition
         show={wizardOpen}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useOrganization } from "@/contexts/OrganizationContext";
+import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { ExpenseResponse, Expenses } from "@/types/expenses";
 import { User } from "@/types/user";
@@ -27,6 +29,8 @@ const ExpenseModal = ({
   onExpenseAdded,
   onExpenseUpdated,
 }: ExpenseModalProps) => {
+  const { data } = useOrganization();
+  const { userData } = useUser();
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -57,7 +61,7 @@ const ExpenseModal = ({
   }, [expense, isEditMode, isViewMode, isCreateMode, resetForm]);
 
   const handleSubmit = useCallback(async () => {
-    if (!description || !amount || !userId) {
+    if (!description || !amount || !quantity) {
       toast.error("Por favor complete todos los campos requeridos");
       return;
     }
@@ -65,19 +69,16 @@ const ExpenseModal = ({
     setIsSubmitting(true);
     try {
       const selectedUser = users.find((user) => user.id === userId);
-      if (!selectedUser) {
-        toast.error("Usuario no válido");
-        return;
-      }
 
       const payload = {
         id: isEditMode && expense ? expense.id : undefined,
+        type: !isEditMode ? "user" : undefined,
         description,
         amount,
         quantity,
-        organization_id: selectedUser.organization_id,
-        user_id: userId,
-        branch_id: selectedUser.branch_id,
+        organization_id: selectedUser?.organization_id || data?.id,
+        user_id: userId || null,
+        branch_id: selectedUser?.branch_id || userData?.branch_id,
       };
 
       const action = isEditMode && expense ? "PUT" : "POST";

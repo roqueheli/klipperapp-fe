@@ -55,12 +55,14 @@ const ExpensesPage = () => {
     try {
       const branchesParams = new URLSearchParams();
       const usersParams = new URLSearchParams();
+      const expensesParams = new URLSearchParams();
 
       const agentRole = await getRoleByName("agent");
 
       if (data?.id) {
         branchesParams.set("organization_id", String(data.id));
         usersParams.set("organization_id", String(data.id));
+        expensesParams.set("organization_id", String(data.id));
       }
 
       if (userData?.role.id === agentRole.id) {
@@ -68,6 +70,8 @@ const ExpensesPage = () => {
         usersParams.set("id", String(userData?.id));
         usersParams.set("branch_id", String(userData?.branch_id));
       }
+
+      expensesParams.set("type", "user");
 
       const [usersRes, expensesRes] = await Promise.all([
         // httpInternalApi.httpGetPublic(
@@ -80,7 +84,7 @@ const ExpensesPage = () => {
         ) as Promise<UserResponse>,
         httpInternalApi.httpGetPublic(
           "/expenses",
-          branchesParams
+          expensesParams
         ) as Promise<ExpensesResponse>,
       ]);
 

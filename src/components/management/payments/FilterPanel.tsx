@@ -1,13 +1,10 @@
 "use client";
 
+import { useOrganization } from "@/contexts/OrganizationContext";
 import { Branch } from "@/types/branch";
 import { User } from "@/types/user";
-import { es } from "date-fns/locale";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getWeeksOfMonth, monthNames } from "@/utils/date.utils";
 import { useMemo, useState } from "react";
-import { DateRange } from "react-date-range";
-import "react-date-range/dist/styles.css"; // core styles
-import "react-date-range/dist/theme/default.css"; // theme styles
 
 export interface FilterValues {
   fromDate: string;
@@ -29,41 +26,55 @@ const FilterPanel = ({
   onFilter,
   onReset,
 }: FilterPanelProps) => {
-  const [dateRange, setDateRange] = useState([
-    {
-      startDate: new Date(),
-      endDate: new Date(),
-      key: "selection",
-    },
-  ]);
-
+  const { data } = useOrganization();
+  const currentYear = new Date().getFullYear();
+  const [year, setYear] = useState(currentYear);
+  const [month, setMonth] = useState(new Date().getMonth());
+  const [selectedWeek, setSelectedWeek] = useState("");
   const [branchId, setBranchId] = useState<number | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const weeks = useMemo(
+    () =>
+      getWeeksOfMonth(
+        year,
+        month,
+        data?.metadata?.payment_config?.week_start,
+        data?.metadata?.payment_config?.week_end
+      ),
+    [year, month]
+  );
 
   const filteredUsers = useMemo(() => {
     return branchId ? users.filter((u) => u.branch_id === branchId) : users;
   }, [users, branchId]);
 
   const handleSubmit = () => {
-    const { startDate, endDate } = dateRange[0];
+    let fromDate: string;
+    let toDate: string;
+
+    if (selectedWeek === "") {
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+
+      fromDate = firstDay.toISOString().split("T")[0];
+      toDate = lastDay.toISOString().split("T")[0];
+    } else {
+      [fromDate, toDate] = selectedWeek.split("_");
+    }
 
     onFilter({
-      fromDate: startDate?.toISOString().split("T")[0] ?? "",
-      toDate: endDate?.toISOString().split("T")[0] ?? "",
-      branchId,
-      userId,
+      fromDate,
+      toDate,
+      branchId: branchId ?? (branches.length === 1 ? branches[0].id : null),
+      userId: userId ?? (filteredUsers.length === 1 ? filteredUsers[0].id : null),
     });
   };
 
   const handleReset = () => {
-    setDateRange([
-      {
-        startDate: new Date(),
-        endDate: new Date(),
-        key: "selection",
-      },
-    ]);
+    setYear(currentYear);
+    setMonth(new Date().getMonth());
+    setSelectedWeek("");
     setBranchId(null);
     setUserId(null);
     onReset();
@@ -75,91 +86,95 @@ const FilterPanel = ({
         📋 Filtros
       </h2>
 
-      <div className="flex flex-col md:flex-row md:items-center gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Año */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Rango de Fechas
-          </label>
-          <div className="space-y-2">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-sm font-medium text-[--electric-blue]"
-            >
-              {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-            </button>
-            {isOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  zIndex: 1,
-                  top: "23%",
-                  left: "32%",
-                  transform: "translateX(-50%)",
-                }}
-              >
-                <DateRange
-                  ranges={dateRange}
-                  onChange={({ selection: { startDate, endDate } }) =>
-                    setDateRange([
-                      {
-                        startDate: startDate!,
-                        endDate: endDate!,
-                        key: "selection",
-                      },
-                    ])
-                  }
-                  moveRangeOnFirstSelection={false}
-                  locale={es}
-                  rangeColors={["#3DD9EB"]}
-                  showDateDisplay={false}
-                  months={1}
-                  direction="horizontal"
-                  calendarFocus="backwards"
-                  preventSnapRefocus={true}
-                  color="#f9f9f9"
-                  className="bg-white dark:bg-gray-700"
-                />
-              </div>
-            )}
-          </div>
+          <label className="block text-sm mb-1 font-medium">Año</label>
+          <select
+            className="w-full rounded border border-gray-600 px-3 py-2"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          >
+            {[currentYear - 1, currentYear, currentYear + 1].map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div>
-            <label className="block text-sm mb-1 font-medium">Sucursal</label>
-            <select
-              className="w-full rounded border border-gray-600 px-3 py-2"
-              value={branchId ?? ""}
-              onChange={(e) =>
-                setBranchId(e.target.value ? Number(e.target.value) : null)
-              }
-            >
-              <option value="">Todas</option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Mes */}
+        <div>
+          <label className="block text-sm mb-1 font-medium">Mes</label>
+          <select
+            className="w-full rounded border border-gray-600 px-3 py-2"
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+          >
+            {monthNames.map((m, i) => (
+              <option key={i} value={i}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div>
-            <label className="block text-sm mb-1 font-medium">Usuario</label>
-            <select
-              className="w-full rounded border border-gray-600 px-3 py-2"
-              value={userId ?? ""}
-              onChange={(e) =>
-                setUserId(e.target.value ? Number(e.target.value) : null)
-              }
-            >
-              <option value="">Todos</option>
-              {filteredUsers.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Semana */}
+        <div>
+          <label className="block text-sm mb-1 font-medium">Semana</label>
+          <select
+            className="w-full rounded border border-gray-600 px-3 py-2"
+            value={selectedWeek}
+            onChange={(e) => setSelectedWeek(e.target.value)}
+          >
+            <option value="">Todas</option>
+            {weeks.map((w, i) => (
+              <option key={i} value={`${w.from}_${w.to}`}>
+                {w.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+        {/* Sucursal */}
+        <div>
+          <label className="block text-sm mb-1 font-medium">Sucursal</label>
+          <select
+            className="w-full rounded border border-gray-600 px-3 py-2"
+            value={branchId ?? ""}
+            onChange={(e) =>
+              setBranchId(e.target.value ? Number(e.target.value) : null)
+            }
+          >
+            {branches.length > 1 && <option value="">Todas</option>}
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Usuario */}
+        <div>
+          <label className="block text-sm mb-1 font-medium">Usuario</label>
+          <select
+            className="w-full rounded border border-gray-600 px-3 py-2"
+            value={userId ?? ""}
+            onChange={(e) =>
+              setUserId(e.target.value ? Number(e.target.value) : null)
+            }
+            disabled={filteredUsers.length === 1}
+          >
+            {filteredUsers.length > 1 && <option value="">Todos</option>}
+            {filteredUsers.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -172,7 +187,7 @@ const FilterPanel = ({
         </button>
         <button
           onClick={handleSubmit}
-          className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold"
+          className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold disabled:opacity-50"
         >
           Buscar
         </button>
@@ -182,3 +197,4 @@ const FilterPanel = ({
 };
 
 export default FilterPanel;
+

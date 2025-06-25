@@ -17,6 +17,7 @@ interface AttendanceModalProps {
   onFinish: () => void;
   onDecline: () => void;
   onResume: () => void;
+  onAddService: () => void;
   hasProcessing: boolean;
 }
 
@@ -30,6 +31,7 @@ export default function AttendanceModal({
   onFinish,
   onDecline,
   onResume,
+  onAddService,
   hasProcessing,
 }: AttendanceModalProps) {
   const { userData } = useUser();
@@ -119,12 +121,20 @@ export default function AttendanceModal({
           )}
 
           {att?.status === "processing" && (
-            <button
-              onClick={onFinish}
-              className="px-4 py-2 rounded-md font-semibold bg-green-500/20 text-green-300 hover:bg-green-500/40 transition"
-            >
-              Finalizar
-            </button>
+            <>
+              <button
+                onClick={onAddService}
+                className="px-4 py-2 rounded-md font-semibold bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/40 transition"
+              >
+                Agregar Servicio
+              </button>
+              <button
+                onClick={onFinish}
+                className="px-4 py-2 rounded-md font-semibold bg-green-500/20 text-green-300 hover:bg-green-500/40 transition"
+              >
+                Finalizar
+              </button>
+            </>
           )}
 
           {att?.status === "postponed" && (
