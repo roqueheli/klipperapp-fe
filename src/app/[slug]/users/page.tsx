@@ -3,55 +3,50 @@
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOrganization";
-// import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import Image from "next/image";
 
 const UsersPage = () => {
   const { data } = useOrganization();
   const filteredMenus = useFilteredMenusFromOrganization();
-  // const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
   if (!filteredMenus || filteredMenus.length === 0) {
     return <LoadingSpinner />;
   }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen w-full bg-gradient-to-br from-gray-50 dark:from-gray-900 to-gray-200 dark:to-gray-800 px-4 sm:px-6 py-12">
-      <div className="w-full max-w-4xl bg-white dark:bg-gray-900 backdrop-blur-md border border-gray-300 dark:border-gray-700 rounded-3xl shadow-2xl p-6 sm:p-10">
-        {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredMenus.map((menu: MenuItem, index: number) => {
-            const isDisabledAttention = menu.path.includes("/users/attendances") && isWorkingTodayEmpty;
-            const baseClasses =
-              "w-full text-center text-base sm:text-lg font-semibold py-4 px-6 rounded-2xl shadow-md transition transform duration-300 ease-in-out select-none";
+    <main className="min-h-screen w-full bg-gradient-to-br from-[#141e30] via-[#243b55] to-[#141e30] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* glowing circle */}
+      <div className="absolute top-10 left-10 w-72 h-72 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-10 right-10 w-60 h-60 bg-blue-400/10 rounded-full blur-2xl animate-ping" />
 
-            if (isDisabledAttention) {
-              return (
-                <div
-                  key={index}
-                  className={`${baseClasses} cursor-not-allowed bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 relative group opacity-60`}
-                >
-                  {menu.label}
-                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-red-400 text-xs rounded-md py-1 px-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                    Debe registrar asistencia primero
-                  </div>
-                </div>
-              );
-            }
+      <section className="relative z-10 max-w-4xl w-full bg-white/5 border border-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 sm:p-10 text-white space-y-6">
+        {/* Organization Banner */}
+        {data?.photo_url && (
+          <div className="w-full overflow-hidden rounded-xl shadow-md">
+            <Image
+              src={data.photo_url}
+              alt={`Imagen de ${data.name}`}
+              width={800}
+              height={500}
+              className="w-full h-auto object-cover"
+              priority
+            />
+          </div>
+        )}
 
-            return (
-              <Link
-                key={index}
-                href={menu.path}
-                className={`${baseClasses} bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg hover:scale-105 hover:shadow-xl dark:from-blue-700 dark:to-blue-900 cursor-pointer`}
-              >
-                {menu.label}
-              </Link>
-            );
-          })}
-        </div> */}
-        <Image src={data?.photo_url || ""} alt="Imagen principal" width={600} height={500} className="w-full rounded-lg" />
-      </div>
-    </div>
+        {/* Org Info */}
+        <div className="text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-wide bg-gradient-to-r from-white to-yellow-500 text-transparent bg-clip-text mb-2">
+            {data?.name || "Organización"}
+          </h1>
+          {data?.bio && (
+            <p className="text-white/80 text-sm sm:text-base max-w-2xl mx-auto">
+              {data.bio}
+            </p>
+          )}
+        </div>
+      </section>
+    </main>
   );
 };
 
