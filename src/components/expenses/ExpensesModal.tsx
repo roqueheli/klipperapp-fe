@@ -116,6 +116,7 @@ const ExpenseModal = ({
     expense,
     quantity,
     data,
+    userData,
     onExpenseUpdated,
     onExpenseAdded,
     onClose,
