@@ -5,6 +5,7 @@ import FilterPanel, {
 } from "@/components/management/payments/FilterPanel";
 import PaymentCard from "@/components/management/payments/PaymentCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import PaginationControls from "@/components/ui/PaginationControls";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
@@ -12,7 +13,7 @@ import { Branch, BranchResponse } from "@/types/branch";
 import { CalculatePaymentResponse } from "@/types/calculate";
 import { User, UserResponse } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 const PaymentsManagementPage = () => {
@@ -23,6 +24,8 @@ const PaymentsManagementPage = () => {
   const [payments, setPayments] = useState<CalculatePaymentResponse[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [canView, setCanView] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const init = async () => {
@@ -69,6 +72,7 @@ const PaymentsManagementPage = () => {
   }, [data?.id, userData]);
 
   const handleSearch = async (filters: FilterValues) => {
+    setPayments([]);
     setLoading(true);
     const params = new URLSearchParams();
     params.set("organization_id", String(data?.id));
@@ -108,6 +112,22 @@ const PaymentsManagementPage = () => {
     setPayments([]);
   };
 
+  const paginatedPayments = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return payments.slice(start, start + itemsPerPage);
+  }, [payments, currentPage]);
+
+  const totalPages = Math.ceil(payments.length / itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Resetear a primera página cuando cambian los resultados
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [payments]);
+
   return (
     <div className="flex flex-col items-center min-h-screen p-6 mx-auto">
       <h1 className="w-full text-left text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
@@ -124,7 +144,7 @@ const PaymentsManagementPage = () => {
         <LoadingSpinner />
       ) : (
         <div className="w-[85%]">
-          {payments.map((p) => (
+          {paginatedPayments.map((p) => (
             <PaymentCard
               key={p.user.id}
               user={p.user}
@@ -138,6 +158,13 @@ const PaymentsManagementPage = () => {
               // period={{ from: filters.fromDate, to: filters.toDate }}
             />
           ))}
+          {totalPages > 1 && (
+            <PaginationControls
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
       )}
     </div>
