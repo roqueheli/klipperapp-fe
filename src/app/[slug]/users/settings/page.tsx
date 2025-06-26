@@ -76,11 +76,17 @@ const SettingsPage = () => {
       </SettingsSection>
 
       <SettingsSection title="Configuración de Sucursales">
-        <BranchSettingsList initialBranches={branches} organization_id={data?.id || 0} />
+        <BranchSettingsList
+          initialBranches={branches}
+          organization_id={data?.id || 0}
+        />
       </SettingsSection>
 
       <SettingsSection title="Configuración Servicios">
-        <ServiceSettingsList initialServices={services} organization_id={data?.id || 0} />
+        <ServiceSettingsList
+          initialServices={services}
+          organization_id={data?.id || 0}
+        />
       </SettingsSection>
 
       <SettingsSection title="Configuración de Usuarios">

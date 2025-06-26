@@ -68,14 +68,20 @@ export default function AttendanceListsPage() {
     try {
       const [queueRes, usersRes, servicesRes] = await Promise.all([
         httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
-        httpInternalApi.httpGetPublic("/attendances/by_usersworking_today", params),
-        httpInternalApi.httpGetPublic("/services/", servicesParams) as Promise<ServiceResponse>,
+        httpInternalApi.httpGetPublic(
+          "/attendances/by_usersworking_today",
+          params
+        ),
+        httpInternalApi.httpGetPublic(
+          "/services/",
+          servicesParams
+        ) as Promise<ServiceResponse>,
       ]);
 
       startTransition(() => {
         setQueue(queueRes as User[]);
         setUsers(usersRes as UserWithProfiles[]);
-        setFilteredServices(servicesRes.services)
+        setFilteredServices(servicesRes.services);
       });
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
@@ -302,7 +308,7 @@ export default function AttendanceListsPage() {
         attendance: {
           id: selectedAtt.attendance_id,
           service_ids: servicesToAdd.map((s) => s.id),
-        }
+        },
       };
 
       await toast.promise(

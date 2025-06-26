@@ -30,7 +30,7 @@ const TransactionsPage = () => {
       if (userData?.id !== undefined && userData?.role.name !== "admin") {
         params.set("branch_id", String(userData?.branch_id));
       }
-      if (userData?.role.name  === "agent") {
+      if (userData?.role.name === "agent") {
         params.set("attended_by", String(userData?.id));
       }
 
@@ -75,7 +75,8 @@ const TransactionsPage = () => {
       .filter((a) => ["pending", "processing", "completed"].includes(a.status))
       .sort((a, b) => {
         const statusOrder = ["pending", "processing", "completed"];
-        const statusComparison = statusOrder.indexOf(b.status) - statusOrder.indexOf(a.status);
+        const statusComparison =
+          statusOrder.indexOf(b.status) - statusOrder.indexOf(a.status);
         if (statusComparison !== 0) return statusComparison;
         return a.id - b.id;
       });

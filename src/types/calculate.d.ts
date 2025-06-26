@@ -1,4 +1,5 @@
 import { Attendance } from "./attendance";
+import { Expenses } from "./expenses";
 import { User } from "./user";
 
 export interface CalculatePayment {
@@ -13,7 +14,8 @@ export interface CalculatePaymentResponse {
     user: User,
     finished_attendances: Attendance[];
     other_attendances: Attendance[];
+    expenses?: Expenses[];
     earnings?: number;
-    expenses?: number;
+    total_expenses?: number;
     amount_to_pay?: number;
 }

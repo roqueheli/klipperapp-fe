@@ -150,8 +150,9 @@ const PaymentsManagementPage = () => {
               user={p.user}
               finishedAttendances={p.finished_attendances}
               otherAttendances={p.other_attendances}
+              expenses={p.expenses ?? []}
               earnings={p.earnings ?? 0}
-              expenses={p.expenses ?? 0}
+              expensesTotal={p.total_expenses ?? 0}
               amountToPay={p.amount_to_pay ?? 0}
               onSend={handleSend}
               canView={canView}

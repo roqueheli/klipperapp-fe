@@ -109,7 +109,9 @@ const AttendancesHistoryPage = () => {
       </h1>
       <FilterPanel
         onDownloadPdf={handleDownloadPdf}
-        hasResults={attendances !== undefined && attendances.length > 0 || false}
+        hasResults={
+          (attendances !== undefined && attendances.length > 0) || false
+        }
         users={users}
         branches={branches}
       />

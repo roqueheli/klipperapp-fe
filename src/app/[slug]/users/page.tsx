@@ -14,13 +14,13 @@ const UsersPage = () => {
   }
 
   return (
-    <main className="min-h-screen w-full bg-gradient-to-br from-[#141e30] via-[#243b55] to-[#141e30] flex items-center justify-center px-4 py-12 relative overflow-hidden">
-      {/* glowing circle */}
-      <div className="absolute top-10 left-10 w-72 h-72 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-10 right-10 w-60 h-60 bg-blue-400/10 rounded-full blur-2xl animate-ping" />
+    <main className="min-h-screen w-full bg-gradient-to-br from-[#141e30] via-[#243b55] to-[#141e30] flex items-center justify-center px-4 py-8 sm:py-12 relative overflow-hidden">
+      {/* glowing circles - ajustados para diferentes pantallas */}
+      <div className="absolute top-10 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-10 right-10 w-40 h-40 sm:w-60 sm:h-60 bg-blue-400/10 rounded-full blur-2xl animate-ping" />
 
-      <section className="relative z-10 max-w-4xl w-full bg-white/5 border border-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 sm:p-10 text-white space-y-6">
-        {/* Organization Banner */}
+      <section className="relative z-10 w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl bg-white/5 border border-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10 text-white space-y-4 sm:space-y-6">
+        {/* Organization Banner - responsive */}
         {data?.photo_url && (
           <div className="w-full overflow-hidden rounded-xl shadow-md">
             <Image
@@ -28,19 +28,20 @@ const UsersPage = () => {
               alt={`Imagen de ${data.name}`}
               width={800}
               height={500}
-              className="w-full h-auto object-cover"
+              className="w-full h-130 object-cover"
               priority
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
             />
           </div>
         )}
 
-        {/* Org Info */}
-        <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-wide bg-gradient-to-r from-white to-yellow-500 text-transparent bg-clip-text mb-2">
+        {/* Org Info - responsive */}
+        <div className="text-center space-y-2 sm:space-y-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-wide bg-gradient-to-r from-white to-yellow-500 text-transparent bg-clip-text">
             {data?.name || "Organización"}
           </h1>
           {data?.bio && (
-            <p className="text-white/80 text-sm sm:text-base max-w-2xl mx-auto">
+            <p className="text-white/80 text-xs sm:text-sm md:text-base max-w-xs sm:max-w-md md:max-w-2xl mx-auto">
               {data.bio}
             </p>
           )}

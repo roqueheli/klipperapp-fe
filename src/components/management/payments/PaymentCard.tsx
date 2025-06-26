@@ -1,11 +1,13 @@
 "use client";
 
 import { Attendance } from "@/types/attendance";
+import { Expenses } from "@/types/expenses";
 import { User } from "@/types/user";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { ChevronDown, ChevronUp, FileDown, Send } from "lucide-react";
 import { useState } from "react";
+import ExpensesDetailsSection from "./ExpensesDetailsSection";
 import PaymentDetailsSection from "./PaymentDetailsSection";
 
 export interface ExportData {
@@ -22,8 +24,9 @@ interface PaymentCardProps {
   user: User;
   finishedAttendances: Attendance[];
   otherAttendances: Attendance[];
+  expenses: Expenses[];
   earnings: number;
-  expenses: number;
+  expensesTotal: number;
   amountToPay: number;
   period?: { from?: string; to?: string };
   onSend?: (user: User) => void;
@@ -34,8 +37,9 @@ export default function PaymentCard({
   user,
   finishedAttendances,
   otherAttendances,
-  earnings,
   expenses,
+  earnings,
+  expensesTotal,
   amountToPay,
   period,
   canView,
@@ -98,7 +102,7 @@ export default function PaymentCard({
       finalY + 16
     );
     doc.text(
-      `Gastos: $${parseInt(expenses.toString()).toLocaleString("es-CL")}`,
+      `Gastos: $${parseInt(expensesTotal.toString()).toLocaleString("es-CL")}`,
       14,
       finalY + 22
     );
@@ -218,7 +222,7 @@ export default function PaymentCard({
                 <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-800 dark:text-gray-100">
                   <div>
                     <span className="font-semibold text-yellow-700 dark:text-yellow-300">
-                      ID Atención:
+                      Id Atención:
                     </span>{" "}
                     <span>{att.id}</span>
                   </div>
@@ -234,6 +238,61 @@ export default function PaymentCard({
             )}
             emptyText="Sin otros turnos."
           />
+
+          {expenses && (
+            <ExpensesDetailsSection
+              title="Gastos"
+              expenses={expenses}
+              renderItem={(expense) => (
+                <li
+                  key={expense.id}
+                  className="w-full list-none bg-gradient-to-r from-red-100/60 to-red-50 dark:from-red-800/30 dark:to-red-900/10 border border-red-300 dark:border-red-700 rounded-2xl p-4 mb-3 shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-800 dark:text-gray-100">
+                    <div>
+                      <span className="font-semibold text-red-700 dark:text-red-300">
+                        ID Gasto:
+                      </span>{" "}
+                      <span>{expense.id}</span>
+                    </div>
+
+                    <div>
+                      <span className="font-semibold text-red-700 dark:text-red-300">
+                        Monto:
+                      </span>{" "}
+                      <span>
+                        ${Math.trunc(expense.amount).toLocaleString("es-CL")}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="font-semibold text-red-700 dark:text-red-300">
+                        Descripción:
+                      </span>{" "}
+                      <span>{expense.description}</span>
+                    </div>
+
+                    <div>
+                      <span className="font-semibold text-red-700 dark:text-red-300">
+                        Fecha:
+                      </span>{" "}
+                      <span>
+                        {new Date(expense.created_at).toLocaleString("es-CL")}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="font-semibold text-red-700 dark:text-red-300">
+                        Cantidad:
+                      </span>{" "}
+                      <span>{expense.quantity}</span>
+                    </div>
+                  </div>
+                </li>
+              )}
+              emptyText="Sin gastos registrados."
+            />
+          )}
 
           <div className="mt-6 p-4 rounded-2xl shadow-md bg-gradient-to-br from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700">
             <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-3">
@@ -254,7 +313,7 @@ export default function PaymentCard({
                   Gastos
                 </span>
                 <span className="text-base font-semibold">
-                  ${parseInt(expenses.toString()).toLocaleString("es-CL")}
+                  ${parseInt(expensesTotal.toString()).toLocaleString("es-CL")}
                 </span>
               </div>
 

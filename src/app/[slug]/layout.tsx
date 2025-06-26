@@ -1,4 +1,3 @@
-import Footer from "@/components/footer/Footer";
 import SidebarContainer from "@/components/sidebar/Sidebar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
@@ -98,7 +97,7 @@ export default async function RootLayout({
                 )}
                 <div className={clsx("transition-all duration-300 flex-grow")}>
                   <main className="w-full flex-grow">{children}</main>
-                  {(auth_token && !isLoginPage) && <Footer />}
+                  {/* {(auth_token && !isLoginPage) && <Footer />} */}
                 </div>
               </div>
               <ToasterProvider />

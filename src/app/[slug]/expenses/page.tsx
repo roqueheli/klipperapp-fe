@@ -133,7 +133,11 @@ const ExpensesPage = () => {
     if (!expenseToDelete) return;
 
     try {
-      await httpInternalApi.httpPostPublic(`/expenses/${expenseToDelete.id}`, "DELETE", expenseToDelete);
+      await httpInternalApi.httpPostPublic(
+        `/expenses/${expenseToDelete.id}`,
+        "DELETE",
+        expenseToDelete
+      );
       setExpenses((prev) => prev.filter((e) => e.id !== expenseToDelete.id));
       toast.success("Gasto eliminado correctamente");
     } catch (error) {
