@@ -18,7 +18,6 @@ import {
 import { useState } from "react";
 import ExpensesDetailsSection from "./ExpensesDetailsSection";
 import PaymentDetailsSection from "./PaymentDetailsSection";
-import { on } from "events";
 
 interface PaymentCardProps {
   user: User;

@@ -1,4 +1,3 @@
-import { CalculatePaymentResponse } from "@/types/calculate";
 import { User, UserResponse } from "@/types/user";
 import httpExternalApi from "../common/http.external.service";
 

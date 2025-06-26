@@ -1,4 +1,3 @@
-import { Attendance } from "@/types/attendance";
 import { Expenses } from "@/types/expenses";
 
 interface ExpensesDetailsSectionProps {

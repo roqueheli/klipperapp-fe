@@ -1,5 +1,4 @@
 import paymentsAPI from "@/lib/payments/payments.service";
-import usersAPI from "@/lib/users/users.service";
 import { getToken } from "@/lib/utils/auth.utils";
 import { NextRequest, NextResponse } from "next/server";
 

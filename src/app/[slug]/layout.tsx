@@ -1,5 +1,4 @@
 // src/app/[slug]/layout.tsx
-import Footer from "@/components/footer/Footer";
 import SidebarContainer from "@/components/sidebar/Sidebar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
@@ -107,7 +106,6 @@ export default async function LayoutWithSlug({
                   )}
                 <div className="w-full transition-all duration-300 flex-grow">
                   <main className="w-full flex-grow">{children}</main>
-                  {/* {auth_token && !isLoginPage && <Footer />} */}
                 </div>
               </div>
               <ToasterProvider />
