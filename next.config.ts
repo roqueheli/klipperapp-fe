@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'herokuapp.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'instagram.fscl38-1.fna.fbcdn.net',
       },
       {
@@ -20,10 +24,7 @@ const nextConfig: NextConfig = {
         hostname: 'instagram.fscl9-2.fna.fbcdn.net',
       },
     ],
-  },
-  allowedDevOrigins: [
-    'https://771a-2800-300-66d1-af70-f461-1f4f-a97d-2321.ngrok-free.app'
-  ]
+  }
 };
 
 export default nextConfig;

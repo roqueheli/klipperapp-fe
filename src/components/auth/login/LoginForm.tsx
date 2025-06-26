@@ -95,7 +95,7 @@ const LoginForm = () => {
 
         <div className="text-sm text-center text-gray-400 w-full">
           <Link
-            href="/forgot-password"
+            href={`/${slug}/auth/forgot-password`}
             className="hover:underline text-electric-blue block w-full text-center"
           >
             ¿Olvidaste tu contraseña?
