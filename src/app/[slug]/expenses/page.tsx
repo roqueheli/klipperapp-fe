@@ -174,11 +174,11 @@ const ExpensesPage = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen space-y-10 p-4">
+    <div className="space-y-10 min-h-screen p-6">
       <h1 className="text-2xl font-bold text-[--electric-blue]">💸 Gastos</h1>
 
       <section>
-        <div className="flex items-center justify-between mb-5">
+        <div className="w-full flex items-center justify-between mb-5">
           <h2 className="text-2xl font-semibold text-[--accent-pink]">
             Gastos del día
           </h2>

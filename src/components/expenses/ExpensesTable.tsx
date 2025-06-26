@@ -105,7 +105,7 @@ const ExpensesTable = ({
   );
 
   return (
-    <div className="space-y-2">
+    <div className="w-full space-y-2">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h2 className="text-xl font-bold text-[--electric-blue]">{title}</h2>
       </div>

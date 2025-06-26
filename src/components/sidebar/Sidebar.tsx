@@ -122,7 +122,7 @@ export default function Sidebar({ token }: SidebarProps) {
     <aside
       className={clsx(
         "min-h-screen border-r p-4 flex flex-col justify-between transition-all duration-300 ease-in-out",
-        isOpen ? "w-70" : "w-16",
+        isOpen ? "w-90" : "w-16",
         theme === "dark"
           ? "bg-gray-900 dark:bg-gray-800 dark:border-gray-700"
           : "bg-white border-gray-300"

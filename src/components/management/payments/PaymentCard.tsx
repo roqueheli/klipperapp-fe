@@ -2,34 +2,45 @@
 
 import { Attendance } from "@/types/attendance";
 import { Expenses } from "@/types/expenses";
+import { Payment } from "@/types/payments";
 import { User } from "@/types/user";
+import { translateStatus } from "@/utils/organization.utils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { ChevronDown, ChevronUp, FileDown, Send } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  FileDown,
+  Send,
+  XCircle,
+} from "lucide-react";
 import { useState } from "react";
 import ExpensesDetailsSection from "./ExpensesDetailsSection";
 import PaymentDetailsSection from "./PaymentDetailsSection";
-
-export interface ExportData {
-  user: User;
-  finishedAttendances: Attendance[];
-  otherAttendances: Attendance[];
-  earnings: number;
-  expenses: number;
-  amountToPay: number;
-  period?: { from?: string; to?: string };
-}
+import { on } from "events";
 
 interface PaymentCardProps {
   user: User;
   finishedAttendances: Attendance[];
   otherAttendances: Attendance[];
   expenses: Expenses[];
+  payments: Payment[];
   earnings: number;
   expensesTotal: number;
   amountToPay: number;
   period?: { from?: string; to?: string };
-  onSend?: (user: User) => void;
+  onSend?: (data: {
+    payment_id?: number;
+    organization_id: number;
+    branch_id: number;
+    user_id: number;
+    from?: string;
+    to?: string;
+    amount: number;
+  }) => void;
+  onApprove?: (data: { id: number }) => void;
+  onReject?: (data: { id: number }) => void;
   canView?: boolean;
 }
 
@@ -38,12 +49,15 @@ export default function PaymentCard({
   finishedAttendances,
   otherAttendances,
   expenses,
+  payments,
   earnings,
   expensesTotal,
   amountToPay,
   period,
   canView,
   onSend,
+  onApprove,
+  onReject
 }: PaymentCardProps) {
   const [open, setOpen] = useState(false);
 
@@ -117,6 +131,20 @@ export default function PaymentCard({
     doc.save(fileName);
   };
 
+  const handleSend = () => {
+    if (onSend) {
+      onSend({
+        payment_id: payments[0]?.id ?? undefined,
+        organization_id: user.organization_id ?? 0,
+        branch_id: user.branch_id ?? 0,
+        user_id: user.id,
+        from: period?.from,
+        to: period?.to,
+        amount: amountToPay,
+      });
+    }
+  };
+
   return (
     <div className="border-gray-300 rounded-2xl shadow-md bg-white dark:bg-slate-800 p-6 mb-6 transition-all duration-300">
       {/* Header */}
@@ -134,15 +162,67 @@ export default function PaymentCard({
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
-          {canView && onSend && (
-            <button
-              onClick={() => onSend(user)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-sky-500 hover:shadow-lg transition duration-200 shadow-md text-sm font-medium"
-            >
-              <Send size={16} />
-              Enviar
-            </button>
-          )}
+          {/* Estado del pago visible solo si corresponde */}
+          {(() => {
+            const state = payments?.[0]?.aasm_state;
+
+            // Mostrar estado: si es admin, siempre. Si no es admin, solo si está aprobado.
+            if (state && (canView || state === "approved")) {
+              return (
+                <span
+                  className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl shadow-sm ${
+                    state === "pending"
+                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800/30 dark:text-yellow-200"
+                      : state === "approved"
+                      ? "bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-200"
+                      : state === "rejected"
+                      ? "bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-200"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {translateStatus(state)}
+                </span>
+              );
+            }
+
+            return null;
+          })()}
+
+          {/* Botón Enviar solo si es admin y no existe estado o está rechazado */}
+          {canView &&
+            (!payments?.[0]?.aasm_state ||
+              payments[0].aasm_state === "rejected") && (
+              <button
+                onClick={handleSend}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-sky-500 hover:shadow-lg transition duration-200 shadow-md text-sm font-medium"
+              >
+                <Send size={16} />
+                {payments?.[0]?.aasm_state === "rejected" ? "Reenviar" : "Enviar"}
+              </button>
+            )}
+
+          {!canView &&
+            (!payments?.[0]?.aasm_state ||
+              payments[0].aasm_state === "pending") && (
+              <>
+                <button
+                  onClick={() => payments[0]?.id ? onApprove?.({ id: payments[0].id }) : undefined}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-sky-500 hover:shadow-lg transition duration-200 shadow-md text-sm font-medium"
+                >
+                  <CheckCircle className="w-5 h-5 text-green-400 animate-pulse" />
+                  Aprobar
+                </button>
+                <button
+                  onClick={() => payments[0]?.id ? onReject?.({ id: payments[0].id }) : undefined}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-500 hover:shadow-lg transition-all duration-200 shadow-md text-sm font-medium"
+                >
+                  <XCircle className="w-5 h-5 text-red-100" />
+                  Rechazar
+                </button>
+              </>
+            )}
+
+          {/* Exportar */}
           <button
             onClick={exportToPDF}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-800 hover:bg-gray-200 hover:shadow-lg transition duration-200 shadow-md text-sm font-medium dark:bg-green-800 dark:text-white dark:hover:bg-green-600"
@@ -150,6 +230,8 @@ export default function PaymentCard({
             <FileDown size={16} />
             Exportar
           </button>
+
+          {/* Toggle Details */}
           <button
             onClick={() => setOpen(!open)}
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition"

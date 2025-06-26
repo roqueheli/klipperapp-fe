@@ -8,7 +8,6 @@ class UsersAPI {
     updateUser = async (body: User, token: string): Promise<User> => httpExternalApi.httpPost(`/users/${body?.id}`, 'PUT', body, token);
     createUser = async (body: User, token: string): Promise<User> => httpExternalApi.httpPost(`/users`, 'POST', body, token);
     deleteUser = async (body: User, token: string): Promise<User> => httpExternalApi.httpPost(`/users/${body?.id}`, 'DELETE', undefined, token);
-    calculatePayments = async (params: URLSearchParams, token: string): Promise<CalculatePaymentResponse> => httpExternalApi.httpGet(`/users/calculate_payment`, params, token);
 }
 
 const usersAPI = new UsersAPI();

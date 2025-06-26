@@ -81,7 +81,7 @@ const FilterPanel = ({
   };
 
   return (
-    <div className="w-[85%] p-4 mb-6 bg-white dark:bg-gray-900 shadow rounded-lg space-y-4">
+    <div className="p-4 mb-6 bg-white dark:bg-gray-900 shadow rounded-lg space-y-4">
       <h2 className="text-lg font-semibold text-[--electric-blue]">
         📋 Filtros
       </h2>

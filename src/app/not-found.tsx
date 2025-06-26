@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function NotFound() {
   const { data } = useOrganization();
   return (
-    <main className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] overflow-hidden px-4">
+    <main className="w-full relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] overflow-hidden px-4">
       {/* Glows */}
       <div className="absolute top-20 left-20 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-10 right-10 w-72 h-72 bg-cyan-300/20 rounded-full blur-2xl animate-ping" />

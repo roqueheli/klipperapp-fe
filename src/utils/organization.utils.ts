@@ -19,6 +19,10 @@ export const translateStatus = (status: string) => {
       return "Pospuesto";
     case "canceled":
       return "Cancelado";
+    case "approved":
+      return "Aprobado";
+    case "rejected":
+      return "Rechazado";
     default:
       return status;
   }

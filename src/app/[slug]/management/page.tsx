@@ -11,6 +11,7 @@ import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Branch, BranchResponse } from "@/types/branch";
 import { CalculatePaymentResponse } from "@/types/calculate";
+import { Payment } from "@/types/payments";
 import { User, UserResponse } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
 import { useEffect, useMemo, useState } from "react";
@@ -25,6 +26,7 @@ const PaymentsManagementPage = () => {
   const [isLoading, setLoading] = useState(false);
   const [canView, setCanView] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchFilters, setSearchFilters] = useState<FilterValues>();
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -74,6 +76,7 @@ const PaymentsManagementPage = () => {
   const handleSearch = async (filters: FilterValues) => {
     setPayments([]);
     setLoading(true);
+    setSearchFilters(filters);
     const params = new URLSearchParams();
     params.set("organization_id", String(data?.id));
     params.set("role_name", "agent");
@@ -91,8 +94,6 @@ const PaymentsManagementPage = () => {
       params.set("end_date", filters.toDate);
     }
 
-    console.log("filters", filters, params);
-
     try {
       const payments: CalculatePaymentResponse[] =
         await httpInternalApi.httpGetPublic("/management", params);
@@ -103,9 +104,88 @@ const PaymentsManagementPage = () => {
     }
   };
 
-  const handleSend = (user: User) => {
-    toast.success(`Resumen enviado para ${user.name}`);
-    // o lógica de email / API POST
+  const handleSend = async (data: {
+    payment_id?: number;
+    organization_id: number;
+    branch_id: number;
+    user_id: number;
+    from?: string;
+    to?: string;
+    amount: number;
+  }) => {
+    const method = data.payment_id !== undefined ? "PATCH" : "POST";
+    const requestBody = {
+      id: data.payment_id ?? undefined,
+      amount: data.amount > 0 ? data.amount : 0,
+      organization_id: data.organization_id ?? 0,
+      branch_id: data.branch_id ?? 0,
+      user_id: data.user_id ?? 0,
+      starts_at: data.from ?? "",
+      ends_at: data.to ?? "",
+    } as Payment;
+
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          `/management/payments${method === "POST" ? "" : `/resend`}`,
+          method,
+          requestBody
+        ),
+        {
+          loading: `Sending payment ${method === "POST" ? "request" : "update"}`,
+          success: `Payment successfully ${method === "POST" ? "created" : "updated"}.`,
+          error: `Error ${method === "POST" ? "creating" : "updating"} payment.`,
+        }
+      );
+
+      if (searchFilters) {
+        await handleSearch(searchFilters);
+      }
+    } catch (error) {
+      console.error("Error in start process:", error);
+    }
+  };
+
+  const handleApprove = async (data: { id: number }) => {
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic("/management/payments/approve", "PATCH", {
+          id: data.id,
+        }),
+        {
+          loading: "Approving payment...",
+          success: "Payment successfully approved.",
+          error: "Error approving payment.",
+        }
+      );
+
+      if (searchFilters) {
+        await handleSearch(searchFilters);
+      }
+    } catch (error) {
+      console.error("Error in approve process:", error);
+    }
+  };
+
+  const handleReject = async (data: { id: number }) => {
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic("/management/payments/reject", "PATCH", {
+          id: data.id,
+        }),
+        {
+          loading: "Rejecting payment...",
+          success: "Payment successfully rejected.",
+          error: "Error rejecting payment.",
+        }
+      );
+
+      if (searchFilters) {
+        await handleSearch(searchFilters);
+      }
+    } catch (error) {
+      console.error("Error in reject process:", error);
+    }
   };
 
   const handleReset = () => {
@@ -143,7 +223,7 @@ const PaymentsManagementPage = () => {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        <div className="w-[85%]">
+        <div className="w-full">
           {paginatedPayments.map((p) => (
             <PaymentCard
               key={p.user.id}
@@ -151,12 +231,18 @@ const PaymentsManagementPage = () => {
               finishedAttendances={p.finished_attendances}
               otherAttendances={p.other_attendances}
               expenses={p.expenses ?? []}
+              payments={p.payments ?? []}
               earnings={p.earnings ?? 0}
               expensesTotal={p.total_expenses ?? 0}
               amountToPay={p.amount_to_pay ?? 0}
               onSend={handleSend}
+              onApprove={handleApprove}
+              onReject={handleReject}
               canView={canView}
-              // period={{ from: filters.fromDate, to: filters.toDate }}
+              period={{
+                from: searchFilters?.fromDate,
+                to: searchFilters?.toDate,
+              }}
             />
           ))}
           {totalPages > 1 && (

@@ -1,3 +1,5 @@
+// src/app/[slug]/layout.tsx
+import Footer from "@/components/footer/Footer";
 import SidebarContainer from "@/components/sidebar/Sidebar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
@@ -5,14 +7,13 @@ import { OrganizationProvider } from "@/contexts/OrganizationContext";
 import { UserProvider } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { getToken } from "@/lib/utils/auth.utils";
+import "@/styles/globals.css";
 import { Organization, OrganizationResponse } from "@/types/organization";
 import { User } from "@/types/user";
 import { isValidOrganization } from "@/utils/organization.utils";
-import clsx from "clsx";
-import type { Metadata } from "next";
+import { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { headers } from "next/headers";
-import "../../styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,38 +25,46 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   try {
-    const { slug } = await params;
+    const slug = params.slug;
+
     const response = await httpInternalApi.httpGetPublic<OrganizationResponse>(
       "/organizations",
       new URLSearchParams({ slug })
     );
+
     const organization = response.organization;
 
+    if (!organization) {
+      throw new Error("No se encontró la organización");
+    }
+
     return {
-      title: organization?.name || "KlipperApp",
-      description: organization?.bio || "Sistema de gestión para barberías",
+      title: organization.name ?? "KlipperApp",
+      description: organization.bio ?? "Sistema de gestión para barberías",
       icons: {
-        icon: organization?.metadata?.media_configs?.favicon || "/favicon.ico",
+        icon: organization.metadata?.media_configs?.favicon ?? "/favicon.ico",
       },
     };
   } catch (error) {
-    console.error(error);
+    console.error("Error en generateMetadata:", error);
     return {
       title: "KlipperApp",
       description: "Sistema de gestión para barberías",
-      icons: { icon: "/favicon.ico" },
+      icons: {
+        icon: "/favicon.ico",
+      },
     };
   }
 }
 
-export default async function RootLayout({
+export default async function LayoutWithSlug({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: { slug: string };
 }) {
-  const { slug } = await params;
+  const slug = params.slug;
   const pathname = (await headers()).get("x-next-pathname") || "";
   const isLoginPage = pathname.includes("/auth/login");
   const auth_token = await getToken();
@@ -70,16 +79,15 @@ export default async function RootLayout({
     );
     initialData = response.organization;
   } catch (error) {
-    console.error("Error loading organization: " + error);
+    console.error("Error al cargar la organización:", error);
   }
 
   if (auth_token) {
     try {
       const response = await httpInternalApi.httpGetPublic<User>("/auth/me");
-      
       userData = response;
     } catch (error) {
-      console.error("Error loading user data: " + error);
+      console.error("Error al cargar el usuario:", error);
     }
   }
 
@@ -92,12 +100,14 @@ export default async function RootLayout({
           <OrganizationProvider initialData={initialData} slug={slug}>
             <UserProvider userData={userData}>
               <div className="w-full flex min-h-screen">
-                {(auth_token && !isLoginPage) && isValidOrganization(initialData) && (
-                  <SidebarContainer token={auth_token} />
-                )}
-                <div className={clsx("transition-all duration-300 flex-grow")}>
+                {auth_token &&
+                  !isLoginPage &&
+                  isValidOrganization(initialData) && (
+                    <SidebarContainer token={auth_token} />
+                  )}
+                <div className="w-full transition-all duration-300 flex-grow">
                   <main className="w-full flex-grow">{children}</main>
-                  {/* {(auth_token && !isLoginPage) && <Footer />} */}
+                  {/* {auth_token && !isLoginPage && <Footer />} */}
                 </div>
               </div>
               <ToasterProvider />
@@ -108,4 +118,3 @@ export default async function RootLayout({
     </html>
   );
 }
-
