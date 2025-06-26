@@ -15,7 +15,7 @@ export async function POST() {
             expires: new Date(0), // Fecha en el pasado
             httpOnly: true,
             secure: true,
-            domain: process.env.NODE_ENV === 'production' ? '.klipperapp-fe.vercel.app' : 'localhost',
+            domain: process.env.NODE_ENV === 'production' ? process.env.DOMAIN : 'localhost',
             path: '/',
             sameSite: 'lax'
         });
