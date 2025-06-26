@@ -5,21 +5,28 @@ export interface Organization {
     metadata: {
         billing_configs?: {
             extra_discount?: number;
-            organization_percentage?: number,
-            user_percentage?: number
+            organization_percentage?: number;
+            user_percentage?: number;
         }
         media_configs?: {
-            logo_url?: string,
-            favicon?: string
+            logo_url?: string;
+            favicon?: string;
 		}
-        menus: [] | undefined
+        menus: [] | undefined;
+        payment_config: {
+            week_start: number;
+            week_end: number;
+        }
     } | null;
     bio?: string | null;
-    created_at: string;
-    updated_at: string;
+    photo_url?: string | null;
 }
 
 export interface OrganizationResponse {
     organization: Organization;
+}
+
+export interface UpateOrganization {
+    profile: Organization;
 }
 

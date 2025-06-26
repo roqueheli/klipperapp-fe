@@ -1,57 +1,53 @@
 "use client";
 
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { useFilteredMenus } from "@/hooks/useFilteredMenus";
-import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
-import { MenuItem } from "@/types/user";
-import Link from "next/link";
+import { useOrganization } from "@/contexts/OrganizationContext";
+import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOrganization";
+import Image from "next/image";
 
 const UsersPage = () => {
-  const filteredMenus = useFilteredMenus();
-  const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
+  const { data } = useOrganization();
+  const filteredMenus = useFilteredMenusFromOrganization();
 
   if (!filteredMenus || filteredMenus.length === 0) {
     return <LoadingSpinner />;
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-full bg-gradient-to-br from-blue-100 to-blue-300 dark:from-gray-900 dark:to-black px-4 sm:px-6 py-12">
-      <div className="w-full max-w-4xl bg-white/90 dark:bg-gray-800/80 backdrop-blur-md border border-gray-300 dark:border-gray-700 rounded-3xl shadow-2xl p-6 sm:p-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredMenus.map((menu: MenuItem, index: number) => {
-            const isDisabledAttention =
-              menu.path.includes("/users/attendances") && isWorkingTodayEmpty;
+    <main className="min-h-screen w-full bg-gradient-to-br from-[#141e30] via-[#243b55] to-[#141e30] flex items-center justify-center px-4 py-8 sm:py-12 relative overflow-hidden">
+      {/* glowing circles - ajustados para diferentes pantallas */}
+      <div className="absolute top-10 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-10 right-10 w-40 h-40 sm:w-60 sm:h-60 bg-blue-400/10 rounded-full blur-2xl animate-ping" />
 
-            const baseClasses =
-              "w-full text-center text-base sm:text-lg font-semibold py-4 px-6 rounded-2xl shadow-md transition transform duration-300 ease-in-out select-none";
+      <section className="relative z-10 w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl bg-white/5 border border-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10 text-white space-y-4 sm:space-y-6">
+        {/* Organization Banner - responsive */}
+        {data?.photo_url && (
+          <div className="w-full overflow-hidden rounded-xl shadow-md">
+            <Image
+              src={data.photo_url}
+              alt={`Imagen de ${data.name}`}
+              width={800}
+              height={500}
+              className="w-full h-130 object-cover"
+              priority
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+            />
+          </div>
+        )}
 
-            if (isDisabledAttention) {
-              return (
-                <div
-                  key={index}
-                  className={`${baseClasses} cursor-not-allowed text-blue-400 bg-blue-50 dark:bg-blue-900/20 relative group opacity-60`}
-                >
-                  {menu.label}
-                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-red-400 text-xs rounded-md py-1 px-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                    Debe registrar asistencia primero
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={index}
-                href={menu.path}
-                className={`${baseClasses} bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg hover:scale-105 hover:shadow-xl dark:from-blue-700 dark:to-blue-900 cursor-pointer`}
-              >
-                {menu.label}
-              </Link>
-            );
-          })}
+        {/* Org Info - responsive */}
+        <div className="text-center space-y-2 sm:space-y-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-wide bg-gradient-to-r from-white to-yellow-500 text-transparent bg-clip-text">
+            {data?.name || "Organización"}
+          </h1>
+          {data?.bio && (
+            <p className="text-white/80 text-xs sm:text-sm md:text-base max-w-xs sm:max-w-md md:max-w-2xl mx-auto">
+              {data.bio}
+            </p>
+          )}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

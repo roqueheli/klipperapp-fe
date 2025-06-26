@@ -40,6 +40,7 @@ export function UserProvider({
     const loadData = async () => {
       try {
         const userData = await httpInternalApi.httpGetPublic<User>("/auth/me");
+        
         setState((prev) => ({
           ...prev,
           userData,
@@ -61,6 +62,7 @@ export function UserProvider({
     setState((prev) => ({ ...prev, loading: true }));
     try {
       const userData = await httpInternalApi.httpGetPublic<User>("/auth/me");
+
       setState({
         userData,
         loading: false,

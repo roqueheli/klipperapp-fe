@@ -40,6 +40,10 @@ const LoginForm = () => {
         }
       )
       .then(() => {
+        sessionStorage.removeItem("attendancesData");
+        sessionStorage.removeItem("attendancesPage");
+        sessionStorage.removeItem("attendancesFilters");
+        sessionStorage.removeItem("attendancesHasSearched");
         if (!redirectPath) {
           window.location.href = `/${slug}/users`;
         } else {

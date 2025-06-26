@@ -45,15 +45,6 @@ export default function ThemeProvider({
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // useEffect(() => {
-  //   if (data?.metadata?.primaryColor) {
-  //     document.documentElement.style.setProperty(
-  //       "--primary",
-  //       data.metadata.primaryColor
-  //     );
-  //   }
-  // }, [data]);
-
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };

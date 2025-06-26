@@ -1,16 +1,15 @@
 import attendancessAPI from "@/lib/attendances/attendances.service";
-import { cookies } from "next/headers";
+import { getToken } from "@/lib/utils/auth.utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+    const token = await getToken();
     const searchParams = request.nextUrl.searchParams;
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const response = await attendancessAPI.getAttendances(searchParams, token?.value);
+        const response = await attendancessAPI.getAttendances(searchParams, token);
 
         if (response.length === 0) {
             throw new Error('Attendances not found');
@@ -26,14 +25,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
-    const { profile_id, organization_id, branch_id, service_id, attended_by } = await request.json();
+    const token = await getToken();
+    const body = await request.json();
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const data = await attendancessAPI.createAttendance({ profile_id, organization_id, branch_id, service_id, attended_by }, token?.value || "");
+        const data = await attendancessAPI.createAttendance(body, token);
 
         if (!data.id) throw new Error('Creation attendance failure');
 
@@ -44,14 +42,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+    const token = await getToken();
     const body = await request.json();
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const data = await attendancessAPI.updateAttendance(body, token?.value || "");
+        const data = await attendancessAPI.updateAttendance(body, token);
 
         if (!data.id) throw new Error('Creation attendance failure');
 

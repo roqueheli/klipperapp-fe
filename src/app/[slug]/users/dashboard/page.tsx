@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const { data } = useOrganization();
   const { userData } = useUser();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
+  // const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,19 +30,26 @@ export default function DashboardPage() {
       if (data?.id !== undefined) {
         params.set("organization_id", String(data.id));
       }
-      if (userData?.id !== undefined && userData?.role_id !== 1) {
+      if (userData?.id !== undefined && userData?.role.name !== "admin") {
         params.set("branch_id", String(userData?.branch_id));
       }
-      if (userData?.role_id === 7) {
+      if (userData?.role.name === "agent") {
         params.set("attended_by", String(userData?.id));
       }
 
-      const response = (await httpInternalApi.httpGetPublic(
-        "/attendances/today",
-        params
-      )) as Attendances;
+      const [attendancesRes] = await Promise.all([
+        httpInternalApi.httpGetPublic(
+          "/attendances/today",
+          params
+        ) as Promise<Attendances>,
+        // httpInternalApi.httpGetPublic(
+        //   "/profiles",
+        //   params
+        // ) as Promise<ProfileDashboardResponse>,
+      ]);
 
-      setAttendances(response.attendances);
+      setAttendances(attendancesRes.attendances);
+      // setProfiles(profilesRes.profiles);
       setLoading(false);
     };
 
@@ -108,10 +116,19 @@ export default function DashboardPage() {
 
   const perService = useMemo(() => {
     const map: Record<string, number> = {};
+
     (attendances ?? []).forEach((a) => {
-      const name = a.service?.name || "Sin servicio";
-      map[name] = (map[name] || 0) + 1;
+      const services = a.services ?? [];
+
+      if (services.length === 0) {
+        map["Sin servicio"] = (map["Sin servicio"] || 0) + 1;
+      } else {
+        services.forEach((s) => {
+          map[s.name] = (map[s.name] || 0) + 1;
+        });
+      }
     });
+
     return Object.entries(map).map(([name, count]) => ({ name, count }));
   }, [attendances]);
 
@@ -138,7 +155,7 @@ export default function DashboardPage() {
   return (
     <div className="w-full flex flex-col justify-center space-y-6 p-6 mx-auto text-white">
       <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-        Dashboard de Atenciones
+        Dashboard del día
       </h1>
 
       {/* Resumen de Totales */}

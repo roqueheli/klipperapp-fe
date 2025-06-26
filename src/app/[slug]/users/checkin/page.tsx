@@ -6,13 +6,13 @@ import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { User, UserResponse } from "@/types/user";
 import { isBeforeTwoPM } from "@/utils/date.utils";
+import { getRoleByName } from "@/utils/roleUtils";
 import {
   DragDropContext,
   Draggable,
   Droppable,
   DropResult,
 } from "@hello-pangea/dnd";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -26,11 +26,12 @@ const CheckinPage = () => {
     Set<number>
   >(new Set());
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      const agentRole = await getRoleByName("agent");
+
       const usersParams = new URLSearchParams();
       if (data?.id !== undefined) {
         usersParams.set("organization_id", String(data.id));
@@ -38,7 +39,7 @@ const CheckinPage = () => {
 
       if (userData?.branch_id !== undefined) {
         usersParams.set("branch_id", String(userData.branch_id));
-        usersParams.set("role_id", process.env.NODE_ENV === "production" ? "7" : "3");
+        usersParams.set("role_id", String(agentRole?.id));
         usersParams.set("active", "true");
       }
 
@@ -142,7 +143,7 @@ const CheckinPage = () => {
             requestBody
           );
           results.push({ status: "fulfilled", user: u });
-          router.push(`/${slug}/users/attendances`);
+          window.location.href = `/${slug}/users/lists`;
         } catch (error) {
           results.push({ status: "rejected", user: u, error });
         }

@@ -1,5 +1,6 @@
 import organizationsAPI from "@/lib/organizations/organizations.service";
-import { NextResponse } from "next/server";
+import { getToken } from "@/lib/utils/auth.utils";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -22,5 +23,22 @@ export async function GET(request: Request) {
         return NextResponse.json({ organization });
     } catch (error) {
         return new Response(JSON.stringify({ error: "Organization not found " + error, status: 404 }));
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    const token = await getToken();
+    const body = await request.json();
+
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    try {
+        const data = await organizationsAPI.updateOrganization(body, token);
+
+        if (!data.id) throw new Error('Failed organization update');
+
+        return NextResponse.json({ profile: data, status: 200 });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: "Organization update failure " + error, status: 404 }));
     }
 }

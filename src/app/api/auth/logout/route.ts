@@ -1,11 +1,9 @@
-import { headers } from "next/headers";
+import { getToken } from "@/lib/utils/auth.utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
     try {
-        const header = headers();
-        const authorization = (await header).get('Authorization');
-        const token = authorization?.replace("Bearer ", "") || '';
+        const token = await getToken();
 
         if (!token) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -21,9 +19,6 @@ export async function POST() {
             path: '/',
             sameSite: 'lax'
         });
-
-        console.log("resp", response);
-        
 
         return response;
     } catch (error) {

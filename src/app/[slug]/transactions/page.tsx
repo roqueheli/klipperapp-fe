@@ -27,10 +27,10 @@ const TransactionsPage = () => {
       if (data?.id !== undefined) {
         params.set("organization_id", String(data.id));
       }
-      if (userData?.id !== undefined && userData?.role_id !== 1) {
+      if (userData?.id !== undefined && userData?.role.name !== "admin") {
         params.set("branch_id", String(userData?.branch_id));
       }
-      if (userData?.role_id === 7 || userData?.role_id === 3) {
+      if (userData?.role.name === "agent") {
         params.set("attended_by", String(userData?.id));
       }
 
@@ -49,7 +49,7 @@ const TransactionsPage = () => {
   const handleEditAttendance = (attendance: Attendance) => {
     const dataToStore = {
       attendanceId: attendance?.id,
-      serviceId: attendance?.service_id,
+      services: attendance?.services,
       userId: attendance?.attended_by,
       profile: attendance?.profile,
       phoneNumber: attendance.profile?.phone_number,
@@ -74,9 +74,11 @@ const TransactionsPage = () => {
     return attendances
       .filter((a) => ["pending", "processing", "completed"].includes(a.status))
       .sort((a, b) => {
-        const dateA = new Date(a.created_at ?? 0).getTime();
-        const dateB = new Date(b.created_at ?? 0).getTime();
-        return dateA - dateB;
+        const statusOrder = ["pending", "processing", "completed"];
+        const statusComparison =
+          statusOrder.indexOf(b.status) - statusOrder.indexOf(a.status);
+        if (statusComparison !== 0) return statusComparison;
+        return a.id - b.id;
       });
   }, [attendances]);
 

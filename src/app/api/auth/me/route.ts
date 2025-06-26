@@ -1,17 +1,14 @@
 import authAPI from "@/lib/auth/auth.service";
-import { cookies } from "next/headers";
+import { getToken } from "@/lib/utils/auth.utils";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+    const token = await getToken();
 
-    if (!token?.value) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const user = await authAPI.me(token?.value);
+        const user = await authAPI.me(token);
         return NextResponse.json(user);
     } catch (error) {
         return new Response(JSON.stringify({ error: "Unauthorized " + error, status: 401 }));

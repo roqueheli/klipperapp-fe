@@ -1,67 +1,124 @@
 "use client";
 
+import { Transition } from "@headlessui/react";
+import { startTransition, useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
+
 import AttendanceModal from "@/components/modal/AttendanceModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import AttendanceWizard from "../attendances/AttendanceWizard";
+
+import FooterSection from "@/components/lists/FooterSection";
+import HeaderSection from "@/components/lists/HeaderSection";
+import QueueSection from "@/components/lists/QueueSection";
+import UsersSection from "@/components/lists/UsersSection";
+
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
+
+import AddServiceModal from "@/components/modal/AddServiceModal";
+import { Organization } from "@/types/organization";
+import { Service, ServiceResponse } from "@/types/service";
 import { User, UserWithProfiles } from "@/types/user";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { getRoleByName } from "@/utils/roleUtils";
 
 export interface AttendanceProfile {
   id: number;
   attendance_id?: number;
   name: string;
-  status: "pending" | "processing" | "finished";
+  status: "pending" | "processing" | "finished" | "postponed" | "canceled";
 }
 
 export default function AttendanceListsPage() {
-  const router = useRouter();
   const [users, setUsers] = useState<UserWithProfiles[]>([]);
   const [queue, setQueue] = useState<User[]>([]);
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<{
     userId: number;
     userName: string;
   } | null>(null);
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [isLoading, setIsLoading] = useState(true);
+  const [isAgent, setIsAgent] = useState<User>();
+  const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
+  const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+  const [search, setSearch] = useState("");
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
-const fetchData = useCallback(async () => {
-  setIsLoading(true);
-  const usersParams = new URLSearchParams();
-  if (data?.id !== undefined) {
-    usersParams.set("organization_id", String(data.id));
-    usersParams.set("role_id", process.env.NODE_ENV === "production" ? "7" : "3");
-  }
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    const params = new URLSearchParams();
+    const servicesParams = new URLSearchParams();
+    const agentRole = await getRoleByName("agent");
 
-  usersParams.set(
-    "branch_id",
-    userData?.branch_id !== undefined ? String(userData.branch_id) : "1"
-  );
+    if (data?.id) {
+      servicesParams.set("organization_id", String(data.id));
+      params.set("organization_id", String(data.id));
+      params.set("role_id", String(agentRole?.id));
+    }
 
-  try {
-    const [queueRes, usersRes] = await Promise.all([
-      httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
-      httpInternalApi.httpGetPublic(
-        "/attendances/by_usersworking_today",
-        usersParams
-      ),
-    ]);
-    setQueue(queueRes as User[]);
-    setUsers(usersRes as UserWithProfiles[]);
-  } catch (error) {
-    console.error("Error al cargar usuarios:", error);
-  }
-  setIsLoading(false);
-}, [data?.id, userData?.branch_id]);
+    params.set("branch_id", String(userData?.branch_id || 1));
 
+    try {
+      const [queueRes, usersRes, servicesRes] = await Promise.all([
+        httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
+        httpInternalApi.httpGetPublic(
+          "/attendances/by_usersworking_today",
+          params
+        ),
+        httpInternalApi.httpGetPublic(
+          "/services/",
+          servicesParams
+        ) as Promise<ServiceResponse>,
+      ]);
+
+      startTransition(() => {
+        setQueue(queueRes as User[]);
+        setUsers(usersRes as UserWithProfiles[]);
+        setFilteredServices(servicesRes.services);
+      });
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [data?.id, userData?.branch_id]);
+
+  const fetchQueue = useCallback(async () => {
+    try {
+      const queueRes = await httpInternalApi.httpGetPublic(
+        "/attendances/by_users_queue"
+      );
+      setQueue(queueRes as User[]);
+    } catch (error) {
+      console.error("Error al cargar la queue:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        if (!userData?.role.id) return;
+
+        // Obtener el rol "agent"
+        const agentRole = await getRoleByName("agent");
+        // Comparar con el role_id del usuario
+        if (userData.role.id === agentRole.id) {
+          setIsAgent(userData);
+        }
+      } catch (error) {
+        console.error("Error verificando rol del usuario:", error);
+        setIsAgent(undefined);
+      }
+    };
+    checkUserRole();
+  }, [userData]);
 
   useEffect(() => {
     fetchData();
@@ -77,12 +134,33 @@ const fetchData = useCallback(async () => {
     setModalOpen(true);
   };
 
-  const handleStart = async () => {
-    if (!selectedAtt) return;
+  const updateAttendanceStatus = (
+    userId: number,
+    attId: number,
+    status: "pending" | "processing" | "finished" | "postponed" | "canceled"
+  ) => {
+    setUsers((prev) =>
+      prev.map((user) => {
+        if (user.user.id !== userId) return user;
+        const updatedProfiles = user.profiles
+          .map((att) => (att.id === attId ? { ...att, status } : att))
+          .filter(
+            (att) =>
+              att.status === "pending" ||
+              att.status === "processing" ||
+              att.status === "postponed"
+          );
 
+        return { ...user, profiles: updatedProfiles };
+      })
+    );
+  };
+
+  const handleStart = async () => {
+    if (!selectedAtt || !selectedUser) return;
     const requestBody = {
-      user_id: selectedUser?.userId, // o selectedAtt.user_id según tu modelo
-      attendance_id: selectedAtt?.attendance_id,
+      user_id: selectedUser.userId,
+      attendance_id: selectedAtt.attendance_id,
     };
 
     try {
@@ -94,29 +172,106 @@ const fetchData = useCallback(async () => {
         ),
         {
           loading: "Starting attendance...",
-          success: "Attendance successfully starting.",
-          error: "An error occurred while starting the attendance.",
+          success: "Attendance successfully started.",
+          error: "Error starting attendance.",
         }
       );
-
+      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "processing");
       setModalOpen(false);
-      await fetchData();
     } catch (error) {
-      console.error("Error in the creation of assistance:", error);
+      console.error("Error in start process:", error);
     }
   };
 
-  const handlePostpone = () => {
-    console.log("Posponer atención", selectedAtt);
-    setModalOpen(false);
+  const handlePostpone = async () => {
+    if (!selectedAtt || !selectedUser) return;
+    const requestBody = {
+      user_id: selectedUser.userId,
+      attendance_id: selectedAtt.attendance_id,
+    };
+
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          "/users/postpone_attendance",
+          "POST",
+          requestBody
+        ),
+        {
+          loading: "Postponing attendance...",
+          success: "Attendance successfully postponed.",
+          error: "Error postponing attendance.",
+        }
+      );
+      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "postponed");
+      setModalOpen(false);
+      await fetchQueue();
+    } catch (error) {
+      console.error("Error in postpone process:", error);
+    }
+  };
+
+  const handleDecline = async () => {
+    if (!selectedAtt || !selectedUser) return;
+    const requestBody = {
+      user_id: selectedUser.userId,
+      attendance_id: selectedAtt.attendance_id,
+    };
+
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          "/users/cancel_attendance",
+          "POST",
+          requestBody
+        ),
+        {
+          loading: "Declining attendance...",
+          success: "Attendance successfully declined.",
+          error: "Error declining attendance.",
+        }
+      );
+      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "canceled");
+      setModalOpen(false);
+      await fetchQueue();
+    } catch (error) {
+      console.error("Error in decline process:", error);
+    }
+  };
+
+  const handleResume = async () => {
+    if (!selectedAtt || !selectedUser) return;
+    const requestBody = {
+      user_id: selectedUser.userId,
+      attendance_id: selectedAtt.attendance_id,
+    };
+
+    try {
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          "/users/resume_attendance",
+          "POST",
+          requestBody
+        ),
+        {
+          loading: "Resuming attendance...",
+          success: "Attendance successfully resumed.",
+          error: "Error resuming attendance.",
+        }
+      );
+      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "pending");
+      setModalOpen(false);
+      await fetchQueue();
+    } catch (error) {
+      console.error("Error in resume process:", error);
+    }
   };
 
   const handleEnd = async () => {
-    if (!selectedAtt) return;
-
+    if (!selectedAtt || !selectedUser) return;
     const requestBody = {
-      user_id: selectedUser?.userId, // o selectedAtt.user_id según tu modelo
-      attendance_id: selectedAtt?.attendance_id,
+      user_id: selectedUser.userId,
+      attendance_id: selectedAtt.attendance_id,
     };
 
     try {
@@ -129,148 +284,77 @@ const fetchData = useCallback(async () => {
         {
           loading: "Ending attendance...",
           success: "Attendance successfully ended.",
-          error: "An error occurred while ending the attendance.",
+          error: "Error ending attendance.",
+        }
+      );
+      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "finished");
+      setModalOpen(false);
+      await fetchQueue();
+    } catch (error) {
+      console.error("Error in end process:", error);
+    }
+  };
+
+  const handleAddService = () => {
+    setAddServiceModalOpen(true);
+  };
+
+  const handleConfirmServices = async (servicesToAdd: Service[]) => {
+    if (!selectedAtt || !selectedUser) return;
+
+    try {
+      const requestBody = {
+        id: selectedAtt.attendance_id,
+        attendance: {
+          id: selectedAtt.attendance_id,
+          service_ids: servicesToAdd.map((s) => s.id),
+        },
+      };
+
+      await toast.promise(
+        httpInternalApi.httpPostPublic(
+          `/attendances/${selectedAtt.attendance_id}`,
+          "PUT",
+          requestBody
+        ),
+        {
+          loading: "Agregando servicios...",
+          success: "Servicios agregados exitosamente.",
+          error: "Error al agregar servicios.",
         }
       );
 
+      setAddServiceModalOpen(false);
       setModalOpen(false);
-      await fetchData();
+      setSelectedServices([]);
     } catch (error) {
-      console.error("Error in the ending proccess of assistance:", error);
+      console.error("Error al agregar servicios:", error);
     }
   };
+
+  const hasProcessing = users.some((u) =>
+    u.profiles.some((p) => p.status === "processing")
+  );
 
   if (isLoading) return <LoadingSpinner />;
 
   return (
     <div className="w-full mx-auto px-4 md:px-6 py-6 min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="mb-6">
-        <h1 className="text-3xl font-extrabold text-blue-700 dark:text-blue-400 drop-shadow-md">
-          📢 Filas de Atención
-        </h1>
-      </header>
-
-      {/* Main Content */}
+      <HeaderSection />
       <main className="grid grid-cols-1 md:grid-cols-4 gap-6 flex-grow">
-        {/* Usuarios sin perfiles */}
-        <section className="col-span-1 bg-[--cyber-gray] border border-[--electric-blue] rounded-xl p-5 shadow-md shadow-[--electric-blue]/30 max-h-[80vh] overflow-y-auto">
-          <h2 className="text-lg font-semibold text-[--electric-blue] mb-4">
-            👩‍💻 Orden Profesionales
-          </h2>
-          <ul className="space-y-3">
-            {queue.length > 0 ? (
-              queue.map((user) => (
-                <li
-                  key={user.id}
-                  className="rounded-md bg-[--background] text-[--foreground] p-3 shadow hover:bg-[--menu-hover-bg] transition-colors text-sm"
-                >
-                  {user.name}
-                </li>
-              ))
-            ) : (
-              <li className="text-sm italic text-[--soft-white]/60">
-                No hay profesionales sin clientes.
-              </li>
-            )}
-          </ul>
-        </section>
-
-        {/* Turnos por usuario */}
-        <section className="col-span-1 md:col-span-3 space-y-6">
-          <h2 className="text-lg font-semibold text-[--accent-pink]">
-            📦 Turnos por Profesional
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {users.map((user) => (
-              <article
-                key={user.user.id}
-                className="bg-[--cyber-gray] border border-[--electric-blue] rounded-xl p-5 shadow-md shadow-[--electric-blue]/30 flex flex-col"
-              >
-                <h3 className="text-md font-bold text-[--electric-blue] mb-3">
-                  {user.user.name}{" "}
-                  <span className="text-sm font-normal text-[--soft-white]">
-                    ({user.profiles.length})
-                  </span>
-                </h3>
-
-                <ul className="space-y-3 max-h-[300px] overflow-y-auto p-2">
-                  {user.profiles.length > 0 ? (
-                    user.profiles.map((att, index) => {
-                      const isClickable = index === 0;
-                      return (
-                        <li
-                          key={att.id}
-                          onClick={() =>
-                            isClickable &&
-                            handleClick(user.user.id, user.user.name, {
-                              id: att.id,
-                              attendance_id: (att as AttendanceProfile)
-                                .attendance_id,
-                              name: att.name,
-                              status: att.status as
-                                | "pending"
-                                | "processing"
-                                | "finished",
-                            })
-                          }
-                          className={`mb-5 flex items-center space-x-3 rounded-md p-3 text-xs text-[--foreground] shadow-[0_2px_8px_rgba(61,217,235,0.3)] transition-shadow select-none ${
-                            isClickable
-                              ? "cursor-pointer bg-[--background] hover:shadow-[0_2px_12px_rgba(61,217,235,0.5)]"
-                              : "cursor-not-allowed bg-gray-800 opacity-50"
-                          }`}
-                          title={`Atención: ${att.name} - Estado: ${att.status}`}
-                        >
-                          <span className="font-medium flex-grow">
-                            👨🏻 {att.name}
-                          </span>
-                          <span className="relative flex h-3 w-3 shrink-0">
-                            <span
-                              className={`animate-ping absolute inline-flex h-full w-full rounded-full ${
-                                att.status === "processing"
-                                  ? "bg-green-400"
-                                  : att.status === "pending"
-                                  ? "bg-orange-400"
-                                  : "bg-gray-400"
-                              } opacity-75`}
-                            />
-                            <span
-                              className={`relative inline-flex rounded-full h-3 w-3 ${
-                                att.status === "processing"
-                                  ? "bg-green-500"
-                                  : att.status === "pending"
-                                  ? "bg-orange-500"
-                                  : "bg-gray-500"
-                              }`}
-                            />
-                          </span>
-                        </li>
-                      );
-                    })
-                  ) : (
-                    <li className="text-sm text-[--soft-white]/60 italic">
-                      Sin clientes en espera
-                    </li>
-                  )}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
+        <QueueSection queue={queue} />
+        <UsersSection
+          users={users}
+          userLogged={isAgent || undefined}
+          onUserClick={handleClick}
+        />
       </main>
-
-      {/* Footer */}
-      <footer className="mt-10 flex flex-col sm:flex-row justify-between items-center gap-4">
-        {!isWorkingTodayEmpty && (
-          <button
-            onClick={() => router.push(`/${slug}/users/attendances`)}
-            className="rounded-lg px-5 py-2 text-white bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 hover:shadow-xl transition"
-          >
-            📋 Tomar atención
-          </button>
-        )}
-      </footer>
+      {!isAgent && (
+        <FooterSection
+          isEmpty={isWorkingTodayEmpty}
+          onStartWizard={() => setWizardOpen(true)}
+        />
+      )}
 
       <AttendanceModal
         isOpen={modalOpen}
@@ -280,7 +364,70 @@ const fetchData = useCallback(async () => {
         onStart={handleStart}
         onPostpone={handlePostpone}
         onFinish={handleEnd}
+        onDecline={handleDecline}
+        onResume={handleResume}
+        onAddService={handleAddService}
+        hasProcessing={hasProcessing}
       />
+
+      {selectedAtt && addServiceModalOpen && (
+        <AddServiceModal
+          isOpen={addServiceModalOpen}
+          onClose={() => setAddServiceModalOpen(false)}
+          attendanceProfile={selectedAtt as AttendanceProfile}
+          setSelectedServices={setSelectedServices}
+          selectedServices={selectedServices}
+          filteredServices={filteredServices}
+          search={search}
+          onSearchChange={setSearch}
+          onAddService={(s) => setSelectedServices((prev) => [...prev, s])}
+          onRemoveService={(id) =>
+            setSelectedServices((prev) => prev.filter((s) => s.id !== id))
+          }
+          onConfirm={handleConfirmServices}
+        />
+      )}
+
+      <Transition
+        show={wizardOpen}
+        enter="transition ease-out duration-600"
+        enterFrom="translate-x-full opacity-0"
+        enterTo="translate-x-0 opacity-100"
+        leave="transition ease-in duration-400"
+        leaveFrom="translate-x-0 opacity-100"
+        leaveTo="translate-x-full opacity-0"
+      >
+        <div className="rounded-sm fixed inset-0 z-50 flex justify-end">
+          <div className="overflow-x-hidden overflow-auto w-[72%] rounded-lg shadow-lg z-50">
+            <div className="relative top-9 left-3 flex justify-start">
+              <button
+                className="text-white hover:text-gray-700"
+                onClick={() => setWizardOpen(false)}
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <AttendanceWizard
+              slug={slug || ""}
+              organization={data as Organization}
+              user={userData as User}
+              onClose={() => setWizardOpen(false)}
+            />
+          </div>
+        </div>
+      </Transition>
     </div>
   );
 }

@@ -1,16 +1,15 @@
 import usersAPI from "@/lib/users/users.service";
-import { cookies } from "next/headers";
+import { getToken } from "@/lib/utils/auth.utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-    const cookiesStore = cookies();
-    const token = (await cookiesStore).get(process.env.AUTH_TOKEN_SECRET || '');
+    const token = await getToken();
     const searchParams = request.nextUrl.searchParams;
 
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const users = await usersAPI.getUsersWorkingToday(searchParams, token?.value || "");
+        const users = await usersAPI.getUsersWorkingToday(searchParams, token);
 
         if (!users) {
             throw new Error('User not found');

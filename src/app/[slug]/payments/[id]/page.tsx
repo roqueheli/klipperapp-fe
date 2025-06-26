@@ -2,22 +2,34 @@
 
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
+import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Attendance, Attendances } from "@/types/attendance";
+import { Attendance, Attendances, ServicesResponse } from "@/types/attendance";
+import { Organization } from "@/types/organization";
+import { Service } from "@/types/service";
+import { User } from "@/types/user";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import PaymentsContainer from "./PaymentsContainer";
 
 const PaymentsPage = () => {
   const { slug, data } = useOrganization();
+  const { userData } = useUser();
   const { id } = useParams();
-  const [attendance, setAttendance] = useState<Attendance | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [discount, setDiscount] = useState(0);
-  const [amountPaid, setAmountPaid] = useState(0);
-  const [paymentType, setPaymentType] = useState("Efectivo");
-  const [transactionNumber, setTransactionNumber] = useState("");
   const router = useRouter();
+
+  const [attendance, setAttendance] = useState<Attendance | null>(null);
+  const [selectedAttendances, setSelectedAttendances] = useState<Attendance[]>(
+    []
+  );
+  const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+  const [availableServices, setAvailableServices] = useState<Service[]>([]);
+  const [discount, setDiscount] = useState(0);
+  const [paymentType, setPaymentType] = useState("Efectivo");
+  const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const attendanceParams = new URLSearchParams();
@@ -26,10 +38,11 @@ const PaymentsPage = () => {
     const fetchAttendance = async () => {
       try {
         const response = (await httpInternalApi.httpGetPublic(
-          `/attendances`,
+          "/attendances",
           attendanceParams
         )) as Attendances;
         setAttendance(response?.attendances[0]);
+        setSelectedServices(response?.attendances[0].services || []);
       } catch (error) {
         console.error("Error al cargar asistencia:", error);
       } finally {
@@ -37,217 +50,144 @@ const PaymentsPage = () => {
       }
     };
 
+    const fetchServices = async () => {
+      try {
+        const response = (await httpInternalApi.httpGetPublic(
+          "/services"
+        )) as ServicesResponse;
+        setAvailableServices(response.services);
+      } catch (error) {
+        console.error("Error al cargar servicios:", error);
+      }
+    };
+
     fetchAttendance();
+    fetchServices();
   }, [id]);
 
   if (isLoading || !attendance) return <LoadingSpinner />;
 
-  if (!attendance)
-    return <div className="text-center mt-20">No se encontró información.</div>;
+  const allServices = [
+    ...selectedServices,
+    ...selectedAttendances.flatMap((a) => a.services || []),
+  ];
 
-  const total = Number(attendance?.service?.price ?? 0);
+  const total = allServices.reduce(
+    (sum, service) => sum + Number(service.price || 0),
+    0
+  );
   const finalTotal = total - discount;
+  const amountPaid = finalTotal;
 
   const handleExecuteTransaction = async () => {
-    const requestBody = {
-      user_id: attendance.attended_by,
-      attendance_id: attendance.id,
-      attendance: {
-        discount: discount || 0,
-        extra_discount: Number(
-          data?.metadata?.billing_configs?.extra_discount ?? 0
-        ),
-        user_amount:
-          (Number(attendance?.service?.price ?? 0) - (discount || 0)) *
-            (Number(
-              (data?.metadata?.billing_configs?.user_percentage ?? 0) / 100
-            ) || 1) -
-          (Number(data?.metadata?.billing_configs?.extra_discount ?? 0) / 2 ||
-            0),
-        organization_amount:
-          (Number(attendance?.service?.price ?? 0) - (discount || 0)) *
-            (Number(
-              (data?.metadata?.billing_configs?.organization_percentage ?? 0) /
-                100
-            ) || 1) -
-          (Number(data?.metadata?.billing_configs?.extra_discount ?? 0) / 2 ||
-            0),
-        total_amount: Number(amountPaid),
-        trx_number: transactionNumber,
-        payment_method: paymentType,
-      },
-    };
+    const allAttendances = [attendance, ...selectedAttendances];
+
+    const extraDiscount = Number(
+      data?.metadata?.billing_configs?.extra_discount ?? 0
+    );
+    const userPercentage = Number(
+      data?.metadata?.billing_configs?.user_percentage ?? 0
+    );
+    const orgPercentage = Number(
+      data?.metadata?.billing_configs?.organization_percentage ?? 0
+    );
 
     try {
-      await toast
-        .promise(
-          httpInternalApi.httpPostPublic(
+      await Promise.all(
+        allAttendances.map(async (a) => {
+          const aServices =
+            a.id === attendance.id ? [...selectedServices] : a.services ?? [];
+
+          const localTotal = aServices.reduce(
+            (sum, s) => sum + Number(s.price || 0),
+            0
+          );
+
+          const localRequest = {
+            user_id: a.attended_by,
+            attendance_id: a.id,
+            attendance: {
+              discount: a.id === attendance.id ? discount : 0,
+              extra_discount: extraDiscount,
+              user_amount:
+                localTotal * (userPercentage / 100) - extraDiscount / 2,
+              organization_amount:
+                localTotal * (orgPercentage / 100) - extraDiscount / 2,
+              total_amount: localTotal,
+              payment_method: paymentType,
+              service_ids: aServices.map((s) => s.id),
+              child_attendance_ids:
+                a.id === attendance.id
+                  ? allAttendances.map((a) => a.id).filter((id) => id !== a.id)
+                  : [],
+            },
+          };
+
+          return httpInternalApi.httpPostPublic(
             "/users/finish_attendance",
             "POST",
-            requestBody
-          ),
-          {
-            loading: "Finishing attendance...",
-            success: "Finish attendance successfully starting.",
-            error: "An error occurred while finishing attendance.",
-          }
-        )
-        .then(() => {
-          router.push(`/${slug}/transactions`);
-        });
+            localRequest
+          );
+        })
+      );
+
+      toast.success("Asistencias finalizadas correctamente.");
+      router.push(`/${slug}/transactions`);
     } catch (error) {
-      console.log("Payment failed", error);
+      console.error("Error al finalizar asistencias:", error);
+      toast.error("Ocurrió un error al finalizar una o más asistencias.");
     }
   };
 
+  const handleAddService = (service: Service) => {
+    setSelectedServices((prev) => [...prev, service]);
+  };
+
+  const handleAddServiceToAttendance = (
+    attendanceId: number,
+    service: Service
+  ) => {
+    setSelectedAttendances((prev) =>
+      prev.map((a) =>
+        a.id === attendanceId
+          ? { ...a, services: [...(a.services || []), service] }
+          : a
+      )
+    );
+  };
+
+  const handleUpdateAttendance = (updatedAttendance: Attendance) => {
+    setSelectedAttendances((prev) =>
+      prev.map((a) => (a.id === updatedAttendance.id ? updatedAttendance : a))
+    );
+  };
+
   return (
-    <div className="mt-20 mb-10 w-full mx-auto p-4">
-      <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-lg rounded-2xl p-6">
-        <h2 className="text-2xl font-semibold mb-6">
-          Detalle de la transacción
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <h5 className="text-lg font-medium mb-2">Cliente:</h5>
-            <p>
-              <strong>Nombre:</strong> {attendance.profile.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {attendance.profile.email}
-            </p>
-            <p>
-              <strong>Teléfono:</strong> {attendance.profile.phone_number}
-            </p>
-          </div>
-          <div>
-            <h5 className="text-lg font-medium mb-2">Atendido por:</h5>
-            <p>
-              <strong>Nombre:</strong> {attendance.attended_by_user.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {attendance.attended_by_user.email}
-            </p>
-            <p>
-              <strong>Teléfono:</strong>{" "}
-              {attendance.attended_by_user.phone_number}
-            </p>
-          </div>
-        </div>
-
-        <hr className="border-gray-300 dark:border-gray-600 mb-6" />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div>
-            <label className="font-semibold block mb-1">Servicio</label>
-            <input
-              type="text"
-              readOnly
-              className="w-full bg-gray-100 dark:bg-gray-700 rounded px-3 py-2"
-              value={attendance.service.name}
-            />
-          </div>
-          <div>
-            <label className="font-semibold block mb-1">Monto Total</label>
-            <input
-              type="text"
-              readOnly
-              className="w-full bg-gray-100 dark:bg-gray-700 rounded px-3 py-2"
-              value={`${total.toLocaleString('es-CL', {style: "currency", currency: "CLP"})}`} 
-            />
-          </div>
-          <div>
-            <label className="font-semibold block mb-1">Fecha</label>
-            <input
-              type="text"
-              readOnly
-              className="w-full bg-gray-100 dark:bg-gray-700 rounded px-3 py-2"
-              value={new Date(attendance.created_at).toLocaleString('es-CL')}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div>
-            <label className="font-semibold block mb-1">Descuento</label>
-            <input
-              type="number"
-              min={0}
-              max={total}
-              value={discount}
-              onChange={(e) => setDiscount(Number(e.target.value))}
-              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="font-semibold block mb-1">Total Final</label>
-            <input
-              type="text"
-              readOnly
-              className="w-full bg-gray-100 dark:bg-gray-700 rounded px-3 py-2"
-              value={finalTotal.toLocaleString('es-CL', {style: "currency", currency: "CLP"})}
-            />
-          </div>
-          <div>
-            <label className="font-semibold block mb-1">Monto Pagado</label>
-            <input
-              type="number"
-              min={0}
-              value={amountPaid}
-              onChange={(e) => setAmountPaid(Number(e.target.value))}
-              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded px-3 py-2"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <label className="font-semibold block mb-1">Tipo de Pago</label>
-            <select
-              value={paymentType}
-              onChange={(e) => setPaymentType(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded px-3 py-2"
-            >
-              <option>Efectivo</option>
-              <option>Transferencia</option>
-              <option>Punto de venta</option>
-            </select>
-          </div>
-          <div>
-            <label className="font-semibold block mb-1">
-              Número de Transacción
-            </label>
-            <input
-              type="text"
-              placeholder="Ej: 123456789"
-              value={transactionNumber}
-              onChange={(e) => setTransactionNumber(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded px-3 py-2"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-between mt-6">
-          <button
-            onClick={() => router.back()}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded"
-          >
-            Volver
-          </button>
-          <button
-            onClick={handleExecuteTransaction}
-            disabled={amountPaid < finalTotal}
-            className={`px-4 py-2 rounded font-semibold ${
-              amountPaid < finalTotal
-                ? "bg-blue-300 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-          >
-            Ejecutar transacción
-          </button>
-        </div>
-      </div>
-    </div>
+    <PaymentsContainer
+      organization={data as Organization}
+      userData={userData as User}
+      attendance={attendance}
+      services={selectedServices}
+      total={total}
+      finalTotal={finalTotal}
+      amountPaid={amountPaid}
+      discount={discount}
+      paymentType={paymentType}
+      availableServices={availableServices}
+      search={search}
+      isModalOpen={isModalOpen}
+      selectedAttendances={selectedAttendances}
+      setSelectedAttendances={setSelectedAttendances}
+      setIsModalOpen={setIsModalOpen}
+      setSearch={setSearch}
+      handleAddService={handleAddService}
+      handleAddServiceToAttendance={handleAddServiceToAttendance}
+      handleExecuteTransaction={handleExecuteTransaction}
+      setSelectedServices={setSelectedServices}
+      setPaymentType={setPaymentType}
+      setDiscount={setDiscount}
+      handleUpdateAttendance={handleUpdateAttendance}
+    />
   );
 };
 

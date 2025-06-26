@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700">
+    <footer className="w-full bg-white text-gray-800 border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
         {/* Sección 1: Acerca de */}
         <div>
@@ -56,7 +56,7 @@ const Footer = () => {
           </h3>
           <p>¿Preguntas o sugerencias?</p>
           <p className="mt-1">✉️ soporte@klipperapp.com</p>
-          <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-4 text-xs">
             © {new Date().getFullYear()} KlipperApp. Todos los derechos
             reservados.
           </div>
@@ -67,3 +67,4 @@ const Footer = () => {
 };
 
 export default Footer;
+
