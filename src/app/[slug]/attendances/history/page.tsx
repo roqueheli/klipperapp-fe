@@ -123,7 +123,7 @@ const AttendancesHistoryPage = () => {
             <p className="text-center text-gray-500 mt-8">
               {`Por favor, selecciona uno o más filtros y presiona "Buscar".`}
             </p>
-          ) : attendances.length === 0 ? (
+          ) : attendances !== undefined && attendances.length === 0 ? (
             <p className="text-center text-gray-500 mt-8">
               {"No se encontraron resultados con los filtros aplicados."}
             </p>

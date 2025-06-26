@@ -29,14 +29,14 @@ export default function BranchSettingsList({
 
   const isBranchValid = (branch: Branch) => {
     return (
-      branch.name.trim() !== "" &&
-      branch.email.trim() !== "" &&
-      branch.phone_number.trim() !== "" &&
-      branch.address_line1.trim() !== "" &&
-      branch.city.trim() !== "" &&
-      branch.state.trim() !== "" &&
-      branch.zip_code.trim() !== "" &&
-      branch.country.trim() !== ""
+      branch.name?.trim() !== "" &&
+      branch.email?.trim() !== "" &&
+      branch.phone_number?.trim() !== "" &&
+      branch.address_line1?.trim() !== "" &&
+      branch.city?.trim() !== "" &&
+      branch.state?.trim() !== "" &&
+      branch.zip_code?.trim() !== "" &&
+      branch.country?.trim() !== ""
     );
   };
 

@@ -224,27 +224,33 @@ const PaymentsManagementPage = () => {
         <LoadingSpinner />
       ) : (
         <div className="w-full">
-          {paginatedPayments.map((p) => (
-            <PaymentCard
-              key={p.user.id}
-              user={p.user}
-              finishedAttendances={p.finished_attendances}
-              otherAttendances={p.other_attendances}
-              expenses={p.expenses ?? []}
-              payments={p.payments ?? []}
-              earnings={p.earnings ?? 0}
-              expensesTotal={p.total_expenses ?? 0}
-              amountToPay={p.amount_to_pay ?? 0}
-              onSend={handleSend}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              canView={canView}
-              period={{
-                from: searchFilters?.fromDate,
-                to: searchFilters?.toDate,
-              }}
-            />
-          ))}
+          {paginatedPayments.length > 0 ? (
+            paginatedPayments.map((p) => (
+              <PaymentCard
+                key={p.user.id}
+                user={p.user}
+                finishedAttendances={p.finished_attendances}
+                otherAttendances={p.other_attendances}
+                expenses={p.expenses ?? []}
+                payments={p.payments ?? []}
+                earnings={p.earnings ?? 0}
+                expensesTotal={p.total_expenses ?? 0}
+                amountToPay={p.amount_to_pay ?? 0}
+                onSend={handleSend}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                canView={canView}
+                period={{
+                  from: searchFilters?.fromDate,
+                  to: searchFilters?.toDate,
+                }}
+              />
+            ))
+          ) : (
+            <p className="text-center text-gray-600 dark:text-gray-300">
+              No se encontraron resultados para la búsqueda.
+            </p>
+          )}
           {totalPages > 1 && (
             <PaginationControls
               currentPage={currentPage}

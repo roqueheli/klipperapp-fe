@@ -151,8 +151,8 @@ export default function Sidebar({ token }: SidebarProps) {
         <Image
           src={data?.metadata?.media_configs?.logo_url ?? ""}
           alt="Logo"
-          width={40}
-          height={40}
+          width="30"
+          height="40"
           className="rounded-full"
         />
         {isOpen && <span className="ml-4">{data?.name}</span>}

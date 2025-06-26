@@ -1,4 +1,3 @@
-// src/app/[slug]/layout.tsx
 import SidebarContainer from "@/components/sidebar/Sidebar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
@@ -24,7 +23,7 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   try {
-    const slug = params.slug;
+    const slug = (await params).slug;
 
     const response = await httpInternalApi.httpGetPublic<OrganizationResponse>(
       "/organizations",
@@ -63,7 +62,7 @@ export default async function LayoutWithSlug({
   children: React.ReactNode;
   params: { slug: string };
 }) {
-  const slug = params.slug;
+  const { slug } = await params;
   const pathname = (await headers()).get("x-next-pathname") || "";
   const isLoginPage = pathname.includes("/auth/login");
   const auth_token = await getToken();
@@ -116,3 +115,4 @@ export default async function LayoutWithSlug({
     </html>
   );
 }
+
