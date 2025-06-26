@@ -77,23 +77,23 @@ const SettingsPage = () => {
 
       <SettingsSection title="Configuración de Sucursales">
         <BranchSettingsList
-          initialBranches={branches}
+          initialBranches={branches || []}
           organization_id={data?.id || 0}
         />
       </SettingsSection>
 
       <SettingsSection title="Configuración Servicios">
         <ServiceSettingsList
-          initialServices={services}
+          initialServices={services || []}
           organization_id={data?.id || 0}
         />
       </SettingsSection>
 
       <SettingsSection title="Configuración de Usuarios">
         <UserSettingsList
-          initialUsers={users}
-          branches={branches}
-          roles={roles}
+          initialUsers={users || []}
+          branches={branches || []}
+          roles={roles || []}
           organization_id={data?.id || 0}
         />
       </SettingsSection>
