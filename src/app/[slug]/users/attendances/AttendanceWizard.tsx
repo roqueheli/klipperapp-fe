@@ -197,7 +197,7 @@ const AttendanceWizard = ({
       );
 
       onClose?.();
-      router.push(`/${slug}/users/lists`);
+      window.location.href = `/${slug}/users/lists`;
     } catch (error) {
       console.error("Error en la creación de atención:", error);
     }
