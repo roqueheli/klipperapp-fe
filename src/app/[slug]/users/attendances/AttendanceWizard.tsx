@@ -197,7 +197,7 @@ const AttendanceWizard = ({
       );
 
       onClose?.();
-      router.back();
+      router.push(`/${slug}/users/lists`);
     } catch (error) {
       console.error("Error en la creación de atención:", error);
     }

@@ -4,7 +4,6 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOrganization";
-import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import clsx from "clsx";
 import {
@@ -28,6 +27,7 @@ import toast from "react-hot-toast";
 
 type SidebarProps = {
   token?: string;
+  isWorkingTodayEmpty: boolean;
 };
 
 const iconMap: Record<string, JSX.Element> = {
@@ -42,7 +42,7 @@ const iconMap: Record<string, JSX.Element> = {
   Wallet: <Wallet className="h-5 w-5 shrink-0" />,
 };
 
-export default function Sidebar({ token }: SidebarProps) {
+export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const { theme } = useTheme();
@@ -50,7 +50,6 @@ export default function Sidebar({ token }: SidebarProps) {
   const [route, setRoute] = useState("/users");
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
-  const isWorkingTodayEmpty = useIsWorkingTodayEmpty();
 
   const initials = userData?.name
     ?.split(" ")
