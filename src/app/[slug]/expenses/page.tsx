@@ -175,7 +175,7 @@ const ExpensesPage = () => {
 
   return (
     <div className="space-y-10 min-h-screen p-6">
-      <h1 className="text-2xl font-bold text-[--electric-blue]">💸 Gastos</h1>
+      <h1 className="text-2xl font-bold text-[--electric-blue]">📈 Gastos</h1>
 
       <section>
         <div className="w-full flex items-center justify-between mb-5">

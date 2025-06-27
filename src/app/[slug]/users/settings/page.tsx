@@ -69,7 +69,7 @@ const SettingsPage = () => {
   return (
     <div className="min-h-screen w-full py-4 max-w-5xl mx-auto">
       <h1 className="w-full flex items-center text-3xl font-bold justify-start mb-6">
-        Configuraciones
+        ⚙️ Configuraciones
       </h1>
       <SettingsSection title="Configuración de la Organización">
         <OrganizationSettings />

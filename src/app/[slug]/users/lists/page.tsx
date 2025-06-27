@@ -339,7 +339,7 @@ export default function AttendanceListsPage() {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="w-full mx-auto px-4 md:px-6 py-6 min-h-screen flex flex-col">
+    <div className="w-full mx-auto p-6 min-h-screen flex flex-col">
       <HeaderSection />
       <main className="grid grid-cols-1 md:grid-cols-4 gap-6 flex-grow">
         <QueueSection queue={queue} />

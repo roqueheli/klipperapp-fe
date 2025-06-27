@@ -108,9 +108,9 @@ const TransactionsPage = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="w-full min-h-screen px-2 sm:px-6 py-6 sm:py-10">
-      <h1 className="text-4xl font-bold bg-clip-text bg-gradient-to-r from-blue-600 text-blue-600 via-blue-500 to-indigo-500 drop-shadow-lg mb-6">
-        💻 Transacciones
+    <div className="w-full min-h-screen p-6">
+      <h1 className="text-2xl font-bold bg-clip-text bg-gradient-to-r from-black-600 text-white via-blue-500 to-indigo-500 drop-shadow-lg mb-6">
+        📅 Atenciones del día
       </h1>
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 w-full flex-wrap">

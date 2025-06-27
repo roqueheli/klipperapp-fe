@@ -173,9 +173,9 @@ const CheckinPage = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 p-3">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-left bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-md">
-        Check-in de Usuarios
+    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 p-6">
+      <h1 className="text-2xl font-bold mb-6 sm:mb-8 text-left text-white drop-shadow-md">
+        🪪 Check-in de Usuarios
       </h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex flex-col md:flex-row gap-6 sm:gap-8 flex-1">
