@@ -1,6 +1,7 @@
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { ServiceResponse } from "@/types/service";
 import { UserResponse } from "@/types/user";
+import { getRoleByName } from "@/utils/roleUtils";
 import { useEffect, useState, useCallback } from "react";
 
 export const useWizardData = (organizationId?: number, branchId?: number) => {
@@ -11,10 +12,12 @@ export const useWizardData = (organizationId?: number, branchId?: number) => {
   const fetchData = useCallback(async () => {
     if (!organizationId || !branchId) return;
 
+    const agentRole = await getRoleByName("agent");
+
     const params = new URLSearchParams({
       organization_id: String(organizationId),
       branch_id: String(branchId),
-      role_id: process.env.NODE_ENV === "production" ? "7" : "3",
+      role_id: String(agentRole.id),
     });
 
     try {

@@ -2,6 +2,7 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { UserResponse } from "@/types/user";
+import { getRoleByName } from "@/utils/roleUtils";
 import { useEffect, useState } from "react";
 
 export const useIsWorkingTodayEmpty = () => {
@@ -12,9 +13,11 @@ export const useIsWorkingTodayEmpty = () => {
     useEffect(() => {
         const fetchData = async () => {
             const usersParams = new URLSearchParams();
+            const agentRole = await getRoleByName("agent");
+
             if (data?.id !== undefined) {
                 usersParams.set("organization_id", String(data.id));
-                usersParams.set("role_id", process.env.NODE_ENV === "production" ? "7" : "3");
+                usersParams.set("role_id", String(agentRole?.id));
             }
 
             if (userData?.branch_id !== undefined) {
