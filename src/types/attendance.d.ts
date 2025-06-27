@@ -41,3 +41,10 @@ export interface Attendances {
 	attendances: Attendance[]
 	status: number
 }
+
+export interface AttendanceProfile {
+  id: number;
+  attendance_id?: number;
+  name: string;
+  status: "pending" | "processing" | "finished" | "postponed" | "canceled";
+}

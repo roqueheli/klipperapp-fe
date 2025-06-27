@@ -147,7 +147,7 @@ export default function AttendanceModal({
                   >
                     Declinar
                   </button>
-                  {!hasProcessing && (
+                  {hasProcessing && (
                     <button
                       onClick={onResume}
                       className="px-4 py-2 rounded-md font-semibold bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 transition"

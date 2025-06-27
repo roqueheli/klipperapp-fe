@@ -1,7 +1,7 @@
 "use client";
 
 import { Transition } from "@headlessui/react";
-import { startTransition, useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 import AttendanceModal from "@/components/modal/AttendanceModal";
@@ -15,30 +15,40 @@ import UsersSection from "@/components/lists/UsersSection";
 
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
-import { useIsWorkingTodayEmpty } from "@/hooks/useIsWorkingTodayEmpty";
 import httpInternalApi from "@/lib/common/http.internal.service";
 
 import AttendancesRealtime from "@/components/attendances/realtime/AttendanceRealTime";
 import AddServiceModal from "@/components/modal/AddServiceModal";
-import { Attendance } from "@/types/attendance";
+import { Attendance, AttendanceProfile } from "@/types/attendance";
 import { Organization } from "@/types/organization";
-import { Service, ServiceResponse } from "@/types/service";
+import { Service } from "@/types/service";
 import { User, UserWithProfiles } from "@/types/user";
-import { getRoleByName } from "@/utils/roleUtils";
 
 interface AttendanceListsPageContainerProps {
-    isWorkingTodayEmpty: boolean;
-}
-export interface AttendanceProfile {
-  id: number;
-  attendance_id?: number;
-  name: string;
-  status: "pending" | "processing" | "finished" | "postponed" | "canceled";
+  isWorkingTodayEmpty: boolean;
+  isAgent?: User;
+  users: UserWithProfiles[];
+  isLoading: boolean;
+  fetchQueue: () => void;
+  updateAttendanceStatus: (
+    userId: number,
+    attId: number,
+    status: "pending" | "processing" | "finished" | "postponed" | "canceled"
+  ) => void;
+  queue: User[];
+  filteredServices: Service[];
 }
 
-export default function AttendanceListsPageContainer({ isWorkingTodayEmpty }: AttendanceListsPageContainerProps) {
-  const [users, setUsers] = useState<UserWithProfiles[]>([]);
-  const [queue, setQueue] = useState<User[]>([]);
+export default function AttendanceListsPageContainer({
+  isWorkingTodayEmpty,
+  isAgent,
+  isLoading,
+  users,
+  queue,
+  filteredServices,
+  fetchQueue,
+  updateAttendanceStatus,
+}: AttendanceListsPageContainerProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
@@ -48,85 +58,9 @@ export default function AttendanceListsPageContainer({ isWorkingTodayEmpty }: At
     userName: string;
   } | null>(null);
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAgent, setIsAgent] = useState<User>();
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [search, setSearch] = useState("");
-  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
-
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    const params = new URLSearchParams();
-    const servicesParams = new URLSearchParams();
-    const agentRole = await getRoleByName("agent");
-
-    if (data?.id) {
-      servicesParams.set("organization_id", String(data.id));
-      params.set("organization_id", String(data.id));
-      params.set("role_id", String(agentRole?.id));
-    }
-
-    params.set("branch_id", String(userData?.branch_id || 1));
-
-    try {
-      const [queueRes, usersRes, servicesRes] = await Promise.all([
-        httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
-        httpInternalApi.httpGetPublic(
-          "/attendances/by_usersworking_today",
-          params
-        ),
-        httpInternalApi.httpGetPublic(
-          "/services/",
-          servicesParams
-        ) as Promise<ServiceResponse>,
-      ]);
-
-      startTransition(() => {
-        setQueue(queueRes as User[]);
-        setUsers(usersRes as UserWithProfiles[]);
-        setFilteredServices(servicesRes.services);
-      });
-    } catch (error) {
-      console.error("Error al cargar usuarios:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [data?.id, userData?.branch_id]);
-
-  const fetchQueue = useCallback(async () => {
-    try {
-      const queueRes = await httpInternalApi.httpGetPublic(
-        "/attendances/by_users_queue"
-      );
-      setQueue(queueRes as User[]);
-    } catch (error) {
-      console.error("Error al cargar la queue:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    const checkUserRole = async () => {
-      try {
-        if (!userData?.role.id) return;
-
-        // Obtener el rol "agent"
-        const agentRole = await getRoleByName("agent");
-        // Comparar con el role_id del usuario
-        if (userData.role.id === agentRole.id) {
-          setIsAgent(userData);
-        }
-      } catch (error) {
-        console.error("Error verificando rol del usuario:", error);
-        setIsAgent(undefined);
-      }
-    };
-    checkUserRole();
-  }, [userData]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   const handleClick = (
     userId: number,
@@ -136,28 +70,6 @@ export default function AttendanceListsPageContainer({ isWorkingTodayEmpty }: At
     setSelectedUser({ userId, userName });
     setSelectedAtt(att);
     setModalOpen(true);
-  };
-
-  const updateAttendanceStatus = (
-    userId: number,
-    attId: number,
-    status: "pending" | "processing" | "finished" | "postponed" | "canceled"
-  ) => {
-    setUsers((prev) =>
-      prev.map((user) => {
-        if (user.user.id !== userId) return user;
-        const updatedProfiles = user.profiles
-          .map((att) => (att.id === attId ? { ...att, status } : att))
-          .filter(
-            (att) =>
-              att.status === "pending" ||
-              att.status === "processing" ||
-              att.status === "postponed"
-          );
-
-        return { ...user, profiles: updatedProfiles };
-      })
-    );
   };
 
   const handleStart = async () => {
@@ -337,7 +249,11 @@ export default function AttendanceListsPageContainer({ isWorkingTodayEmpty }: At
   };
 
   const hasProcessing = users.some((u) =>
-    u.profiles.some((p) => p.status === "processing")
+    u.profiles.some(
+      (p) =>
+        p.status !== "processing" &&
+        !(p.status === "postponed" && u.profiles.length === 1)
+    )
   );
 
   const handleNewAttendance = (attendance: Attendance) => {
