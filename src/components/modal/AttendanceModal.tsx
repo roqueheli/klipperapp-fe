@@ -9,7 +9,7 @@ interface AttendanceModalProps {
   att: {
     id: number;
     name: string;
-    status: "pending" | "processing" | "finished" | "postponed" | "canceled";
+    status: "pending" | "processing" | "finished" | "postponed" | "canceled" | "declined";
   } | null;
   userName: string;
   onStart: () => void;
@@ -82,7 +82,7 @@ export default function AttendanceModal({
           </p>
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-semibold select-none ${
-              statusColors[att?.status ?? "pending"]
+              statusColors[(att?.status && att.status !== "declined") ? att.status : "pending"]
             }`}
           >
             Estado:{" "}
@@ -147,7 +147,7 @@ export default function AttendanceModal({
                   >
                     Declinar
                   </button>
-                  {!hasProcessing && (
+                  {hasProcessing && (
                     <button
                       onClick={onResume}
                       className="px-4 py-2 rounded-md font-semibold bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 transition"

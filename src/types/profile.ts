@@ -9,6 +9,7 @@ export interface Profile {
     status?: string;
 	photo_url?: string | null;
 	last_attendance_at?: string | null;
+    attendance_id?: number | null;
 };
 
 export interface ProfileResponse {

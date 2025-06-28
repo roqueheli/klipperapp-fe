@@ -1,3 +1,4 @@
+import { Profile } from "./profile"
 import { Service } from "./service"
 
 export interface Attendance {
@@ -40,4 +41,21 @@ export interface CreateAttendanceResponse {
 export interface Attendances {
 	attendances: Attendance[]
 	status: number
+}
+
+export interface AttendanceProfile {
+	id: number;
+	attendance_id?: number;
+	name: string;
+	status: "pending" | "processing" | "postponed" | "canceled" | "declined";
+}
+
+
+export interface AttendanceCable {
+	id: number;
+	status: "pending" | "processing" | "finished" | "postponed" | "canceled" | "declined" | "completed";
+	organization_id: number;
+	branch_id: number;
+	attended_by: number;
+	profile: Profile;
 }

@@ -25,35 +25,6 @@ type AttendanceWizardProps = {
   onClose?: () => void;
 };
 
-/**
- * Componente que renderiza el asistente para crear una atención.
- *
- * Este componente utiliza el hook `usePathname` para determinar si se encuentra en la ruta de "usuarios" o no.
- * Si no se encuentra en la ruta de "usuarios", se renderiza el componente `PhoneStep` para que el usuario pueda
- * ingresar su número de teléfono. Si se encuentra en la ruta de "usuarios", se renderiza directamente el componente
- * `SelectionStep` con los usuarios y servicios disponibles.
- *
- * El componente utiliza el hook `useState` para almacenar el estado de la atención:
- * - `step`: El paso actual del asistente (1 o 2).
- * - `phone`: El número de teléfono ingresado por el usuario.
- * - `selectedUserId`: El ID del usuario seleccionado.
- * - `selectedServiceId`: El ID del servicio seleccionado.
- * - `attendanceId`: El ID de la atención a crear o actualizar.
- * - `profile`: El perfil del usuario que se va a crear la atención.
- * - `users`: Los usuarios disponibles para asignar la atención.
- * - `services`: Los servicios disponibles para asignar la atención.
- * - `isLoading`: Un booleano que indica si se está cargando la información de los usuarios y servicios.
- * - `hasStoredData`: Un booleano que indica si se tiene información almacenada en el localStorage.
- * - `error`: Un string que indica el error que se produce al intentar crear la atención.
- *
- * El componente utiliza el hook `useEffect` para cargar la información de los usuarios y servicios cuando se monta
- * el componente. También se utiliza para recuperar la información almacenada en el localStorage y para limpiar el
- * localStorage cuando se completa el asistente.
- *
- * El componente utiliza el hook `useCallback` para crear una función que se encarga de crear o actualizar la atención.
- * La función se utiliza en el componente `SelectionStep` para crear o actualizar la atención cuando el usuario hace
- * clic en el botón "Finalizar".
- */
 const AttendanceWizard = ({
   slug,
   organization,
@@ -79,14 +50,39 @@ const AttendanceWizard = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadFromStorageAndFetch = async () => {
+      // 1. Verificar si hay datos en localStorage
+      const stored =
+        localStorage.getItem("attendanceInfo") ||
+        localStorage.getItem("userAttendance");
+
+      if (stored) {
+        try {
+          const data = JSON.parse(stored);
+          setHasStoredData(data?.attendanceId);
+          setAttendanceId(data?.attendanceId || null);
+          setSelectedServiceId(
+            data.services?.length > 0 ? data.services[0].id : null
+          );
+          setSelectedUserId(data?.userId || data?.id || null);
+          setProfile(data?.profile || data || null);
+          setPhone(data?.phoneNumber || data?.phone_number || "");
+          setStep(2);
+          localStorage.removeItem("attendanceInfo");
+          localStorage.removeItem("userAttendance");
+        } catch (e) {
+          console.error("Error parsing stored attendance data", e);
+        }
+      }
+
+      // 2. Cargar servicios y usuarios
       const servicesParams = new URLSearchParams();
       const usersParams = new URLSearchParams();
       const agentRole = await getRoleByName("agent");
 
       if (organization?.id) {
-        servicesParams.set("organization_id", String(organization?.id));
-        usersParams.set("organization_id", String(organization?.id));
+        servicesParams.set("organization_id", String(organization.id));
+        usersParams.set("organization_id", String(organization.id));
         usersParams.set("role_id", String(agentRole?.id));
       }
 
@@ -107,31 +103,9 @@ const AttendanceWizard = ({
       }
     };
 
-    fetchData();
+    loadFromStorageAndFetch();
   }, [organization?.id, user?.branch_id]);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("attendanceInfo");
-
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        setHasStoredData(true);
-        setAttendanceId(data.attendanceId || null);
-        setSelectedServiceId(data.services.length > 0 ? data.services[0].id : null);
-        setSelectedUserId(data.userId || null);
-        setProfile(data.profile);
-        setPhone(data.phoneNumber || "");
-        setStep(2);
-
-        // Limpiar el localStorage si ya no lo necesitas
-        localStorage.removeItem("attendanceInfo");
-      } catch (e) {
-        console.error("Error parsing stored attendance data", e);
-      }
-    }
-  }, []);
-  
   const handlePhoneSubmit = async () => {
     if (!phone) return;
 
@@ -169,12 +143,12 @@ const AttendanceWizard = ({
       toast.error("Faltan datos para crear la atención.");
       return;
     }
-    
+
     const requestBody = {
       id: attendanceId || null,
       profile_id: profile.id,
-      organization_id: organization.id,
-      branch_id: user.branch_id,
+      organization_id: organization?.id,
+      branch_id: user?.branch_id,
       service_ids: [selectedServiceId],
       attended_by: selectedUserId !== 0 ? selectedUserId : null,
     };
@@ -182,13 +156,9 @@ const AttendanceWizard = ({
     try {
       const action = hasStoredData ? "PUT" : "POST";
       const message = hasStoredData ? "actualizada" : "creada";
-      
+
       await toast.promise(
-        httpInternalApi.httpPostPublic(
-          "/attendances",
-          action,
-          requestBody
-        ),
+        httpInternalApi.httpPostPublic("/attendances", action, requestBody),
         {
           loading: `Atención ${message}...`,
           success: `Atención ${message} exitosamente.`,
@@ -197,7 +167,10 @@ const AttendanceWizard = ({
       );
 
       onClose?.();
-      window.location.href = `/${slug}/users/lists`;
+      const targetPath = `/${slug}/users/lists`;
+      if (pathname !== targetPath) {
+        router.push(targetPath);
+      }
     } catch (error) {
       console.error("Error en la creación de atención:", error);
     }
@@ -225,7 +198,9 @@ const AttendanceWizard = ({
           onUserSelect={setSelectedUserId}
           selectedServiceId={selectedServiceId}
           onServiceSelect={setSelectedServiceId}
-          {...(!hasStoredData ? { onBack: () => setStep(1) } : { onBack: () => router.back() })}
+          {...(!hasStoredData
+            ? { onBack: () => setStep(1) }
+            : { onBack: () => router.back() })}
           onFinish={handleFinish}
         />
       )}
