@@ -1,5 +1,5 @@
 import { createConsumer } from "@rails/actioncable";
 
-const cable = createConsumer(`ws://localhost:3100/cable`);
+const cable = createConsumer(`ws://klipperapp-be-6fbfe24ddcb3.herokuapp.com/cable`);
 
 export default cable;
