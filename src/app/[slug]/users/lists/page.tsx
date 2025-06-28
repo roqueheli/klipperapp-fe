@@ -1,6 +1,5 @@
 "use client";
 
-import AttendancesRealtime from "@/components/attendances/realtime/AttendanceRealTime";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
@@ -9,6 +8,7 @@ import { AttendanceCable } from "@/types/attendance";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse, UserWithProfiles } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
+import Pusher from "pusher-js";
 import { startTransition, useCallback, useEffect, useState } from "react";
 import AttendanceListsPageContainer from "./AttendanceListsPageContainer";
 
@@ -35,59 +35,76 @@ export default function AttendanceListsPage() {
     }
   }, []);
 
-  const handleNewAttendance = (attendance: AttendanceCable) => {
-    console.log(attendance);
-    
-    const { attended_by, id: attendanceId, status, profile } = attendance;
-    if (!attended_by || !attendanceId || !status || !profile) return;
-
-    const isVisibleStatus = ["pending", "processing", "postponed"].includes(
-      status
-    );
-
-    setUsers((prevUsers) => {
-      const userIndex = prevUsers.findIndex((u) => u.user.id === attended_by);
-      if (userIndex === -1) return prevUsers;
-
-      const user = prevUsers[userIndex];
-      const originalProfiles = [...user.profiles];
-
-      // Buscar el índice actual del attendance
-      const existingIndex = originalProfiles.findIndex(
-        (p) => p.attendance_id === attendanceId
-      );
-
-      // Eliminar duplicados (por si acaso)
-      const profiles = originalProfiles.filter(
-        (p) => p.attendance_id !== attendanceId
-      );
-
-      // Si es visible, insertarlo en el lugar correcto
-      if (isVisibleStatus) {
-        const updatedProfile = {
-          ...profile,
-          attendance_id: attendanceId,
-          status,
-          name: profile.name,
-          // service_ids: profile.service_ids ?? [],
-        };
-
-        if (existingIndex !== -1) {
-          // Insertar en la posición original
-          profiles.splice(existingIndex, 0, updatedProfile);
-        } else {
-          // Si no existía, agregar al final
-          profiles.push(updatedProfile);
-        }
-      }
-
-      const updatedUser = { ...user, profiles };
-      const newUsers = [...prevUsers];
-      newUsers[userIndex] = updatedUser;
-
-      return newUsers;
+  useEffect(() => {
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || "", {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "",
+      forceTLS: true, // importante para que use WSS (no HTTP inseguro)
     });
-  };
+
+    const channel = pusher.subscribe("attendance_channel");
+
+    channel.bind("attendance", function (attendance: AttendanceCable) {
+      console.log("attendance", attendance);
+      
+      const { attended_by, id: attendanceId, status, profile } = attendance;
+      if (!attended_by || !attendanceId || !status || !profile) return;
+
+      const isVisibleStatus = ["pending", "processing", "postponed"].includes(
+        status
+      );
+
+      setUsers((prevUsers) => {
+        const userIndex = prevUsers.findIndex((u) => u.user.id === attended_by);
+        if (userIndex === -1) return prevUsers;
+
+        const user = prevUsers[userIndex];
+        const originalProfiles = [...user.profiles];
+
+        // Buscar el índice actual del attendance
+        const existingIndex = originalProfiles.findIndex(
+          (p) => p.attendance_id === attendanceId
+        );
+
+        // Eliminar duplicados (por si acaso)
+        const profiles = originalProfiles.filter(
+          (p) => p.attendance_id !== attendanceId
+        );
+
+        // Si es visible, insertarlo en el lugar correcto
+        if (isVisibleStatus) {
+          const updatedProfile = {
+            ...profile,
+            attendance_id: attendanceId,
+            status,
+            name: profile.name,
+            // service_ids: profile.service_ids ?? [],
+          };
+
+          if (existingIndex !== -1) {
+            // Insertar en la posición original
+            profiles.splice(existingIndex, 0, updatedProfile);
+          } else {
+            // Si no existía, agregar al final
+            profiles.push(updatedProfile);
+          }
+        }
+
+        const updatedUser = { ...user, profiles };
+        const newUsers = [...prevUsers];
+        newUsers[userIndex] = updatedUser;
+
+        return newUsers;
+      });
+      fetchQueue();
+    });
+
+    return () => {
+      // 🔒 Limpieza al desmontar
+      channel.unbind_all();
+      channel.unsubscribe();
+      pusher.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -166,10 +183,8 @@ export default function AttendanceListsPage() {
         isAgent={isAgent}
         users={users}
         queue={queue}
-        fetchQueue={fetchQueue}
         filteredServices={filteredServices}
       />
-      <AttendancesRealtime onNewAttendance={handleNewAttendance} />
     </>
   );
 }

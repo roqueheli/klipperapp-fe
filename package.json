@@ -19,6 +19,7 @@
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.514.0",
     "next": "15.3.2",
+    "pusher-js": "^8.4.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-date-range": "^2.0.1",

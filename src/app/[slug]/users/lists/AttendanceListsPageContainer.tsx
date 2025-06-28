@@ -27,7 +27,6 @@ interface AttendanceListsPageContainerProps {
   isAgent?: User;
   users: UserWithProfiles[];
   queue: User[];
-  fetchQueue: () => void;
   filteredServices: Service[];
 }
 
@@ -36,7 +35,6 @@ export default function AttendanceListsPageContainer({
   isAgent,
   users,
   queue,
-  fetchQueue,
   filteredServices,
 }: AttendanceListsPageContainerProps) {
   const { slug, data } = useOrganization();
@@ -89,21 +87,6 @@ export default function AttendanceListsPageContainer({
         }
       );
 
-      // handleNewAttendance({
-      //   id: selectedAtt.attendance_id ?? 0,
-      //   attended_by: selectedUser.userId,
-      //   status: "processing",
-      //   organization_id: data?.id ?? 0,
-      //   branch_id: userData?.branch_id ?? 0,
-      //   profile: {
-      //     ...selectedAtt,
-      //     email: "",
-      //     birth_date: "",
-      //     phone_number: "",
-      //     organization_id: 0,
-      //   },
-      // });
-      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in start process:", error);
@@ -132,21 +115,6 @@ export default function AttendanceListsPageContainer({
         }
       );
 
-      // handleNewAttendance({
-      //   id: selectedAtt.attendance_id ?? 0,
-      //   attended_by: selectedUser.userId,
-      //   status: "postponed",
-      //   organization_id: data?.id ?? 0,
-      //   branch_id: userData?.branch_id ?? 0,
-      //   profile: {
-      //     ...selectedAtt,
-      //     email: "",
-      //     birth_date: "",
-      //     phone_number: "",
-      //     organization_id: 0,
-      //   },
-      // });
-      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in postpone process:", error);
@@ -175,21 +143,6 @@ export default function AttendanceListsPageContainer({
         }
       );
 
-      // handleNewAttendance({
-      //   id: selectedAtt.attendance_id ?? 0,
-      //   attended_by: selectedUser.userId,
-      //   status: "declined",
-      //   organization_id: data?.id ?? 0,
-      //   branch_id: userData?.branch_id ?? 0,
-      //   profile: {
-      //     ...selectedAtt,
-      //     email: "",
-      //     birth_date: "",
-      //     phone_number: "",
-      //     organization_id: 0,
-      //   },
-      // });
-      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in decline process:", error);
@@ -218,21 +171,6 @@ export default function AttendanceListsPageContainer({
         }
       );
 
-      // handleNewAttendance({
-      //   id: selectedAtt.attendance_id ?? 0,
-      //   attended_by: selectedUser.userId,
-      //   status: "pending",
-      //   organization_id: data?.id ?? 0,
-      //   branch_id: userData?.branch_id ?? 0,
-      //   profile: {
-      //     ...selectedAtt,
-      //     email: "",
-      //     birth_date: "",
-      //     phone_number: "",
-      //     organization_id: 0,
-      //   },
-      // });
-      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in resume process:", error);
@@ -261,21 +199,6 @@ export default function AttendanceListsPageContainer({
         }
       );
 
-      // handleNewAttendance({
-      //   id: selectedAtt.attendance_id ?? 0,
-      //   attended_by: selectedUser.userId,
-      //   status: "completed",
-      //   organization_id: data?.id ?? 0,
-      //   branch_id: userData?.branch_id ?? 0,
-      //   profile: {
-      //     ...selectedAtt,
-      //     email: "",
-      //     birth_date: "",
-      //     phone_number: "",
-      //     organization_id: 0,
-      //   },
-      // });
-      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in end process:", error);
