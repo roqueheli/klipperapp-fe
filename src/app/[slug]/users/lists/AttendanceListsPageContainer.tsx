@@ -17,7 +17,7 @@ import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 
 import AddServiceModal from "@/components/modal/AddServiceModal";
-import { AttendanceCable, AttendanceProfile } from "@/types/attendance";
+import { AttendanceProfile } from "@/types/attendance";
 import { Organization } from "@/types/organization";
 import { Service } from "@/types/service";
 import { User, UserWithProfiles } from "@/types/user";
@@ -27,6 +27,7 @@ interface AttendanceListsPageContainerProps {
   isAgent?: User;
   users: UserWithProfiles[];
   queue: User[];
+  fetchQueue: () => void;
   filteredServices: Service[];
 }
 
@@ -35,6 +36,7 @@ export default function AttendanceListsPageContainer({
   isAgent,
   users,
   queue,
+  fetchQueue,
   filteredServices,
 }: AttendanceListsPageContainerProps) {
   const { slug, data } = useOrganization();
@@ -101,7 +103,7 @@ export default function AttendanceListsPageContainer({
       //     organization_id: 0,
       //   },
       // });
-
+      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in start process:", error);
@@ -144,7 +146,7 @@ export default function AttendanceListsPageContainer({
       //     organization_id: 0,
       //   },
       // });
-
+      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in postpone process:", error);
@@ -187,7 +189,7 @@ export default function AttendanceListsPageContainer({
       //     organization_id: 0,
       //   },
       // });
-
+      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in decline process:", error);
@@ -230,7 +232,7 @@ export default function AttendanceListsPageContainer({
       //     organization_id: 0,
       //   },
       // });
-
+      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in resume process:", error);
@@ -273,7 +275,7 @@ export default function AttendanceListsPageContainer({
       //     organization_id: 0,
       //   },
       // });
-
+      fetchQueue();
       setModalOpen(false);
     } catch (error) {
       console.error("Error in end process:", error);

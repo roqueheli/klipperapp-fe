@@ -23,14 +23,13 @@ export default function AttendanceListsPage() {
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchQueue = useCallback(async (callback?: (q: User[]) => void) => {
+  const fetchQueue = useCallback(async () => {
     try {
       const queueRes = await httpInternalApi.httpGetPublic(
         "/attendances/by_users_queue"
       );
       const queueData = queueRes as User[];
       setQueue(queueData);
-      if (callback) callback(queueData);
     } catch (error) {
       console.error("Error al cargar la queue:", error);
     }
@@ -167,6 +166,7 @@ export default function AttendanceListsPage() {
         isAgent={isAgent}
         users={users}
         queue={queue}
+        fetchQueue={fetchQueue}
         filteredServices={filteredServices}
       />
       <AttendancesRealtime onNewAttendance={handleNewAttendance} />
