@@ -1,9 +1,11 @@
 "use client";
 
+import AttendancesRealtime from "@/components/attendances/realtime/AttendanceRealTime";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Role } from "@/types/role";
+import { AttendanceCable } from "@/types/attendance";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse, UserWithProfiles } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
@@ -14,7 +16,6 @@ export default function AttendanceListsPage() {
   const { data } = useOrganization();
   const { userData } = useUser();
 
-  const [role, setRole] = useState<Role>();
   const [isAgent, setIsAgent] = useState<User>();
   const [isEmpty, setIsEmpty] = useState(false);
   const [users, setUsers] = useState<UserWithProfiles[]>([]);
@@ -22,36 +23,71 @@ export default function AttendanceListsPage() {
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchQueue = useCallback(async () => {
+  const fetchQueue = useCallback(async (callback?: (q: User[]) => void) => {
     try {
       const queueRes = await httpInternalApi.httpGetPublic(
         "/attendances/by_users_queue"
       );
-      setQueue(queueRes as User[]);
+      const queueData = queueRes as User[];
+      setQueue(queueData);
+      if (callback) callback(queueData);
     } catch (error) {
       console.error("Error al cargar la queue:", error);
     }
   }, []);
 
-  const updateAttendanceStatus = (
-    userId: number,
-    attId: number,
-    status: "pending" | "processing" | "finished" | "postponed" | "canceled"
-  ) => {
-    setUsers((prev) =>
-      prev.map((user) => {
-        if (user.user.id !== userId) return user;
-        const updatedProfiles = user.profiles
-          .map((att) => (att.id === attId ? { ...att, status } : att))
-          .filter(
-            (att) =>
-              att.status &&
-              ["pending", "processing", "postponed"].includes(att.status)
-          );
+  const handleNewAttendance = (attendance: AttendanceCable) => {
+    console.log(attendance);
+    
+    const { attended_by, id: attendanceId, status, profile } = attendance;
+    if (!attended_by || !attendanceId || !status || !profile) return;
 
-        return { ...user, profiles: updatedProfiles };
-      })
+    const isVisibleStatus = ["pending", "processing", "postponed"].includes(
+      status
     );
+
+    setUsers((prevUsers) => {
+      const userIndex = prevUsers.findIndex((u) => u.user.id === attended_by);
+      if (userIndex === -1) return prevUsers;
+
+      const user = prevUsers[userIndex];
+      const originalProfiles = [...user.profiles];
+
+      // Buscar el índice actual del attendance
+      const existingIndex = originalProfiles.findIndex(
+        (p) => p.attendance_id === attendanceId
+      );
+
+      // Eliminar duplicados (por si acaso)
+      let profiles = originalProfiles.filter(
+        (p) => p.attendance_id !== attendanceId
+      );
+
+      // Si es visible, insertarlo en el lugar correcto
+      if (isVisibleStatus) {
+        const updatedProfile = {
+          ...profile,
+          attendance_id: attendanceId,
+          status,
+          name: profile.name,
+          // service_ids: profile.service_ids ?? [],
+        };
+
+        if (existingIndex !== -1) {
+          // Insertar en la posición original
+          profiles.splice(existingIndex, 0, updatedProfile);
+        } else {
+          // Si no existía, agregar al final
+          profiles.push(updatedProfile);
+        }
+      }
+
+      const updatedUser = { ...user, profiles };
+      const newUsers = [...prevUsers];
+      newUsers[userIndex] = updatedUser;
+
+      return newUsers;
+    });
   };
 
   useEffect(() => {
@@ -63,7 +99,6 @@ export default function AttendanceListsPage() {
         if (!userData?.role?.id || !data?.id) return;
 
         const agentRole = await getRoleByName("agent");
-        setRole(agentRole);
 
         const isUserAgent = userData.role.id === agentRole.id;
         if (isUserAgent) setIsAgent(userData);
@@ -123,16 +158,20 @@ export default function AttendanceListsPage() {
     loadData();
   }, [data?.id, userData]);
 
+  if (isLoading) return <LoadingSpinner />;
+
   return (
-    <AttendanceListsPageContainer
-      isWorkingTodayEmpty={isEmpty}
-      isAgent={isAgent}
-      fetchQueue={fetchQueue}
-      users={users}
-      isLoading={isLoading}
-      queue={queue}
-      filteredServices={filteredServices}
-      updateAttendanceStatus={updateAttendanceStatus}
-    />
+    <>
+      <AttendanceListsPageContainer
+        isWorkingTodayEmpty={isEmpty}
+        isAgent={isAgent}
+        fetchQueue={fetchQueue}
+        users={users}
+        queue={queue}
+        filteredServices={filteredServices}
+        handleNewAttendance={handleNewAttendance}
+      />
+      <AttendancesRealtime onNewAttendance={handleNewAttendance} />
+    </>
   );
 }

@@ -1,8 +1,7 @@
 "use client";
 
-import { AttendanceProfile } from "@/app/[slug]/users/lists/page";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Attendance, Attendances } from "@/types/attendance";
+import { Attendance, AttendanceProfile, Attendances } from "@/types/attendance";
 import { Service } from "@/types/service";
 import { useEffect, useState } from "react";
 import AddServiceSection from "../attendances/payment/AddServiceSection";
@@ -55,7 +54,7 @@ export default function AddServiceModal({
           attendanceParams
         )) as Attendances;
         console.log("response", response);
-        
+
         setAttendance(response?.attendances[0]);
         setSelectedServices(response?.attendances[0].services || []);
       } catch (error) {

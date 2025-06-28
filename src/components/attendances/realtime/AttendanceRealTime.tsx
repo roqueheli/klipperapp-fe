@@ -1,12 +1,16 @@
+"use client";
+
 import cable from "@/lib/cable/cable";
-import { Attendance } from "@/types/attendance";
+import { AttendanceCable } from "@/types/attendance";
 import { useEffect } from "react";
 
 interface AttendancesRealtimeProps {
-  onNewAttendance?: (data: Attendance) => void;
+  onNewAttendance?: (data: AttendanceCable) => void;
 }
 
-export default function AttendancesRealtime({ onNewAttendance }: AttendancesRealtimeProps) {
+export default function AttendancesRealtime({
+  onNewAttendance,
+}: AttendancesRealtimeProps) {
   useEffect(() => {
     const subscription = cable.subscriptions.create(
       { channel: "AttendancesChannel" },
@@ -18,10 +22,14 @@ export default function AttendancesRealtime({ onNewAttendance }: AttendancesReal
       }
     );
 
-    return () => {
-      (subscription as any).unsubscribe();
+    const dessubscription = () => {
+      subscription.unsubscribe();
     };
+
+    console.log("dessubscription", dessubscription);
+    
+    return dessubscription;
   }, [onNewAttendance]);
 
-  return null; // Este componente solo escucha, no renderiza nada
+  return null;
 }

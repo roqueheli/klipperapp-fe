@@ -1,5 +1,5 @@
 import { createConsumer } from "@rails/actioncable";
 
-const cable = createConsumer("ws://localhost:3000/cable"); // Cambia la URL si usas producción
+const cable = createConsumer(`ws://localhost:3100/cable`);
 
 export default cable;

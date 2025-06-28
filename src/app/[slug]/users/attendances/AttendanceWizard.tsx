@@ -52,7 +52,10 @@ const AttendanceWizard = ({
   useEffect(() => {
     const loadFromStorageAndFetch = async () => {
       // 1. Verificar si hay datos en localStorage
-      const stored = localStorage.getItem("attendanceInfo");
+      const stored =
+        localStorage.getItem("attendanceInfo") ||
+        localStorage.getItem("userAttendance");
+
       if (stored) {
         try {
           const data = JSON.parse(stored);
@@ -163,7 +166,10 @@ const AttendanceWizard = ({
       );
 
       onClose?.();
-      window.location.href = `/${slug}/users/lists`;
+      const targetPath = `/${slug}/users/lists`;
+      if (pathname !== targetPath) {
+        router.push(targetPath);
+      }
     } catch (error) {
       console.error("Error en la creación de atención:", error);
     }

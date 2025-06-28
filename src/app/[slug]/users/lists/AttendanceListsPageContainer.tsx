@@ -1,11 +1,10 @@
 "use client";
 
 import { Transition } from "@headlessui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import AttendanceModal from "@/components/modal/AttendanceModal";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import AttendanceWizard from "../attendances/AttendanceWizard";
 
 import FooterSection from "@/components/lists/FooterSection";
@@ -17,9 +16,8 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 
-import AttendancesRealtime from "@/components/attendances/realtime/AttendanceRealTime";
 import AddServiceModal from "@/components/modal/AddServiceModal";
-import { Attendance, AttendanceProfile } from "@/types/attendance";
+import { AttendanceCable, AttendanceProfile } from "@/types/attendance";
 import { Organization } from "@/types/organization";
 import { Service } from "@/types/service";
 import { User, UserWithProfiles } from "@/types/user";
@@ -28,13 +26,8 @@ interface AttendanceListsPageContainerProps {
   isWorkingTodayEmpty: boolean;
   isAgent?: User;
   users: UserWithProfiles[];
-  isLoading: boolean;
-  fetchQueue: () => void;
-  updateAttendanceStatus: (
-    userId: number,
-    attId: number,
-    status: "pending" | "processing" | "finished" | "postponed" | "canceled"
-  ) => void;
+  fetchQueue: (callback?: (q: User[]) => void) => Promise<void>;
+  handleNewAttendance(attendance: AttendanceCable): void;
   queue: User[];
   filteredServices: Service[];
 }
@@ -42,12 +35,11 @@ interface AttendanceListsPageContainerProps {
 export default function AttendanceListsPageContainer({
   isWorkingTodayEmpty,
   isAgent,
-  isLoading,
   users,
   queue,
   filteredServices,
   fetchQueue,
-  updateAttendanceStatus,
+  handleNewAttendance,
 }: AttendanceListsPageContainerProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
@@ -60,7 +52,12 @@ export default function AttendanceListsPageContainer({
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+  const [localQueue, setLocalQueue] = useState<User[]>(queue);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    setLocalQueue(queue);
+  }, [queue]);
 
   const handleClick = (
     userId: number,
@@ -74,6 +71,7 @@ export default function AttendanceListsPageContainer({
 
   const handleStart = async () => {
     if (!selectedAtt || !selectedUser) return;
+
     const requestBody = {
       user_id: selectedUser.userId,
       attendance_id: selectedAtt.attendance_id,
@@ -92,7 +90,22 @@ export default function AttendanceListsPageContainer({
           error: "Error starting attendance.",
         }
       );
-      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "processing");
+
+      // handleNewAttendance({
+      //   id: selectedAtt.attendance_id ?? 0,
+      //   attended_by: selectedUser.userId,
+      //   status: "processing",
+      //   organization_id: data?.id ?? 0,
+      //   branch_id: userData?.branch_id ?? 0,
+      //   profile: {
+      //     ...selectedAtt,
+      //     email: "",
+      //     birth_date: "",
+      //     phone_number: "",
+      //     organization_id: 0,
+      //   },
+      // });
+
       setModalOpen(false);
     } catch (error) {
       console.error("Error in start process:", error);
@@ -101,6 +114,7 @@ export default function AttendanceListsPageContainer({
 
   const handlePostpone = async () => {
     if (!selectedAtt || !selectedUser) return;
+
     const requestBody = {
       user_id: selectedUser.userId,
       attendance_id: selectedAtt.attendance_id,
@@ -119,9 +133,23 @@ export default function AttendanceListsPageContainer({
           error: "Error postponing attendance.",
         }
       );
-      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "postponed");
+
+      // handleNewAttendance({
+      //   id: selectedAtt.attendance_id ?? 0,
+      //   attended_by: selectedUser.userId,
+      //   status: "postponed",
+      //   organization_id: data?.id ?? 0,
+      //   branch_id: userData?.branch_id ?? 0,
+      //   profile: {
+      //     ...selectedAtt,
+      //     email: "",
+      //     birth_date: "",
+      //     phone_number: "",
+      //     organization_id: 0,
+      //   },
+      // });
+
       setModalOpen(false);
-      await fetchQueue();
     } catch (error) {
       console.error("Error in postpone process:", error);
     }
@@ -129,6 +157,7 @@ export default function AttendanceListsPageContainer({
 
   const handleDecline = async () => {
     if (!selectedAtt || !selectedUser) return;
+
     const requestBody = {
       user_id: selectedUser.userId,
       attendance_id: selectedAtt.attendance_id,
@@ -147,9 +176,23 @@ export default function AttendanceListsPageContainer({
           error: "Error declining attendance.",
         }
       );
-      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "canceled");
+
+      // handleNewAttendance({
+      //   id: selectedAtt.attendance_id ?? 0,
+      //   attended_by: selectedUser.userId,
+      //   status: "declined",
+      //   organization_id: data?.id ?? 0,
+      //   branch_id: userData?.branch_id ?? 0,
+      //   profile: {
+      //     ...selectedAtt,
+      //     email: "",
+      //     birth_date: "",
+      //     phone_number: "",
+      //     organization_id: 0,
+      //   },
+      // });
+
       setModalOpen(false);
-      await fetchQueue();
     } catch (error) {
       console.error("Error in decline process:", error);
     }
@@ -157,6 +200,7 @@ export default function AttendanceListsPageContainer({
 
   const handleResume = async () => {
     if (!selectedAtt || !selectedUser) return;
+
     const requestBody = {
       user_id: selectedUser.userId,
       attendance_id: selectedAtt.attendance_id,
@@ -175,9 +219,23 @@ export default function AttendanceListsPageContainer({
           error: "Error resuming attendance.",
         }
       );
-      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "pending");
+
+      // handleNewAttendance({
+      //   id: selectedAtt.attendance_id ?? 0,
+      //   attended_by: selectedUser.userId,
+      //   status: "pending",
+      //   organization_id: data?.id ?? 0,
+      //   branch_id: userData?.branch_id ?? 0,
+      //   profile: {
+      //     ...selectedAtt,
+      //     email: "",
+      //     birth_date: "",
+      //     phone_number: "",
+      //     organization_id: 0,
+      //   },
+      // });
+
       setModalOpen(false);
-      await fetchQueue();
     } catch (error) {
       console.error("Error in resume process:", error);
     }
@@ -185,6 +243,7 @@ export default function AttendanceListsPageContainer({
 
   const handleEnd = async () => {
     if (!selectedAtt || !selectedUser) return;
+
     const requestBody = {
       user_id: selectedUser.userId,
       attendance_id: selectedAtt.attendance_id,
@@ -203,9 +262,23 @@ export default function AttendanceListsPageContainer({
           error: "Error ending attendance.",
         }
       );
-      updateAttendanceStatus(selectedUser.userId, selectedAtt.id, "finished");
+
+      // handleNewAttendance({
+      //   id: selectedAtt.attendance_id ?? 0,
+      //   attended_by: selectedUser.userId,
+      //   status: "completed",
+      //   organization_id: data?.id ?? 0,
+      //   branch_id: userData?.branch_id ?? 0,
+      //   profile: {
+      //     ...selectedAtt,
+      //     email: "",
+      //     birth_date: "",
+      //     phone_number: "",
+      //     organization_id: 0,
+      //   },
+      // });
+
       setModalOpen(false);
-      await fetchQueue();
     } catch (error) {
       console.error("Error in end process:", error);
     }
@@ -248,26 +321,16 @@ export default function AttendanceListsPageContainer({
     }
   };
 
-  const hasProcessing = users.some((u) =>
-    u.profiles.some(
-      (p) =>
-        p.status !== "processing" &&
-        !(p.status === "postponed" && u.profiles.length === 1)
-    )
-  );
-
-  const handleNewAttendance = (attendance: Attendance) => {
-    // Actualiza tu estado, muestra notificación, etc.
-    console.log("Nuevo attendance recibido:", attendance);
-  };
-
-  if (isLoading) return <LoadingSpinner />;
+  const hasProcessing =
+    users.some(
+      (u) => u.profiles.length === 1 && u.profiles[0].status === "postponed"
+    ) || !users.some((u) => u.profiles.some((p) => p.status === "processing"));
 
   return (
     <div className="w-full mx-auto p-6 min-h-screen flex flex-col">
       <HeaderSection />
       <main className="grid grid-cols-1 md:grid-cols-4 gap-6 flex-grow">
-        <QueueSection queue={queue} />
+        <QueueSection queue={localQueue} />
         <UsersSection
           users={users}
           userLogged={isAgent || undefined}
@@ -353,7 +416,6 @@ export default function AttendanceListsPageContainer({
           </div>
         </div>
       </Transition>
-      <AttendancesRealtime onNewAttendance={handleNewAttendance} />
     </div>
   );
 }
