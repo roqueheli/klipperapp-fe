@@ -59,7 +59,7 @@ export default function AttendanceListsPage() {
       );
 
       // Eliminar duplicados (por si acaso)
-      let profiles = originalProfiles.filter(
+      const profiles = originalProfiles.filter(
         (p) => p.attendance_id !== attendanceId
       );
 
@@ -165,11 +165,9 @@ export default function AttendanceListsPage() {
       <AttendanceListsPageContainer
         isWorkingTodayEmpty={isEmpty}
         isAgent={isAgent}
-        fetchQueue={fetchQueue}
         users={users}
         queue={queue}
         filteredServices={filteredServices}
-        handleNewAttendance={handleNewAttendance}
       />
       <AttendancesRealtime onNewAttendance={handleNewAttendance} />
     </>

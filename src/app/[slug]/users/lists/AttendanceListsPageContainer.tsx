@@ -26,8 +26,6 @@ interface AttendanceListsPageContainerProps {
   isWorkingTodayEmpty: boolean;
   isAgent?: User;
   users: UserWithProfiles[];
-  fetchQueue: (callback?: (q: User[]) => void) => Promise<void>;
-  handleNewAttendance(attendance: AttendanceCable): void;
   queue: User[];
   filteredServices: Service[];
 }
@@ -38,8 +36,6 @@ export default function AttendanceListsPageContainer({
   users,
   queue,
   filteredServices,
-  fetchQueue,
-  handleNewAttendance,
 }: AttendanceListsPageContainerProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
