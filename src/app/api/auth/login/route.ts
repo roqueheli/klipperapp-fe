@@ -4,32 +4,39 @@ import LoginScheme from "@/schemes/login.scheme";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-    const { email, password } = await LoginScheme.validate(await request.json());
-
     try {
-        const expiresInSeconds = (Number(process.env.NEXT_AUTH_TOKEN_EXP || 8 * 60 * 60) * 1000);
-        const cookieName = process.env.AUTH_TOKEN_SECRET || "auth_token";
+        // Validar body
+        const { email, password } = await LoginScheme.validate(await request.json());
         const isProd = process.env.NODE_ENV === "production";
-        const loginResponse = await authAPI.login(email, password);
 
-        const response = NextResponse.json({ status: 200, toke: loginResponse.token });
+        // Login contra backend
+        const loginResponse = await authAPI.login(email, password);
+        const token = loginResponse.token;
+
+        // Configuración cookie
+        const expiresInSeconds = (Number(process.env.NEXT_AUTH_TOKEN_EXP) || 8 * 60 * 60) * 1000;
+        const cookieName = process.env.AUTH_TOKEN_SECRET || "auth_token";
+        const response = NextResponse.json({ success: true });
 
         response.cookies.set({
             name: cookieName,
-            value: loginResponse.token,
+            value: token,
             httpOnly: true,
             sameSite: isProd ? "none" : "lax",
-            secure: isProd, // Safari bloquea secure en localhost
+            secure: isProd, // Safari requiere secure=true para SameSite=None
             path: "/",
             maxAge: expiresInSeconds,
+            domain: isProd ? process.env.NEXT_PUBLIC_DOMAIN : undefined,
         });
 
         return response;
     } catch (error) {
         if (error instanceof AccesDeniedError) {
-            return new Response(JSON.stringify({ error: "Access Denied" }), { status: 403 });
-        } else {
-            return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
+            return NextResponse.json({ error: "Access Denied" }, { status: 403 });
         }
+
+        console.error("Error interno de login:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
