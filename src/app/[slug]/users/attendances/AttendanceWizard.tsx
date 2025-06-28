@@ -59,16 +59,17 @@ const AttendanceWizard = ({
       if (stored) {
         try {
           const data = JSON.parse(stored);
-          setHasStoredData(true);
-          setAttendanceId(data.attendanceId || null);
+          setHasStoredData(data?.attendanceId);
+          setAttendanceId(data?.attendanceId || null);
           setSelectedServiceId(
-            data.services.length > 0 ? data.services[0].id : null
+            data.services?.length > 0 ? data.services[0].id : null
           );
-          setSelectedUserId(data.userId || null);
-          setProfile(data.profile);
-          setPhone(data.phoneNumber || "");
+          setSelectedUserId(data?.userId || data?.id || null);
+          setProfile(data?.profile || data || null);
+          setPhone(data?.phoneNumber || data?.phone_number || "");
           setStep(2);
           localStorage.removeItem("attendanceInfo");
+          localStorage.removeItem("userAttendance");
         } catch (e) {
           console.error("Error parsing stored attendance data", e);
         }
@@ -146,8 +147,8 @@ const AttendanceWizard = ({
     const requestBody = {
       id: attendanceId || null,
       profile_id: profile.id,
-      organization_id: organization.id,
-      branch_id: user.branch_id,
+      organization_id: organization?.id,
+      branch_id: user?.branch_id,
       service_ids: [selectedServiceId],
       attended_by: selectedUserId !== 0 ? selectedUserId : null,
     };

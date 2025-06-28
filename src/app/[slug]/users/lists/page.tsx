@@ -44,8 +44,6 @@ export default function AttendanceListsPage() {
     const channel = pusher.subscribe("attendance_channel");
 
     channel.bind("attendance", function (attendance: AttendanceCable) {
-      console.log("attendance", attendance);
-      
       const { attended_by, id: attendanceId, status, profile } = attendance;
       if (!attended_by || !attendanceId || !status || !profile) return;
 

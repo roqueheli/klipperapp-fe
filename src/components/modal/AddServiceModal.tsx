@@ -53,7 +53,6 @@ export default function AddServiceModal({
           `/attendances`,
           attendanceParams
         )) as Attendances;
-        console.log("response", response);
 
         setAttendance(response?.attendances[0]);
         setSelectedServices(response?.attendances[0].services || []);
