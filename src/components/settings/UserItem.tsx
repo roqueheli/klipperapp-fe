@@ -15,6 +15,7 @@ interface UserItemProps {
   branches: Branch[];
   roles: Role[];
   expanded: boolean;
+  isAdmin?: boolean;
   setExpanded: (open: boolean) => void;
 }
 
@@ -27,6 +28,7 @@ export default function UserItem({
   onDelete,
   expanded,
   setExpanded,
+  isAdmin = true,
 }: UserItemProps) {
   return (
     <div className="border border-[--electric-blue] rounded-xl mb-3 overflow-hidden">
@@ -97,7 +99,7 @@ export default function UserItem({
               }
               className="w-full border rounded px-3 py-2 text-sm bg-white text-black"
             >
-              <option value="">Selecciona un rol</option>
+              {isAdmin && <option value="">Selecciona un rol</option>}
               {roles.map((role) => (
                 <option key={role.id} value={role.id}>
                   {role.name}
@@ -116,7 +118,7 @@ export default function UserItem({
               }
               className="w-full border rounded px-3 py-2 text-sm bg-white text-black"
             >
-              <option value="">Selecciona una sucursal</option>
+              {isAdmin && <option value="">Selecciona una sucursal</option>}
               {branches.map((branch) => (
                 <option key={branch.id} value={branch.id}>
                   {branch.name}

@@ -14,6 +14,7 @@ interface UserSettingsListProps {
   branches: Branch[];
   roles: Role[];
   organization_id: number;
+  isAdmin?: boolean;
 }
 
 let tempId = -1; // ID temporal para usuarios nuevos
@@ -23,6 +24,7 @@ export default function UserSettingsList({
   branches,
   roles,
   organization_id,
+  isAdmin,
 }: UserSettingsListProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [modifiedUserIds, setModifiedUserIds] = useState<Set<number>>(
@@ -96,7 +98,7 @@ export default function UserSettingsList({
       photo_url: "",
       branch_id: branches[0]?.id ?? null,
       role: {
-        id: roles[0]?.id ?? null
+        id: roles[0]?.id ?? null,
       },
       organization_id,
     };
@@ -137,7 +139,7 @@ export default function UserSettingsList({
             : httpInternalApi.httpPostPublic(
                 `/users/${user.id}`,
                 "PUT",
-                payload.user,
+                payload.user
               ),
           {
             loading:
@@ -214,16 +216,19 @@ export default function UserSettingsList({
               return next;
             })
           }
+          isAdmin={isAdmin}
         />
       ))}
 
       <div className="flex items-center justify-end mt-6">
-        <button
-          onClick={handleAddUser}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-xl shadow transition-all mr-2"
-        >
-          + Nuevo Usuario
-        </button>
+        {isAdmin && (
+          <button
+            onClick={handleAddUser}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-xl shadow transition-all mr-2"
+          >
+            + Nuevo Usuario
+          </button>
+        )}
 
         <button
           onClick={handleSubmit}

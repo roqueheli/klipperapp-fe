@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
         // Validar body
         const { email, password } = await LoginScheme.validate(await request.json());
         const isProd = process.env.NODE_ENV === "production";
-
+        
         // Login contra backend
         const loginResponse = await authAPI.login(email, password);
         const token = loginResponse.token;
