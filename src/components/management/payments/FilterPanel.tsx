@@ -67,7 +67,8 @@ const FilterPanel = ({
       fromDate,
       toDate,
       branchId: branchId ?? (branches.length === 1 ? branches[0].id : null),
-      userId: userId ?? (filteredUsers.length === 1 ? filteredUsers[0].id : null),
+      userId:
+        userId ?? (filteredUsers.length === 1 ? filteredUsers[0].id : null),
     });
   };
 
@@ -81,17 +82,15 @@ const FilterPanel = ({
   };
 
   return (
-    <div className="p-4 mb-6 bg-white dark:bg-gray-900 shadow rounded-lg space-y-4">
-      <h2 className="text-lg font-semibold text-[--electric-blue]">
-        📋 Filtros
-      </h2>
+    <div className="p-4 mb-6 shadow rounded-lg space-y-4 transition-colors bg-[var(--color-background)] text-[var(--foreground)] border border-gray-300 dark:border-gray-600">
+      <h2 className="text-lg font-semibold">📋 Filtros</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Año */}
         <div>
           <label className="block text-sm mb-1 font-medium">Año</label>
           <select
-            className="w-full rounded border border-gray-600 px-3 py-2"
+            className="w-full rounded border px-3 py-2 bg-[var(--color-background)] text-[var(--foreground)] border-gray-300 dark:border-gray-600"
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
           >
@@ -107,7 +106,7 @@ const FilterPanel = ({
         <div>
           <label className="block text-sm mb-1 font-medium">Mes</label>
           <select
-            className="w-full rounded border border-gray-600 px-3 py-2"
+            className="w-full rounded border px-3 py-2 bg-[var(--color-background)] text-[var(--foreground)] border-gray-300 dark:border-gray-600"
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
@@ -123,7 +122,7 @@ const FilterPanel = ({
         <div>
           <label className="block text-sm mb-1 font-medium">Semana</label>
           <select
-            className="w-full rounded border border-gray-600 px-3 py-2"
+            className="w-full rounded border px-3 py-2 bg-[var(--color-background)] text-[var(--foreground)] border-gray-300 dark:border-gray-600"
             value={selectedWeek}
             onChange={(e) => setSelectedWeek(e.target.value)}
           >
@@ -142,7 +141,7 @@ const FilterPanel = ({
         <div>
           <label className="block text-sm mb-1 font-medium">Sucursal</label>
           <select
-            className="w-full rounded border border-gray-600 px-3 py-2"
+            className="w-full rounded border px-3 py-2 bg-[var(--color-background)] text-[var(--foreground)] border-gray-300 dark:border-gray-600"
             value={branchId ?? ""}
             onChange={(e) =>
               setBranchId(e.target.value ? Number(e.target.value) : null)
@@ -161,7 +160,7 @@ const FilterPanel = ({
         <div>
           <label className="block text-sm mb-1 font-medium">Usuario</label>
           <select
-            className="w-full rounded border border-gray-600 px-3 py-2"
+            className="w-full rounded border px-3 py-2 bg-[var(--color-background)] text-[var(--foreground)] border-gray-300 dark:border-gray-600"
             value={userId ?? ""}
             onChange={(e) =>
               setUserId(e.target.value ? Number(e.target.value) : null)
@@ -181,7 +180,7 @@ const FilterPanel = ({
       <div className="flex items-center justify-between gap-4 pt-4 px-2">
         <button
           onClick={handleReset}
-          className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-sm text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
+          className="px-4 py-2 rounded-md border text-sm bg-[var(--color-background)] text-[var(--foreground)] border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           Limpiar filtros
         </button>
@@ -197,4 +196,3 @@ const FilterPanel = ({
 };
 
 export default FilterPanel;
-

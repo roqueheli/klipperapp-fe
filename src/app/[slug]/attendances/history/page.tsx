@@ -104,7 +104,7 @@ const AttendancesHistoryPage = () => {
 
   return (
     <div className="flex items-center flex-col w-full min-h-screen p-6 max-w-7xl mx-auto">
-      <h1 className="w-full text-left text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+      <h1 className="w-full text-left text-2xl font-bold mb-4">
         🗂️ Historial de Atenciones
       </h1>
       <FilterPanel

@@ -1,6 +1,7 @@
 import { AttendanceProfile } from "@/types/attendance";
 import { UserWithProfiles } from "@/types/user";
 import { UserCircle2 } from "lucide-react";
+import { useTheme } from "../ThemeProvider";
 
 interface Props {
   user: UserWithProfiles;
@@ -15,14 +16,18 @@ const statusClasses = {
 } as const;
 
 export default function UserProfileCard({ user, onClick }: Props) {
+  const { theme } = useTheme();
+
+  console.log("theme", theme);
+
   return (
-    <article className="bg-gradient-to-br from-[#101522] via-[#1a2337] to-[#202a45] ring-1 ring-[--electric-blue]/30 rounded-2xl p-5 shadow-xl shadow-[0_8px_24px_rgba(61,217,235,0.2)] hover:shadow-[0_12px_36px_rgba(61,217,235,0.35)] transition-shadow duration-300 flex flex-col h-full">
+    <article className={`transition-shadow duration-300 flex flex-col h-full rounded-2xl p-5 shadow-xl ${theme === "dark" ? "bg-gradient-to-br from-[#101522] via-[#1a2337] to-[#202a45] ring-1 ring-[--electric-blue]/30 shadow-[0_8px_24px_rgba(61,217,235,0.2)] hover:shadow-[0_12px_36px_rgba(61,217,235,0.35)]" : "bg-white"}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-md font-bold text-[--electric-blue] flex items-center gap-2">
-          <UserCircle2 className="w-5 h-5 text-[--accent-pink]" />
+        <h3 className="text-md font-bold flex items-center gap-2">
+          <UserCircle2 className="w-5 h-5" />
           <span className="truncate">{user.user.name}</span>
         </h3>
-        <span className="truncate text-xs text-[--soft-white]/50">
+        <span className="truncate text-xs">
           {user.profiles.length} turno(s)
         </span>
       </div>
@@ -52,12 +57,12 @@ export default function UserProfileCard({ user, onClick }: Props) {
                 }
                 className={`flex items-center justify-between gap-3 rounded-md p-3 text-sm transition select-none ${
                   isClickable
-                    ? "cursor-pointer bg-[#131b2c] shadow-md shadow-[0_4px_16px_rgba(61,217,235,0.2)] hover:shadow-[0_6px_24px_rgba(61,217,235,0.4)] hover:translate-x-0.5"
+                    ? `cursor-pointer shadow-md shadow-[0_4px_16px_rgba(61,217,235,0.2)] hover:shadow-[0_6px_24px_rgba(61,217,235,0.4)] hover:translate-x-0.5 ${theme === "dark" && "bg-[#131b2c]"}`
                     : "cursor-not-allowed bg-[#1e273b] opacity-50"
                 }`}
                 title={`Atención: ${att.name} - Estado: ${att.status}`}
               >
-                <span className="truncate font-medium text-[--soft-white]">
+                <span className="truncate font-medium">
                   {att.name}
                 </span>
                 <span className="relative flex h-3 w-3 shrink-0">

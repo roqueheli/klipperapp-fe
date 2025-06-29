@@ -210,7 +210,7 @@ const PaymentsManagementPage = () => {
 
   return (
     <div className="flex flex-col items-center min-h-screen p-6 mx-auto">
-      <h1 className="w-full text-left text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+      <h1 className="w-full text-left text-2xl font-bold mb-4">
         💰 Gestión de pagos
       </h1>
       <FilterPanel

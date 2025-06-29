@@ -3,17 +3,23 @@ import type { Config } from 'tailwindcss';
 const config: Config = {
     content: [
         './src/**/*.{js,ts,jsx,tsx,mdx}',
-        "./components/**/*.{js,ts,jsx,tsx}",
+        './components/**/*.{js,ts,jsx,tsx}',
     ],
-    darkMode: 'class', // 👈 Habilita modo oscuro por clase
+    darkMode: 'class', // Habilita modo oscuro por clase
     theme: {
         extend: {
             colors: {
-                // Agregamos una referencia a la variable CSS para color primario
-                primary: 'var(--primary)',
-                // Otros colores personalizados si los necesitás:
-                // lightBg: '#f8f9fa',
-                // darkBg: '#212529',
+                background: 'var(--background)',
+                foreground: 'var(--foreground)',
+                'color-background': 'var(--color-background)',
+                'color-foreground': 'var(--color-foreground)',
+                'border-color': 'var(--border-color)',
+                'electric-blue': 'var(--electric-blue)',
+                'cyber-gray': 'var(--cyber-gray)',
+                'soft-white': 'var(--soft-white)',
+                'accent-pink': 'var(--accent-pink)',
+                'menu-hover-bg': 'var(--menu-hover-bg)',
+                'hover-foreground': 'var(--hover-foreground)',
             },
         },
     },

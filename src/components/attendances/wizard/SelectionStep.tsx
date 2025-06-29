@@ -1,3 +1,4 @@
+import { useTheme } from "@/components/ThemeProvider";
 import { Profile } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { UserResponse } from "@/types/user";
@@ -27,12 +28,17 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
   onBack,
   onFinish,
 }) => {
+  const { theme } = useTheme();
+
   return (
     <div>
       <div className="p-3 w-full flex justify-between items-center">
         {profile?.name && (
           <p className="w-full mt-3 text-left mb-4 text-xl font-semibold text-blue-700 dark:text-blue-400">
-            Hola, <span className="text-white">{profile?.name}</span>
+            Hola,{" "}
+            <span className={`${theme === 'dark' ? "text-white" : "font-bold text-gray-600"}`}>
+              {profile?.name}
+            </span>
           </p>
         )}
         <div className="w-full flex justify-end max-w-sm mx-auto">
@@ -84,7 +90,7 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
             role="button"
             aria-pressed={selectedUserId === user.id}
           >
-            <div className="flex w-full justify-center items-center relative mb-4">
+            <div className="flex w-full justify-center items-center relative">
               <Image
                 src={
                   user.photo_url ||
@@ -97,7 +103,7 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
                 className="rounded-md object-cover shadow"
               />
             </div>
-            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <div className={`text-md truncate font-semibold ${theme === 'dark' ? "text-white" : "font-bold text-gray-600"}`}>
               {user.name}
             </div>
             {user.premium && (
@@ -108,7 +114,7 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
       </div>
 
       <h2 className="ml-2 mt-8 text-xl font-extrabold mb-4 text-left text-blue-600 dark:text-blue-400 drop-shadow-sm">
-        Selecciona un servicio <span className="text-white">(Opcional)</span>
+        Selecciona un servicio <span className={`${theme === 'dark' ? "text-white" : "font-bold text-gray-600"}`}>(Opcional)</span>
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
         {services?.services.map((service) => (
@@ -125,7 +131,7 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
             role="button"
             aria-pressed={selectedServiceId === service.id}
           >
-            <div className="flex w-full justify-center items-center relative mb-4">
+            <div className="flex w-full justify-center items-center relative mb-2">
               <Image
                 src={
                   service.photo_url ||
@@ -137,10 +143,10 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
                 className="rounded-md object-cover shadow"
               />
             </div>
-            <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100 truncate">
+            <h3 className={`text-md font-semibold truncate ${theme === 'dark' ? "text-white" : "font-bold text-gray-600"}`}>
               {service.name}
             </h3>
-            <p className="mt-3 font-bold text-blue-700 dark:text-blue-400">
+            <p className="mt-1 text-md font-bold text-blue-700 dark:text-blue-400">
               {Number(service.price).toLocaleString("es-CL", {
                 style: "currency",
                 currency: "CLP",

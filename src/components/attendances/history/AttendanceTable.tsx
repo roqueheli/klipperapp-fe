@@ -69,7 +69,7 @@ const AttendancesTable = ({
           {/* Buscador */}
           <div className="relative max-w-md">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
+              className="absolute left-3 top-1/2 -translate-y-1/2"
               size={18}
             />
             <input
@@ -80,12 +80,12 @@ const AttendancesTable = ({
                 setSearchTerm(e.target.value);
                 setCurrentPage(1); // Reinicia a la primera página al buscar
               }}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[--electric-blue]"
+              className={`w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-[var(--color-background)] dark:text-[var(--foreground)] text-sm text-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[--electric-blue]`}
             />
           </div>
           <div className="rounded-xl border border-gray-200 dark:border-gray-700">
             <table className="table-fixed divide-y divide-gray-200 dark:divide-gray-700 w-full">
-              <thead className="rounded-t-xl bg-gray-100 dark:bg-gray-800">
+              <thead className="rounded-t-xl bg-[var(--color-background)]">
                 <tr>
                   {[
                     "Cód",
@@ -100,14 +100,14 @@ const AttendancesTable = ({
                   ].map((header, index) => (
                     <th
                       key={index}
-                      className="px-4 py-3 text-sm text-center dark:text-white text-gray-600"
+                      className="px-4 py-3 text-xs text-center"
                     >
                       {header}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="bg-[var(--color-background)] divide-y divide-gray-200 dark:divide-gray-700">
                 {currentItems.map((attendance) => (
                   <tr key={attendance.id} className="text-xs text-center h-14">
                     <td>{attendance.id}</td>
@@ -156,7 +156,7 @@ const AttendancesTable = ({
 
       {/* Paginación */}
       {filteredAttendances.length > 0 && (
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 text-sm">
           <p>
             Página {currentPage} de {totalPages}
           </p>
@@ -165,7 +165,7 @@ const AttendancesTable = ({
               type="button"
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50"
+              className="text-white px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50"
             >
               <ChevronLeft size={16} />
             </button>
@@ -173,7 +173,7 @@ const AttendancesTable = ({
               type="button"
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50"
+              className="text-white px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50"
             >
               <ChevronRight size={16} />
             </button>

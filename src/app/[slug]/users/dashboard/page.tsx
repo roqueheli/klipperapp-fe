@@ -153,8 +153,8 @@ export default function DashboardPage() {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="w-full flex flex-col justify-center space-y-6 p-6 mx-auto text-white">
-      <h1 className="text-2xl font-bold text-white bg-clip-text text-transparent">
+    <div className="w-full flex flex-col justify-center space-y-6 p-6 mx-auto">
+      <h1 className="text-2xl font-bold">
         📊 Dashboard del día
       </h1>
 

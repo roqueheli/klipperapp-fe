@@ -310,7 +310,7 @@ export default function AttendanceListsPageContainer({
           <div className="overflow-x-hidden overflow-auto w-[72%] rounded-lg shadow-lg z-50">
             <div className="relative top-9 left-3 flex justify-start">
               <button
-                className="text-white hover:text-gray-700"
+                className="hover:text-gray-700"
                 onClick={() => setWizardOpen(false)}
               >
                 <svg

@@ -18,16 +18,20 @@
   --accent-pink: #f55376;
   --menu-hover-bg: rgba(61, 217, 235, 0.15); /* Ej: azul eléctrico suave */
   --hover-foreground: #000000; /* texto más fuerte en hover */
+  --table-background: rgb(186, 186, 186);
+  --table-bg-2: var(--background);
 }
 
 /* 🌙 Tema oscuro cuando html tiene clase .dark */
 .dark {
-  --background: #0a0a0a;
+  --background: #1f2937;
   --foreground: #ededed;
   --color-background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
   --color-foreground: var(--foreground);
   --menu-hover-bg: rgba(61, 217, 235, 0.25); /* más fuerte en dark mode */
   --hover-foreground: #ffffff;
+  --table-background: #3C3F44;
+  --table-bg-2: #31313195;
 }
 
 body {

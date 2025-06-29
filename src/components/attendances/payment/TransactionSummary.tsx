@@ -1,4 +1,5 @@
 import MoneyField from "@/components/attendances/payment/MoneyField";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface TransactionSummaryProps {
   discount: number;
@@ -21,6 +22,8 @@ const TransactionSummary = ({
   onPaymentTypeChange,
   date,
 }: TransactionSummaryProps) => {
+  const { theme } = useTheme();
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -32,7 +35,7 @@ const TransactionSummary = ({
             max={total}
             value={discount}
             onChange={(e) => onDiscountChange(Number(e.target.value))}
-            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded px-3 py-2"
+            className={`${ theme === 'dark' ? "border-gray-600 bg-gray-700" : "border-gray-300 bg-gray-100"} w-full border rounded px-3 py-2`}
           />
         </div>
         <MoneyField label="Monto Total" value={total} />
@@ -41,7 +44,7 @@ const TransactionSummary = ({
           <input
             type="text"
             readOnly
-            className="w-full bg-gray-100 dark:bg-gray-700 rounded px-3 py-2"
+            className={`${theme === 'dark' ? "bg-gray-700" : "bg-gray-100"} w-full rounded px-3 py-2`}
             value={date}
           />
         </div>
@@ -53,7 +56,7 @@ const TransactionSummary = ({
           <select
             value={paymentType}
             onChange={(e) => onPaymentTypeChange(e.target.value)}
-            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded px-3 py-2"
+            className={`${theme === 'dark' ? "bg-gray-700 border-gray-600 " : "bg-gray-100 border-gray-300"} w-full border rounded px-3 py-2`}
           >
             <option>Efectivo</option>
             <option>Transferencia</option>

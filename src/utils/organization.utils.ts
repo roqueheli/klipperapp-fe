@@ -10,7 +10,7 @@ export const translateStatus = (status: string) => {
     case "pending":
       return "Pendiente";
     case "processing":
-      return "En proceso";
+      return "Procesando";
     case "finished":
       return "Finalizado";
     case "completed":
@@ -61,7 +61,6 @@ export const months = [
   { name: "Noviembre", value: "11" },
   { name: "Diciembre", value: "12" },
 ];
-
 
 export const availableStatuses = [
   { value: "completed", label: "Completado" },

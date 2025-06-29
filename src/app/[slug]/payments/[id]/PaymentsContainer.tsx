@@ -7,6 +7,7 @@ import TransactionActionButtons from "@/components/attendances/payment/Transacti
 import TransactionSummary from "@/components/attendances/payment/TransactionSummary";
 import UnifiedAttendancesList from "@/components/attendances/payment/UnifiedAttendancesList";
 import UnifyPaymentsModal from "@/components/modal/UnifyPaymentsModal";
+import { useTheme } from "@/components/ThemeProvider";
 import { Attendance } from "@/types/attendance";
 import { Organization } from "@/types/organization";
 import { Service } from "@/types/service";
@@ -67,6 +68,7 @@ const PaymentsContainer = ({
   setDiscount,
   handleUpdateAttendance,
 }: Props) => {
+  const { theme } = useTheme();
   const [filteredServices, setFilteredServices] = useState(availableServices);
 
   useEffect(() => {
@@ -101,7 +103,7 @@ const PaymentsContainer = ({
 
   return (
     <div className="w-full mx-auto p-4">
-      <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-lg rounded-md p-6">
+      <div className={`${theme === 'dark' ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900 border border-gray-300"} shadow-lg rounded-md p-6`}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold">Detalle de la transacción</h2>
           <button

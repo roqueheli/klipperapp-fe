@@ -10,6 +10,7 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import PhoneStep from "@/components/attendances/wizard/PhoneStep";
 import SelectionStep from "@/components/attendances/wizard/SelectionStep";
 
+import { useTheme } from "@/components/ThemeProvider";
 import { Organization } from "@/types/organization";
 import { Profile, ProfileByNumberResponse } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
@@ -31,6 +32,7 @@ const AttendanceWizard = ({
   user,
   onClose,
 }: AttendanceWizardProps) => {
+  const { theme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const isUserListsRoute = pathname === `/${slug}/users/lists`;
@@ -179,7 +181,7 @@ const AttendanceWizard = ({
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
+    <div className={`${theme === 'dark' ? "bg-gray-800" : "bg-gray-200"} min-h-screen mx-auto p-6 rounded-lg shadow-md`}>
       {step === 1 ? (
         <PhoneStep
           phone={phone}

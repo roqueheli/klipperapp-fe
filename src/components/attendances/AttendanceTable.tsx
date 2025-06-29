@@ -1,10 +1,12 @@
 import { Attendance } from "@/types/attendance";
 import { useMemo, useState } from "react";
+import { useTheme } from "../ThemeProvider";
 
 const ITEMS_PER_PAGE = 7;
 
 const getStatusStyle = (status: string) => {
-  const base = "w-[40%] sm:w-[60%] xs:w-[70%] text-center px-3 py-1 rounded-full text-xs font-semibold capitalize inline-block";
+  const base =
+    "w-[40%] sm:w-[60%] xs:w-[70%] text-center px-3 py-1 rounded-full text-xs font-semibold capitalize inline-block";
 
   switch (status) {
     case "pending":
@@ -38,6 +40,7 @@ const AttendanceTable = ({
   onPay,
   onDetail,
 }: Props) => {
+  const { theme } = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
 
   const paginated = useMemo(() => {
@@ -49,11 +52,11 @@ const AttendanceTable = ({
 
   return (
     <div className="my-10 mb-8">
-      <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
 
-      <div className="overflow-x-auto shadow-md border rounded-lg dark:border-gray-700 bg-white dark:bg-gray-900">
+      <div className="overflow-x-auto shadow-md border rounded-lg dark:border-gray-700">
         <table className="min-w-full text-sm text-left">
-          <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
+          <thead className="">
             <tr>
               <th className="px-4 py-3 w-20">Código</th>
               <th className="px-4 py-3 w-60">Cliente</th>
@@ -67,7 +70,7 @@ const AttendanceTable = ({
             {paginated.map((a) => (
               <tr
                 key={a.id}
-                className="border-t hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                className={`border-t ${theme === 'dark' ? "hover:bg-gray-500" : "hover:bg-gray-300"} transition`}
               >
                 <td className="px-4 py-3">{a.id || "0"}</td>
                 <td className="px-4 py-3">{a.profile?.name || "-"}</td>

@@ -129,16 +129,16 @@ const FilterPanel = ({
     : users;
 
   const inputStyle =
-    "w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
+    "w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   return (
-    <div className="w-[98%] border border-gray-200 dark:border-gray-800 rounded-t-xl bg-gray-100 dark:bg-gray-900 shadow-md">
+    <div className="w-[98%] border border-gray-200 dark:border-gray-700 rounded-t-xl shadow-md">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-200 dark:hover:bg-gray-800 transition rounded-t-xl"
       >
-        <span className="flex items-center gap-2 text-gray-800 dark:text-gray-100 font-semibold">
+        <span className="flex items-center gap-2 font-semibold">
           <Filter size={18} />
           Filtros
         </span>
@@ -152,7 +152,7 @@ const FilterPanel = ({
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <h3 className="text-gray-700 dark:text-gray-200 font-semibold mb-2">
+            <h3 className="font-semibold mb-2">
               Filtrar por fecha
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -199,7 +199,7 @@ const FilterPanel = ({
           </div>
 
           <div>
-            <h3 className="text-gray-700 dark:text-gray-200 font-semibold mb-2">
+            <h3 className="font-semibold mb-2">
               Filtrar por ubicación
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -249,7 +249,7 @@ const FilterPanel = ({
           </div>
 
           <div>
-            <h3 className="text-gray-700 dark:text-gray-200 font-semibold mb-2">
+            <h3 className="font-semibold mb-2">
               Ordenar resultados
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
