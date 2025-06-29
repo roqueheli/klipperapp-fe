@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const { email, password } = await LoginScheme.validate(await request.json());
 
     try {
-        const expiresInSeconds = (Number(process.env.NEXT_AUTH_TOKEN_EXP || 8 * 60 * 60) * 1000);
+        const expiresInSeconds = ((Number(process.env.NEXT_AUTH_TOKEN_EXP) || 8 * 60 * 60) * 1000);
         const cookieName = process.env.AUTH_TOKEN_SECRET || "auth_token";
         const isProd = process.env.NODE_ENV === "production";
         const loginResponse = await authAPI.login(email, password);
