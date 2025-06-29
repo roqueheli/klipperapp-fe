@@ -6,7 +6,7 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import { UserResponse } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Sidebar from "./Sidebar";
 
 export default function SidebarContainer({ token }: { token?: string }) {
@@ -16,7 +16,12 @@ export default function SidebarContainer({ token }: { token?: string }) {
   const { userData } = useUser();
   const [isEmpty, setIsEmpty] = useState(false);
 
+  const readyToFetch = useMemo(() => {
+    return !!data?.id && !!userData?.branch_id;
+  }, [data?.id, userData?.branch_id]);
+
   useEffect(() => {
+    if (!readyToFetch) return;
     const fetchData = async () => {
       const usersParams = new URLSearchParams();
       const agentRole = await getRoleByName("agent");
@@ -42,7 +47,7 @@ export default function SidebarContainer({ token }: { token?: string }) {
     };
 
     fetchData();
-  }, [data?.id, userData?.branch_id]);
+  }, [readyToFetch]);
 
   if (isLoginPage) return null;
 
