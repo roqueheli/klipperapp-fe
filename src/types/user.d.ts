@@ -17,6 +17,7 @@ export interface User {
     skills?: Array[string];
     premium?: boolean;
     branch_id?: number;
+    password_status?: boolean;
 }
 
 export interface UserResponse {

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         const isProd = process.env.NODE_ENV === "production";
         const loginResponse = await authAPI.login(email, password);
 
-        const response = NextResponse.json({ status: 200, toke: loginResponse.token });
+        const response = NextResponse.json({ status: 200, token: loginResponse.token });
 
         response.cookies.set({
             name: cookieName,

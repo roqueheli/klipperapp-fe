@@ -3,8 +3,8 @@ import httpInternalApi from "./lib/common/http.internal.service";
 import { Organization } from "./types/organization";
 import { isValidOrganization } from "./utils/organization.utils";
 
-const protectedRoutes = ["dashboard", "users", "profiles", "attendances", "services", "transactions", "expenses", "management", "payments"];
-const publicRoutes = ["login", "register"];
+const protectedRoutes = ["dashboard", "users", "profiles", "attendances", "services", "transactions", "expenses", "management", "payments", "change-password"];
+const publicRoutes = ["login", "register", "forgot-password"];
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
@@ -25,6 +25,14 @@ export async function middleware(request: NextRequest) {
     const section = match[2]; // Puede ser undefined
 
     const isAuthRoute = pathname.startsWith(`/${slug}/auth`);
+    
+    const needsAuth =
+        pathname === `/${slug}/auth/change-password` ||
+        (!token && section && protectedRoutes.includes(section));
+
+    if (!token && needsAuth) {
+        return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
+    }
 
     if ((!token && pathname === `/${slug}`) || (!token && section && protectedRoutes.includes(section))) {
         return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));

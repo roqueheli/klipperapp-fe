@@ -1,6 +1,7 @@
 "use client";
 
 import SettingsSection from "@/components/settings/SettingsSection";
+import { useTheme } from "@/components/ThemeProvider";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
@@ -10,6 +11,8 @@ import { Role, RoleResponse } from "@/types/role";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
+import { KeyRound } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import BranchSettingsList from "./BranchSettingsList";
 import OrganizationSettings from "./OrganizationSettings";
@@ -17,7 +20,8 @@ import ServiceSettingsList from "./ServiceSettingsList";
 import UserSettingsList from "./UserSettingsList";
 
 const SettingsPage = () => {
-  const { data } = useOrganization();
+  const { theme } = useTheme();
+  const { data, slug } = useOrganization();
   const { userData } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -25,6 +29,15 @@ const SettingsPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const containerBg =
+    theme === "dark"
+      ? "bg-[#111827] hover:bg-gray-300/10"
+      : "bg-gray-300 hover:bg-[#111827] hover:text-white";
+  const borderColor = theme === "dark" ? "border-gray-700" : "border-gray-300";
+  const shadow =
+    theme === "dark"
+      ? "shadow-[0_0_12px_rgba(61,217,235,0.2)]"
+      : "shadow-[0_4px_12px_rgba(61,217,235,0.1)]";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,46 +92,57 @@ const SettingsPage = () => {
 
     fetchData();
   }, [data?.id]);
-  
+
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen w-full py-4 max-w-5xl mx-auto">
-      <h1 className="w-full flex items-center text-3xl font-bold justify-start mb-6">
-        ⚙️ Configuraciones
-      </h1>
+    <div className="min-h-screen w-full flex flex-col items-center">
+      <div className="w-full py-4 max-w-5xl mx-auto">
+        <h1 className="w-full flex items-center text-3xl font-bold justify-start mb-6">
+          ⚙️ Configuraciones
+        </h1>
 
-      {isAdmin && (
-        <>
-          <SettingsSection title="Configuración de la Organización">
-            <OrganizationSettings />
-          </SettingsSection>
+        {isAdmin && (
+          <>
+            <SettingsSection title="Configuración de la Organización">
+              <OrganizationSettings />
+            </SettingsSection>
 
-          <SettingsSection title="Configuración de Sucursales">
-            <BranchSettingsList
-              initialBranches={branches || []}
-              organization_id={data?.id || 0}
-            />
-          </SettingsSection>
+            <SettingsSection title="Configuración de Sucursales">
+              <BranchSettingsList
+                initialBranches={branches || []}
+                organization_id={data?.id || 0}
+              />
+            </SettingsSection>
 
-          <SettingsSection title="Configuración Servicios">
-            <ServiceSettingsList
-              initialServices={services || []}
-              organization_id={data?.id || 0}
-            />
-          </SettingsSection>
-        </>
-      )}
+            <SettingsSection title="Configuración Servicios">
+              <ServiceSettingsList
+                initialServices={services || []}
+                organization_id={data?.id || 0}
+              />
+            </SettingsSection>
+          </>
+        )}
 
-      <SettingsSection title="Configuración de Usuarios">
-        <UserSettingsList
-          initialUsers={users || []}
-          branches={branches || []}
-          roles={roles || []}
-          organization_id={data?.id || 0}
-          isAdmin={isAdmin}
-        />
-      </SettingsSection>
+        <SettingsSection title="Configuración de Usuarios">
+          <UserSettingsList
+            initialUsers={users || []}
+            branches={branches || []}
+            roles={roles || []}
+            organization_id={data?.id || 0}
+            isAdmin={isAdmin}
+          />
+        </SettingsSection>
+      </div>
+      <div className="w-full max-w-5xl mx-auto flex justify-end px-2 mt-8 mb-6">
+        <Link
+          href={`/${slug}/auth/change-password`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition sm:px-3 sm:py-2 sm:text-sm ${borderColor} ${containerBg} ${shadow}`}
+        >
+          <KeyRound className="w-5 h-5" />
+          <span className="hidden sm:inline">Cambiar contraseña</span>
+        </Link>
+      </div>
     </div>
   );
 };

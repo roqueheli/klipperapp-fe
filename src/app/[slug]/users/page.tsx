@@ -11,8 +11,6 @@ const UsersPage = () => {
   const { theme } = useTheme();
   const filteredMenus = useFilteredMenusFromOrganization();
 
-  console.log(theme);
-
   if (!filteredMenus || filteredMenus.length === 0) {
     return <LoadingSpinner />;
   }

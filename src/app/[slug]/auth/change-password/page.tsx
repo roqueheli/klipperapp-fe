@@ -1,10 +1,10 @@
 "use client";
 
-import ForgotForm from "@/components/auth/forgot/ForgotForm";
+import ChangeForm from "@/components/auth/change/ChangeForm";
 import { useTheme } from "@/components/ThemeProvider";
 import { useOrganization } from "@/contexts/OrganizationContext";
 
-const ForgotPasswordPage = () => {
+const ChangePasswordPage = () => {
   const { data } = useOrganization();
   const { theme } = useTheme();
 
@@ -26,10 +26,10 @@ const ForgotPasswordPage = () => {
         <h1 className="w-full text-center text-2xl md:text-3xl font-bold text-electric-blue mb-4 md:mb-6">
           {data?.name || "Klipper"}
         </h1>
-        <ForgotForm />
+        <ChangeForm />
       </div>
     </div>
   );
 };
 
-export default ForgotPasswordPage;
+export default ChangePasswordPage;
