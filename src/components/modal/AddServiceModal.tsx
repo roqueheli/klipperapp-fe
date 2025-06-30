@@ -69,7 +69,7 @@ export default function AddServiceModal({
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center px-4 ${theme === 'dark' ? "bg-black/60" : "bg-black/30"} backdrop-blur`}>
-      <div className={`w-full max-w-3xl relative p-6 rounded-2xl shadow-xl ${theme === 'dark' ? "bg-gradient-to-br from-[#131b2c] via-[#1b2436] to-[#1e2b40]" : "bg-gray-200"}`}>
+      <div className={`w-full max-w-3xl relative p-6 rounded-2xl shadow-xl ${theme === 'dark' ? "bg-gradient-to-br from-[#131b2c] via-[#1b2436] to-[#1e2b40]" : "bg-gray-200"} max-h-[90vh] overflow-y-auto`}>
         <button
           onClick={onClose}
           aria-label="Cerrar modal"
