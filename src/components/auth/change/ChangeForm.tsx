@@ -1,7 +1,6 @@
 "use client";
 
 import { useTheme } from "@/components/ThemeProvider";
-import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import { AccesDeniedError } from "@/lib/common/http.errors";
 import httpInternalApi from "@/lib/common/http.internal.service";
@@ -15,7 +14,6 @@ import SubmitButton from "../../form/SubmitButton";
 
 const ChangeForm = () => {
   const { theme } = useTheme();
-  const { slug } = useOrganization();
   const { userData } = useUser();
   const methods = useForm<ChangeFormData>({
     resolver: yupResolver(ChangeScheme),

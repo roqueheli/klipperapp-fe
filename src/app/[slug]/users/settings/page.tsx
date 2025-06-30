@@ -91,7 +91,7 @@ const SettingsPage = () => {
     };
 
     fetchData();
-  }, [data?.id, userData?.branch_id, userData?.id]);
+  }, [data?.id, userData?.branch_id, userData?.id, userData?.role?.id]);
 
   if (isLoading) return <LoadingSpinner />;
 
