@@ -37,7 +37,7 @@ const UsersPage = () => {
               alt={`Imagen de ${data.name}`}
               width={800}
               height={500}
-              className="w-full h-130 object-cover"
+              className="w-full h-auto max-h-[500px] object-cover"
               priority
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
             />

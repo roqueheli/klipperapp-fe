@@ -234,23 +234,32 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         </button>
 
         {/* Avatar e Logout */}
-        <div className="flex items-center gap-3 px-2 py-2">
+        <div className="flex flex-col md:flex-row items-center gap-3 px-2 py-2 w-full">
           <div
-            className="w-13 h-10 flex items-center justify-center rounded-full text-white font-bold"
-            style={{ backgroundColor: "var(--cyber-gray, #555)" }}
+            className={`${theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-200 text-black"} md:w-12 md:h-12 w-8 h-8 flex items-center justify-center rounded-full text-sm md:text-lg font-bold shrink-0`}
           >
             {initials}
           </div>
 
+          {/* Botón con texto para pantallas medianas en adelante */}
           <button
             onClick={handleLogout}
-            className={`text-sm px-2 py-2 rounded transition-colors w-full flex items-center justify-center ${
+            className={`hidden md:flex items-center justify-center text-sm px-3 py-2 rounded transition-colors ${
               theme === "dark"
                 ? "text-white bg-red-600 hover:text-red-600 hover:bg-gray-700 hover:border hover:border-red-600"
                 : "text-red-600 hover:text-white hover:bg-red-600 border border-red-400"
             }`}
           >
-            {isOpen ? "Cerrar sesión" : <LogOut className="h-5 w-5" />}
+            Cerrar sesión
+          </button>
+
+          {/* Ícono solo visible en pantallas pequeñas */}
+          <button
+            onClick={handleLogout}
+            className="md:hidden p-2 text-red-600 hover:text-white hover:bg-red-600 rounded-full transition"
+            title="Cerrar sesión"
+          >
+            <LogOut className="h-5 w-5" />
           </button>
         </div>
       </div>
