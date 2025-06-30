@@ -1,13 +1,15 @@
 import authAPI from "@/lib/auth/auth.service";
 import { AccesDeniedError } from "@/lib/common/http.errors";
-import ForgotScheme from "@/schemes/forgot.scheme";
+import { getToken } from "@/lib/utils/auth.utils";
+import ChangeScheme from "@/schemes/change.scheme";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(request: NextRequest) {
-    const body = await ForgotScheme.validate(await request.json());
+    const token = await getToken();
+    const body = await ChangeScheme.validate(await request.json());
 
     try {
-        const changeResponse = await authAPI.update_password(body);
+        const changeResponse = await authAPI.update_password(body, token || '');
 
         return NextResponse.json(changeResponse);
     } catch (error) {
