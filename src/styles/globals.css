@@ -30,7 +30,7 @@
   --color-foreground: var(--foreground);
   --menu-hover-bg: rgba(61, 217, 235, 0.25); /* más fuerte en dark mode */
   --hover-foreground: #ffffff;
-  --table-background: #3C3F44;
+  --table-background: #3c3f44;
   --table-bg-2: #31313195;
 }
 
@@ -52,4 +52,30 @@ body {
 
 button {
   cursor: pointer;
+}
+
+/* Scrollbar para Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(61, 217, 235, 0.5); /* electric blue */
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(61, 217, 235, 0.7);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(61, 217, 235, 0.5) transparent;
 }
