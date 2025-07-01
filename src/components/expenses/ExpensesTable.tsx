@@ -4,6 +4,7 @@ import { Expenses } from "@/types/expenses";
 import { User, UserResponse } from "@/types/user";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import PaginationControls from "../ui/PaginationControls";
 
 interface ExpensesTableProps {
   expenses: Expenses[];
@@ -206,25 +207,11 @@ const ExpensesTable = ({
       )}
 
       {totalPages > 1 && (
-        <div className="flex justify-end items-center gap-2 text-sm mt-2">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 rounded border dark:border-gray-600 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
-          >
-            ← Anterior
-          </button>
-          <span className="text-gray-700 dark:text-gray-300">
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded border dark:border-gray-600 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
-          >
-            Siguiente →
-          </button>
-        </div>
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       )}
     </div>
   );

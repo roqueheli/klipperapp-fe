@@ -1,6 +1,9 @@
+"use client";
+
 import { Attendance } from "@/types/attendance";
 import { useMemo, useState } from "react";
 import { useTheme } from "../ThemeProvider";
+import PaginationControls from "../ui/PaginationControls";
 
 const ITEMS_PER_PAGE = 7;
 
@@ -43,12 +46,12 @@ const AttendanceTable = ({
   const { theme } = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
 
+  const totalPages = Math.ceil(attendances.length / ITEMS_PER_PAGE);
+
   const paginated = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return attendances.slice(start, start + ITEMS_PER_PAGE);
   }, [attendances, currentPage]);
-
-  const totalPages = Math.ceil(attendances.length / ITEMS_PER_PAGE);
 
   return (
     <div className="my-10 mb-8">
@@ -56,7 +59,7 @@ const AttendanceTable = ({
 
       <div className="overflow-x-auto shadow-md border rounded-lg dark:border-gray-700">
         <table className="min-w-full text-sm text-left">
-          <thead className="">
+          <thead>
             <tr>
               <th className="px-4 py-3 w-20">Código</th>
               <th className="px-4 py-3 w-60">Cliente</th>
@@ -70,7 +73,9 @@ const AttendanceTable = ({
             {paginated.map((a) => (
               <tr
                 key={a.id}
-                className={`border-t ${theme === 'dark' ? "hover:bg-gray-500" : "hover:bg-gray-300"} transition`}
+                className={`border-t ${
+                  theme === "dark" ? "hover:bg-gray-500" : "hover:bg-gray-300"
+                } transition`}
               >
                 <td className="px-4 py-3">{a.id || "0"}</td>
                 <td className="px-4 py-3">{a.profile?.name || "-"}</td>
@@ -115,29 +120,13 @@ const AttendanceTable = ({
         </table>
       </div>
 
-      {/* Paginación */}
+      {/* Paginación usando el componente */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700"
-          >
-            ⬅ Anterior
-          </button>
-          <span className="text-sm">
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700"
-          >
-            Siguiente ➡
-          </button>
-        </div>
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       )}
     </div>
   );
