@@ -65,8 +65,7 @@ const PaymentsManagementPage = () => {
 
         setBranches(branchesRes.branches);
         setUsers(usersRes.users);
-      } catch (error) {
-        console.error("Error inicializando datos:", error);
+      } catch {
       }
     };
 
@@ -99,8 +98,7 @@ const PaymentsManagementPage = () => {
         await httpInternalApi.httpGetPublic("/management", params);
       setPayments(payments);
       setLoading(false);
-    } catch (error) {
-      console.error("Error fetching payments data:", error);
+    } catch {
     }
   };
 
@@ -141,8 +139,7 @@ const PaymentsManagementPage = () => {
       if (searchFilters) {
         await handleSearch(searchFilters);
       }
-    } catch (error) {
-      console.error("Error in start process:", error);
+    } catch {
     }
   };
 
@@ -162,8 +159,7 @@ const PaymentsManagementPage = () => {
       if (searchFilters) {
         await handleSearch(searchFilters);
       }
-    } catch (error) {
-      console.error("Error in approve process:", error);
+    } catch {
     }
   };
 
@@ -183,8 +179,7 @@ const PaymentsManagementPage = () => {
       if (searchFilters) {
         await handleSearch(searchFilters);
       }
-    } catch (error) {
-      console.error("Error in reject process:", error);
+    } catch {
     }
   };
 

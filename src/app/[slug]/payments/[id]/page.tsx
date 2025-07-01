@@ -43,8 +43,6 @@ const PaymentsPage = () => {
         )) as Attendances;
         setAttendance(response?.attendances[0]);
         setSelectedServices(response?.attendances[0].services || []);
-      } catch (error) {
-        console.error("Error al cargar asistencia:", error);
       } finally {
         setIsLoading(false);
       }
@@ -56,9 +54,7 @@ const PaymentsPage = () => {
           "/services"
         )) as ServicesResponse;
         setAvailableServices(response.services);
-      } catch (error) {
-        console.error("Error al cargar servicios:", error);
-      }
+      } catch {}
     };
 
     fetchAttendance();
@@ -133,8 +129,7 @@ const PaymentsPage = () => {
 
       toast.success("Asistencias finalizadas correctamente.");
       router.push(`/${slug}/transactions`);
-    } catch (error) {
-      console.error("Error al finalizar asistencias:", error);
+    } catch {
       toast.error("Ocurrió un error al finalizar una o más asistencias.");
     }
   };

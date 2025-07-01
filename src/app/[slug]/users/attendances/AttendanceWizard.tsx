@@ -72,9 +72,7 @@ const AttendanceWizard = ({
           setStep(2);
           localStorage.removeItem("attendanceInfo");
           localStorage.removeItem("userAttendance");
-        } catch (e) {
-          console.error("Error parsing stored attendance data", e);
-        }
+        } catch {}
       }
 
       // 2. Cargar servicios y usuarios
@@ -98,8 +96,6 @@ const AttendanceWizard = ({
         ]);
         setServices(servicesRes as ServiceResponse);
         setUsers(usersRes as UserResponse);
-      } catch (error) {
-        console.error("Error al cargar servicios y usuarios:", error);
       } finally {
         setIsLoading(false);
       }
@@ -135,8 +131,8 @@ const AttendanceWizard = ({
         localStorage.setItem("pendingPhone", phone);
         router.push(`/${slug}/profiles/register`);
       }
-    } catch (error) {
-      console.error("Phone validation error:", error);
+    } catch {
+      console.error("Phone validation error:");
     }
   };
 
@@ -173,15 +169,19 @@ const AttendanceWizard = ({
       if (pathname !== targetPath) {
         router.push(targetPath);
       }
-    } catch (error) {
-      console.error("Error en la creación de atención:", error);
+    } catch {
+      console.error("Error en la creación de atención:");
     }
   };
 
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className={`${theme === 'dark' ? "bg-gray-800" : "bg-gray-200"} min-h-screen mx-auto p-6 rounded-lg shadow-md`}>
+    <div
+      className={`${
+        theme === "dark" ? "bg-gray-800" : "bg-gray-200"
+      } min-h-screen mx-auto p-6 rounded-lg shadow-md`}
+    >
       {step === 1 ? (
         <PhoneStep
           phone={phone}
