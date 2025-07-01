@@ -249,8 +249,8 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
             <Image
               src={userData.photo_url}
               alt="User Avatar"
-              width={isOpen ? 48 : 32} // w-12 : w-8
-              height={isOpen ? 48 : 32} // h-12 : h-8
+              width={isOpen ? 45 : 40} // w-12 : w-8
+              height={isOpen ? 45 : 40} // h-12 : h-8
               className="rounded-full object-cover shrink-0"
             />
           ) : (
