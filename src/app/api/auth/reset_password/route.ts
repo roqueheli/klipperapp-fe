@@ -4,12 +4,11 @@ import { getToken } from "@/lib/utils/auth.utils";
 import ForgotScheme from "@/schemes/forgot.scheme";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(request: NextRequest) {
-    const token = await getToken();
+export async function POST(request: NextRequest) {
     const body = await ForgotScheme.validate(await request.json());
 
     try {
-        const resetResponse = await authAPI.reset_password(body.email, token || '');
+        const resetResponse = await authAPI.reset_password(body.email);
 
         return NextResponse.json(resetResponse);
     } catch (error) {

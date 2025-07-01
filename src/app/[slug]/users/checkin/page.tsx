@@ -143,7 +143,6 @@ const CheckinPage = () => {
             requestBody
           );
           results.push({ status: "fulfilled", user: u });
-          window.location.href = `/${slug}/users/lists`;
         } catch (error) {
           results.push({ status: "rejected", user: u, error });
         }
@@ -157,6 +156,7 @@ const CheckinPage = () => {
         toast.success("Todos los check-ins completados.");
       }
 
+      window.location.href = `/${slug}/users/lists`;
       return results;
     } catch (error) {
       toast.error("Ocurrió un error al procesar los check-ins.");

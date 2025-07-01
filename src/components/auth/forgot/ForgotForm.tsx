@@ -27,7 +27,7 @@ const ForgotForm = () => {
 
     await toast
       .promise(
-        httpInternalApi.httpPostPublic("/auth/reset_password", "PATCH", {
+        httpInternalApi.httpPostPublic("/auth/reset_password", "POST", {
           email,
         }),
         {
