@@ -8,18 +8,25 @@ export async function POST(request: NextRequest) {
 
     try {
         const expiresInSeconds = ((Number(process.env.NEXT_AUTH_TOKEN_EXP) || 8 * 60 * 60) * 1000);
-        const cookieName = process.env.AUTH_TOKEN_SECRET || "auth_token";
+        const cookieName = "auth_token";
         const isProd = process.env.NODE_ENV === "production";
         const loginResponse = await authAPI.login(email, password);
 
-        const response = NextResponse.json({ status: 200, token: loginResponse.token });
+        const pathname = request.nextUrl.pathname;
+        const match = pathname.match(/^\/([^\/]+)/);
+        const slug = match?.[1] || "";
+
+        const redirectTo = request.nextUrl.searchParams.get("redirect");
+        const redirectUrl = redirectTo ? `/${slug}${redirectTo}` : `/${slug}/users`;
+
+        const response = NextResponse.redirect(new URL(redirectUrl, request.url));
 
         response.cookies.set({
             name: cookieName,
             value: loginResponse.token,
             httpOnly: true,
             sameSite: isProd ? "none" : "lax",
-            secure: isProd, // Safari bloquea secure en localhost
+            secure: isProd,
             path: "/",
             maxAge: expiresInSeconds,
         });

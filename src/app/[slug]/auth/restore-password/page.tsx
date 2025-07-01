@@ -1,26 +1,12 @@
 "use client";
 
-import LoginForm from "@/components/auth/login/LoginForm";
+import RestoreForm from "@/components/auth/restore/RestoreForm";
 import { useTheme } from "@/components/ThemeProvider";
 import { useOrganization } from "@/contexts/OrganizationContext";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import toast from "react-hot-toast";
 
-const LoginPage = () => {
+const RestorePasswordPage = () => {
   const { data } = useOrganization();
   const { theme } = useTheme();
-  const searchParams = useSearchParams();
-  const isLogout = searchParams.get("logout") === "1";
-
-  useEffect(() => {
-    if (isLogout) {
-      toast.success("Sesión cerrada por seguridad.");
-      const url = new URL(window.location.href);
-      url.searchParams.delete("logout");
-      window.history.replaceState(null, "", url.toString());
-    }
-  }, [isLogout]);
 
   return (
     <div
@@ -40,10 +26,10 @@ const LoginPage = () => {
         <h1 className="w-full text-center text-2xl md:text-3xl font-bold text-electric-blue mb-4 md:mb-6">
           {data?.name || "Klipper"}
         </h1>
-        <LoginForm />
+        <RestoreForm />
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default RestorePasswordPage;

@@ -8,6 +8,7 @@ import ForgotScheme from "@/schemes/forgot.scheme";
 import { ForgotFormData } from "@/types/auth.d";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import InputField from "../../form/InputField";
@@ -19,6 +20,7 @@ const ForgotForm = () => {
   const methods = useForm<ForgotFormData>({
     resolver: yupResolver(ForgotScheme),
   });
+  const router = useRouter();
 
   const { handleSubmit } = methods;
 
@@ -36,6 +38,9 @@ const ForgotForm = () => {
           error: "Failed to reset password.",
         }
       )
+      .then(() => {
+        router.push(`/${slug}/auth/restore-password`);
+      })
       .catch((error) => {
         if (error instanceof AccesDeniedError) {
           toast.error("Access Denied");

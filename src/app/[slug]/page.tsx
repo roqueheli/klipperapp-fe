@@ -1,14 +1,12 @@
 "use client";
 
 import { useOrganization } from "@/contexts/OrganizationContext";
-import { useUser } from "@/contexts/UserContext";
 import { isValidOrganization } from "@/utils/organization.utils";
 import { Sparkles } from "lucide-react";
 import { redirect } from "next/navigation";
 
 const OrganizationPage = () => {
   const { slug, data } = useOrganization();
-  const { userData } = useUser();
 
   if (!isValidOrganization(data)) {
     return (
@@ -35,14 +33,6 @@ const OrganizationPage = () => {
         </div>
       </main>
     );
-  }
-
-  if (!userData?.active) {
-    return redirect(`/${slug}/auth/login`);
-  }
-
-  if (!userData.password_status === false) {
-    return redirect(`/${slug}/auth/change-password`);
   }
 
   return redirect(`/${slug}/users`);

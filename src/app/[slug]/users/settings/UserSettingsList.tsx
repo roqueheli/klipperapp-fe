@@ -194,8 +194,12 @@ export default function UserSettingsList({
           }}
           className="w-full border rounded px-3 py-2 text-sm bg-[var(--background)] text-[var(--foreground)] dark:bg-[var(--dark-background)] dark:text-[var(--dark-foreground)] dark:border-[var(--dark-border)]"
         >
-          <option value="all">Todas las sucursales</option>
-          {branches.map((branch) => (
+          {isAdmin && <option value="all">Todas las sucursales</option>}
+          {/* Mostrar solo la branch del usuario si no es admin */}
+          {(isAdmin
+            ? branches
+            : branches.filter((b) => b.id === initialUsers[0]?.branch_id)
+          ).map((branch) => (
             <option key={branch.id} value={branch.id}>
               {branch.name}
             </option>
@@ -227,28 +231,30 @@ export default function UserSettingsList({
 
       <div className="flex flex-col sm:flex-row items-center justify-end mt-6 gap-3 sm:gap-0">
         <div className="relative">
-          <button
-            onClick={handleAddUser}
-            onMouseEnter={() => {
-              if (branches.length > 1 && branchFilter === "all") {
-                setShowTooltip(true);
-              }
-            }}
-            onMouseLeave={() => setShowTooltip(false)}
-            onTouchStart={() => {
-              if (branches.length > 1 && branchFilter === "all") {
-                setShowTooltip(true);
-              }
-            }}
-            className={`py-2 px-4 rounded-xl font-semibold shadow transition-all ${
-              branches.length > 1 && branchFilter === "all"
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-800"
-            }`}
-            disabled={branches.length > 1 && branchFilter === "all"}
-          >
-            + Nuevo Usuario
-          </button>
+          {isAdmin && (
+            <button
+              onClick={handleAddUser}
+              onMouseEnter={() => {
+                if (branches.length > 1 && branchFilter === "all") {
+                  setShowTooltip(true);
+                }
+              }}
+              onMouseLeave={() => setShowTooltip(false)}
+              onTouchStart={() => {
+                if (branches.length > 1 && branchFilter === "all") {
+                  setShowTooltip(true);
+                }
+              }}
+              className={`py-2 px-4 rounded-xl font-semibold shadow transition-all ${
+                branches.length > 1 && branchFilter === "all"
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+              }`}
+              disabled={branches.length > 1 && branchFilter === "all"}
+            >
+              + Nuevo Usuario
+            </button>
+          )}
 
           {showTooltip && branches.length > 1 && branchFilter === "all" && (
             <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max z-10">

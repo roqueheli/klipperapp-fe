@@ -245,17 +245,27 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
             isOpen ? "flex-row" : "flex-col justify-center"
           )}
         >
-          <div
-            className={clsx(
-              "flex items-center justify-center font-bold rounded-full shrink-0",
-              theme === "dark"
-                ? "bg-gray-700 text-white"
-                : "bg-gray-200 text-black",
-              isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
-            )}
-          >
-            {initials}
-          </div>
+          {userData?.photo_url ? (
+            <Image
+              src={userData.photo_url}
+              alt="User Avatar"
+              width={isOpen ? 48 : 32} // w-12 : w-8
+              height={isOpen ? 48 : 32} // h-12 : h-8
+              className="rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div
+              className={clsx(
+                "flex items-center justify-center font-bold rounded-full shrink-0",
+                theme === "dark"
+                  ? "bg-gray-700 text-white"
+                  : "bg-gray-200 text-black",
+                isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
+              )}
+            >
+              {initials}
+            </div>
+          )}
 
           {isOpen ? (
             <button

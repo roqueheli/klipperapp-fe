@@ -2,50 +2,48 @@
 
 import { useTheme } from "@/components/ThemeProvider";
 import { useOrganization } from "@/contexts/OrganizationContext";
+import { useUser } from "@/contexts/UserContext";
 import { AccesDeniedError } from "@/lib/common/http.errors";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import LoginScheme from "@/schemes/login.scheme";
-import { FormData } from "@/types/auth.d";
+import RestoreScheme from "@/schemes/restore.scheme";
+import { RestoreFormData } from "@/types/auth.d";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import InputField from "../../form/InputField";
 import SubmitButton from "../../form/SubmitButton";
+import { usePathname } from "next/navigation";
 
-const LoginForm = () => {
+const RestoreForm = () => {
   const { theme } = useTheme();
   const { slug } = useOrganization();
-  const methods = useForm<FormData>({
-    resolver: yupResolver(LoginScheme),
+  const { userData } = useUser();
+  const methods = useForm<RestoreFormData>({
+    resolver: yupResolver(RestoreScheme),
   });
-  const searchParams = useSearchParams();
-  const redirectPath = searchParams.get("redirect") || "";
+  const pathname = usePathname();
+  const slugName = pathname?.split("/")[1] || slug;
 
   const { handleSubmit } = methods;
 
-  const onSubmit = async (data: FormData) => {
-    const { email, password } = data;
-
+  const onSubmit = async (data: RestoreFormData) => {
     await toast
       .promise(
-        httpInternalApi.httpPostPublic("/auth/login", "POST", {
-          email,
-          password,
+        httpInternalApi.httpPostPublic("/auth/restore_password", "POST", {
+          email: data.email,
+          code: data.code,
+          new_password: data.new_password,
+          new_password_confirmation: data.new_password_confirmation,
         }),
         {
-          loading: "Logging in...",
-          success: "Login successful!",
-          error: "Failed to log in. Please check your credentials.",
+          loading: "Restoring password...",
+          success: "Password restored successful!",
+          error: "Failed to restore password.",
         }
       )
       .then(() => {
-        sessionStorage.removeItem("attendancesData");
-        sessionStorage.removeItem("attendancesPage");
-        sessionStorage.removeItem("attendancesFilters");
-        sessionStorage.removeItem("attendancesHasSearched");
-        window.location.href = redirectPath || `/${slug}/users`;
+        window.location.href = `/${slugName}/users`;
       })
       .catch((error) => {
         if (error instanceof AccesDeniedError) {
@@ -66,27 +64,52 @@ const LoginForm = () => {
           theme === "dark" ? "text-white" : "text-black"
         }`}
       >
+        {userData?.email ? (
+          <input
+            type="hidden"
+            {...methods.register("email")}
+            value={userData.email}
+          />
+        ) : (
+          <div className="w-[65%] flex items-center justify-center">
+            <InputField
+              type="email"
+              fieldName="email"
+              label="Correo electrónico"
+              placeholder="ejemplo@correo.com"
+            />
+          </div>
+        )}
         <div className="w-[65%] flex items-center justify-center bg-transparent">
           <InputField
-            type="email"
-            fieldName="email"
-            label="Email"
-            placeholder={`jhondoe@${slug}.com`}
+            type="text"
+            fieldName="code"
+            label="Código"
+            placeholder={`X9X99W`}
           />
         </div>
 
         <div className="w-[65%] flex items-center justify-center">
           <InputField
             type="password"
-            fieldName="password"
-            label="Password"
+            fieldName="new_password"
+            label="Nueva contraseña"
             placeholder="********"
           />
         </div>
 
         <div className="w-[65%] flex items-center justify-center">
+          <InputField
+            type="password"
+            fieldName="new_password_confirmation"
+            label="Confirmar contraseña"
+            placeholder="********"
+          />
+        </div>
+
+        <div className="w-[75%] flex items-center justify-center">
           <SubmitButton
-            label="Iniciar sesión"
+            label="Confirmar"
             onSubmit={onSubmit}
             styles={`text-center md:w-[57%] sm:w-full ${
               theme === "dark"
@@ -95,28 +118,17 @@ const LoginForm = () => {
             } bg-gray-300 transition-all font-semibold py-2 px-4 rounded-md mt-2`}
           />
         </div>
-
         <div className="text-sm text-center text-gray-400 w-full">
           <Link
-            href={`/${slug}/auth/forgot-password`}
+            href={`/${slug}/auth/login`}
             className="hover:underline text-electric-blue block w-full text-center"
           >
-            ¿Olvidaste tu contraseña?
+            ¡Iniciar sesión!
           </Link>
         </div>
-
-        {/* <div className="text-sm text-center text-gray-400 w-full">
-      ¿Aún no tienes cuenta?{" "}
-      <a
-        href={`/${slug}/auth/register`}
-        className="hover:underline text-electric-blue"
-      >
-        Regístrate
-      </a>
-    </div> */}
       </form>
     </FormProvider>
   );
 };
 
-export default LoginForm;
+export default RestoreForm;
