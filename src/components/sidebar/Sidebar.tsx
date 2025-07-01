@@ -132,7 +132,7 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
       {/* Toggle */}
       <div className="flex justify-end block xs:hidden">
         <button
-          className="mb-4 dark:text-white hover:text-black dark:hover:text-black transition"
+          className={`mb-4 ${theme === 'dark' ? "text-white hover:text-gray-600" : "text-gray-500 hover:text-black"} transition`}
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? (
