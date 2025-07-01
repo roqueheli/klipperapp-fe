@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
             if (user.email_verified === false) {
                 return NextResponse.redirect(new URL(`/${slug}/auth/restore-password`, request.url));
             }
-        } catch (err) {
+        } catch {
             const logoutUrl = new URL(`/${slug}/auth/login`, request.url);
             logoutUrl.searchParams.set("logout", "1");
             return NextResponse.redirect(logoutUrl);
