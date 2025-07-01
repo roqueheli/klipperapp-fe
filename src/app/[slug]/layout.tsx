@@ -44,8 +44,7 @@ export async function generateMetadata({
         icon: organization.metadata?.media_configs?.favicon ?? "/favicon.ico",
       },
     };
-  } catch (error) {
-    console.error("Error en generateMetadata:", error);
+  } catch {
     return {
       title: "KlipperApp",
       description: "Sistema de gestión para barberías",
@@ -77,16 +76,14 @@ export default async function LayoutWithSlug({
       new URLSearchParams({ slug })
     );
     initialData = response.organization;
-  } catch (error) {
-    console.error("Error al cargar la organización:", error);
+  } catch {
   }
 
   if (auth_token) {
     try {
       const response = await httpInternalApi.httpGet<User>("/auth/me", undefined, auth_token);
       userData = response;
-    } catch (error) {
-      console.error("Error al cargar el usuario:", error);
+    } catch {
     }
   }
 
