@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "@/components/ThemeProvider";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
@@ -16,10 +17,10 @@ import {
 } from "recharts";
 
 export default function DashboardPage() {
+  const { theme } = useTheme();
   const { data } = useOrganization();
   const { userData } = useUser();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
-  // const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,14 +43,9 @@ export default function DashboardPage() {
           "/attendances/today",
           params
         ) as Promise<Attendances>,
-        // httpInternalApi.httpGetPublic(
-        //   "/profiles",
-        //   params
-        // ) as Promise<ProfileDashboardResponse>,
       ]);
 
       setAttendances(attendancesRes.attendances);
-      // setProfiles(profilesRes.profiles);
       setLoading(false);
     };
 
@@ -57,13 +53,13 @@ export default function DashboardPage() {
   }, [data?.id, userData]);
 
   const finishedAttendances = useMemo(
-    () => (attendances ?? []).filter((a) => a.status === "finished"),
+    () => attendances.filter((a) => a.status === "finished"),
     [attendances]
   );
 
   const activeAttendances = useMemo(
     () =>
-      (attendances ?? []).filter((a) =>
+      attendances.filter((a) =>
         ["pending", "processing", "completed"].includes(a.status)
       ),
     [attendances]
@@ -71,16 +67,13 @@ export default function DashboardPage() {
 
   const revenue = useMemo(
     () =>
-      (finishedAttendances ?? []).reduce(
-        (sum, a) => sum + (a.total_amount ?? 0),
-        0
-      ),
+      finishedAttendances.reduce((sum, a) => sum + (a.total_amount ?? 0), 0),
     [finishedAttendances]
   );
 
   const organizationRevenue = useMemo(
     () =>
-      (finishedAttendances ?? []).reduce(
+      finishedAttendances.reduce(
         (sum, a) => sum + (a.organization_amount ?? 0),
         0
       ),
@@ -88,38 +81,25 @@ export default function DashboardPage() {
   );
 
   const userRevenue = useMemo(
-    () =>
-      (finishedAttendances ?? []).reduce(
-        (sum, a) => sum + (a.user_amount ?? 0),
-        0
-      ),
+    () => finishedAttendances.reduce((sum, a) => sum + (a.user_amount ?? 0), 0),
     [finishedAttendances]
   );
 
   const totalDiscount = useMemo(
-    () =>
-      (finishedAttendances ?? []).reduce(
-        (sum, a) => sum + (a.discount ?? 0),
-        0
-      ),
+    () => finishedAttendances.reduce((sum, a) => sum + (a.discount ?? 0), 0),
     [finishedAttendances]
   );
 
   const totalExtraDiscount = useMemo(
     () =>
-      (finishedAttendances ?? []).reduce(
-        (sum, a) => sum + (a.extra_discount ?? 0),
-        0
-      ),
+      finishedAttendances.reduce((sum, a) => sum + (a.extra_discount ?? 0), 0),
     [finishedAttendances]
   );
 
   const perService = useMemo(() => {
     const map: Record<string, number> = {};
-
-    (attendances ?? []).forEach((a) => {
+    attendances.forEach((a) => {
       const services = a.services ?? [];
-
       if (services.length === 0) {
         map["Sin servicio"] = (map["Sin servicio"] || 0) + 1;
       } else {
@@ -128,13 +108,12 @@ export default function DashboardPage() {
         });
       }
     });
-
     return Object.entries(map).map(([name, count]) => ({ name, count }));
   }, [attendances]);
 
   const perUser = useMemo(() => {
     const map: Record<string, number> = {};
-    (attendances ?? []).forEach((a) => {
+    attendances.forEach((a) => {
       const name = a.attended_by_user?.name || "Sin asignar";
       map[name] = (map[name] || 0) + 1;
     });
@@ -143,7 +122,7 @@ export default function DashboardPage() {
 
   const perClient = useMemo(() => {
     const map: Record<string, number> = {};
-    (attendances ?? []).forEach((a) => {
+    attendances.forEach((a) => {
       const name = a.profile?.name || "Desconocido";
       map[name] = (map[name] || 0) + 1;
     });
@@ -152,125 +131,136 @@ export default function DashboardPage() {
 
   if (isLoading) return <LoadingSpinner />;
 
-  return (
-    <div className="w-full flex flex-col justify-center space-y-6 p-6 mx-auto">
-      <h1 className="text-2xl font-bold">
-        📊 Dashboard del día
-      </h1>
+  const containerClass =
+    theme === "dark" ? "text-white bg-gray-900" : "text-black bg-white";
+  const cardBg =
+    theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black";
+  const titleColor = theme === "dark" ? "text-gray-300" : "text-gray-700";
 
-      {/* Resumen de Totales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-black">
-        <div className="bg-white p-4 rounded-2xl shadow-xl">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Total Reservas
-          </h2>
-          <p className="text-2xl font-bold text-blue-500">
-            {attendances?.length || 0}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow-xl">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Reservas Activas
-          </h2>
-          <p className="text-2xl font-bold text-yellow-500">
-            {activeAttendances?.length || 0}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow-xl">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Reservas Finalizadas
-          </h2>
-          <p className="text-2xl font-bold text-green-500">
-            {finishedAttendances?.length || 0}
-          </p>
-        </div>
+  return (
+    <div
+      className={`w-full flex flex-col justify-center space-y-6 p-6 mx-auto ${containerClass}`}
+    >
+      <h1 className="text-2xl font-bold">📊 Dashboard del día</h1>
+
+      {/* Resumen Totales */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card
+          title="Total Reservas"
+          value={attendances.length}
+          color="text-sky-500"
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
+        <Card
+          title="Reservas Activas"
+          value={activeAttendances.length}
+          color="text-yellow-500"
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
+        <Card
+          title="Reservas Finalizadas"
+          value={finishedAttendances.length}
+          color="text-green-500"
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
       </div>
 
-      {/* Montos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-black">
-        <div className="bg-white p-4 rounded-2xl shadow-xl">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Ingresos Totales
-          </h2>
-          <p className="text-2xl font-bold text-green-600">
-            ${revenue.toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow-xl">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Monto Descuentos
-          </h2>
-          <p className="text-2xl font-bold text-red-500">
-            ${totalDiscount.toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow-xl">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Monto Extra Descuentos
-          </h2>
-          <p className="text-2xl font-bold text-pink-500">
-            ${totalExtraDiscount.toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow-xl">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Ingresos Organización
-          </h2>
-          <p className="text-2xl font-bold text-blue-600">
-            ${organizationRevenue.toLocaleString()}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow-xl">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Ingresos Usuarios
-          </h2>
-          <p className="text-2xl font-bold text-cyan-600">
-            ${userRevenue.toLocaleString()}
-          </p>
-        </div>
+      {/* Totales monetarios */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card
+          title="Ingresos Totales"
+          value={`$${revenue.toLocaleString()}`}
+          color="text-green-600"
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
+        <Card
+          title="Monto Descuentos"
+          value={`$${totalDiscount.toLocaleString()}`}
+          color="text-red-500"
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
+        <Card
+          title="Extra Descuentos"
+          value={`$${totalExtraDiscount.toLocaleString()}`}
+          color="text-orange-400"
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
+        <Card
+          title="Ingresos Organización"
+          value={`$${organizationRevenue.toLocaleString()}`}
+          color="text-indigo-500"
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
+        <Card
+          title="Ingresos Usuarios"
+          value={`$${userRevenue.toLocaleString()}`}
+          color="text-teal-500"
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-black">
-        {/* Por tipo de servicio */}
-        <div className="bg-white p-4 rounded-2xl shadow-xl h-[350px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-4">Por Servicio</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={perService}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#F55376" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Por usuario */}
-        <div className="bg-white p-4 rounded-2xl shadow-xl h-[350px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-4">Por Usuario</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={perUser}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#3DD9EB" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Por cliente */}
-        <div className="bg-white mb-10 p-4 rounded-2xl shadow-xl h-[350px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-4">Por Cliente</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={perClient}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#007bff" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <BarChartCard
+          data={perService}
+          title="Por Servicio"
+          barColor={theme === "dark" ? "#f87171" : "#F55376"}
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
+        <BarChartCard
+          data={perUser}
+          title="Por Usuario"
+          barColor={theme === "dark" ? "#60a5fa" : "#3DD9EB"}
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
+        <BarChartCard
+          data={perClient}
+          title="Por Cliente"
+          barColor={theme === "dark" ? "#818cf8" : "#007bff"}
+          cardBg={cardBg}
+          titleColor={titleColor}
+        />
       </div>
     </div>
   );
 }
+
+const Card = ({ title, value, color, cardBg, titleColor }: any) => (
+  <div className={`p-4 rounded-2xl shadow-xl ${cardBg}`}>
+    <h2 className={`text-lg font-semibold ${titleColor}`}>{title}</h2>
+    <p className={`text-2xl font-bold ${color}`}>{value}</p>
+  </div>
+);
+
+const BarChartCard = ({ data, title, barColor, cardBg, titleColor }: any) => (
+  <div className={`p-4 rounded-2xl shadow-xl h-[350px] ${cardBg}`}>
+    <h2 className={`text-xl font-bold mb-4 ${titleColor}`}>{title}</h2>
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data}>
+        <XAxis
+          dataKey="name"
+          stroke={titleColor === "text-white" ? "#ccc" : "#333"}
+        />
+        <YAxis stroke={titleColor === "text-white" ? "#ccc" : "#333"} />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: titleColor === "text-white" ? "#1f2937" : "#fff",
+            borderColor: "#888",
+            color: titleColor === "text-white" ? "#fff" : "#000",
+          }}
+        />
+        <Bar dataKey="count" fill={barColor} />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+);
