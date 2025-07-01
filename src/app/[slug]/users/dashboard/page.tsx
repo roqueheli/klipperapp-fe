@@ -235,14 +235,27 @@ export default function DashboardPage() {
   );
 }
 
-const Card = ({ title, value, color, cardBg, titleColor }: any) => (
+interface CardInterface {
+  data?: {
+    name: string;
+    count: number;
+  }[];
+  barColor?: string;
+  title?: string;
+  value?: string | number;
+  color?: string;
+  cardBg?: string;
+  titleColor?: string;
+}
+
+const Card = ({ title, value, color, cardBg, titleColor }: CardInterface) => (
   <div className={`p-4 rounded-2xl shadow-xl ${cardBg}`}>
     <h2 className={`text-lg font-semibold ${titleColor}`}>{title}</h2>
     <p className={`text-2xl font-bold ${color}`}>{value}</p>
   </div>
 );
 
-const BarChartCard = ({ data, title, barColor, cardBg, titleColor }: any) => (
+const BarChartCard = ({ data, title, barColor, cardBg, titleColor }: CardInterface) => (
   <div className={`p-4 rounded-2xl shadow-xl h-[350px] ${cardBg}`}>
     <h2 className={`text-xl font-bold mb-4 ${titleColor}`}>{title}</h2>
     <ResponsiveContainer width="100%" height="100%">
