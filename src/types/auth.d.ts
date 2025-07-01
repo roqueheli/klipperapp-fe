@@ -26,7 +26,7 @@ export type ForgotFormData = {
 
 export type ChangeFormData = {
     id: number;
-    old_password: string;
+    current_password: string;
     new_password: string;
-    confirm_password: string;
+    new_password_confirmation: string;
 };

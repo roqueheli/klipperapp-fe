@@ -11,8 +11,10 @@ import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import InputField from "../../form/InputField";
 import SubmitButton from "../../form/SubmitButton";
+import { useRouter } from "next/navigation";
 
 const ChangeForm = () => {
+  const router = useRouter();
   const { theme } = useTheme();
   const { userData } = useUser();
   const methods = useForm<ChangeFormData>({
@@ -22,10 +24,14 @@ const ChangeForm = () => {
   const { handleSubmit } = methods;
 
   const onSubmit = async (data: ChangeFormData) => {
+    const { current_password, new_password, new_password_confirmation } = data;
+
     await toast
       .promise(
         httpInternalApi.httpPostPublic("/auth/change_password", "PATCH", {
-          ...data,
+          current_password,
+          new_password,
+          new_password_confirmation,
           id: userData?.id,
         }),
         {
@@ -34,6 +40,9 @@ const ChangeForm = () => {
           error: "Failed to reset password.",
         }
       )
+      .then(() => {
+        router.back();
+      })
       .catch((error) => {
         if (error instanceof AccesDeniedError) {
           toast.error("Access Denied");
@@ -53,10 +62,11 @@ const ChangeForm = () => {
           theme === "dark" ? "text-white" : "text-black"
         }`}
       >
+        <input type="hidden" {...methods.register("id")} value={userData?.id} />
         <div className="w-[65%] flex items-center justify-center">
           <InputField
             type="password"
-            fieldName="old_password"
+            fieldName="current_password"
             label="Contraseña actual"
             placeholder="********"
           />
@@ -74,7 +84,7 @@ const ChangeForm = () => {
         <div className="w-[65%] flex items-center justify-center">
           <InputField
             type="password"
-            fieldName="confirm_password"
+            fieldName="new_password_confirmation"
             label="Confirmar contraseña"
             placeholder="********"
           />
