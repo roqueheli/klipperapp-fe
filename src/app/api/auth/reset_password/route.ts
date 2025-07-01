@@ -1,6 +1,5 @@
 import authAPI from "@/lib/auth/auth.service";
 import { AccesDeniedError } from "@/lib/common/http.errors";
-import { getToken } from "@/lib/utils/auth.utils";
 import ForgotScheme from "@/schemes/forgot.scheme";
 import { NextRequest, NextResponse } from "next/server";
 
