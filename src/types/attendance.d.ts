@@ -50,7 +50,6 @@ export interface AttendanceProfile {
 	status: "pending" | "processing" | "postponed" | "canceled" | "declined";
 }
 
-
 export interface AttendanceCable {
 	id: number;
 	status: "pending" | "processing" | "finished" | "postponed" | "canceled" | "declined" | "completed";
