@@ -33,8 +33,8 @@ const RestoreForm = () => {
         httpInternalApi.httpPostPublic("/auth/restore_password", "POST", {
           email: data.email,
           code: data.code,
-          new_password: data.new_password,
-          new_password_confirmation: data.new_password_confirmation,
+          password: data.new_password,
+          password_confirmation: data.new_password_confirmation,
         }),
         {
           loading: "Restoring password...",
