@@ -10,7 +10,6 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import { Branch, BranchResponse } from "@/types/branch";
 import { User, UserResponse } from "@/types/user";
 import { translateStatus } from "@/utils/organization.utils";
-import { getRoleByName } from "@/utils/roleUtils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useEffect, useState } from "react";
@@ -55,8 +54,7 @@ const AttendancesHistoryPage = () => {
 
         setBranches(branchesRes.branches);
         setUsers(usersRes.users);
-      } catch {
-      }
+      } catch {}
     };
 
     loadInitialData();
