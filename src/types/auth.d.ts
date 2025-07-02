@@ -27,8 +27,8 @@ export type ForgotFormData = {
 export type RestoreFormData = {
     email: string;
     code: string;
-    new_password: string;
-    new_password_confirmation: string;
+    password: string;
+    password_confirmation: string;
 };
 
 export type ChangeFormData = {

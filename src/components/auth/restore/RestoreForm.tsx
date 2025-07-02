@@ -33,8 +33,8 @@ const RestoreForm = () => {
         httpInternalApi.httpPostPublic("/auth/restore_password", "POST", {
           email: data.email,
           code: data.code,
-          password: data.new_password,
-          password_confirmation: data.new_password_confirmation,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
         }),
         {
           loading: "Restoring password...",
@@ -92,7 +92,7 @@ const RestoreForm = () => {
         <div className="w-[65%] flex items-center justify-center">
           <InputField
             type="password"
-            fieldName="new_password"
+            fieldName="password"
             label="Nueva contraseña"
             placeholder="********"
           />
@@ -101,7 +101,7 @@ const RestoreForm = () => {
         <div className="w-[65%] flex items-center justify-center">
           <InputField
             type="password"
-            fieldName="new_password_confirmation"
+            fieldName="password_confirmation"
             label="Confirmar contraseña"
             placeholder="********"
           />
