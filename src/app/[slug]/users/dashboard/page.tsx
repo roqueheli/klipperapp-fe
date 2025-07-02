@@ -53,15 +53,20 @@ export default function DashboardPage() {
   }, [data?.id, userData]);
 
   const finishedAttendances = useMemo(
-    () => attendances.filter((a) => a.status === "finished"),
+    () =>
+      attendances === undefined
+        ? []
+        : attendances.filter((a) => a.status === "finished"),
     [attendances]
   );
 
   const activeAttendances = useMemo(
     () =>
-      attendances.filter((a) =>
-        ["pending", "processing", "completed"].includes(a.status)
-      ),
+      attendances === undefined
+        ? []
+        : attendances.filter((a) =>
+            ["pending", "processing", "completed"].includes(a.status)
+          ),
     [attendances]
   );
 
