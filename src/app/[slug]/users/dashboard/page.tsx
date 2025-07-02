@@ -155,21 +155,21 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card
           title="Total Reservas"
-          value={attendances.length}
+          value={attendances?.length || 0}
           color="text-sky-500"
           cardBg={cardBg}
           titleColor={titleColor}
         />
         <Card
           title="Reservas Activas"
-          value={activeAttendances.length}
+          value={activeAttendances?.length || 0}
           color="text-yellow-500"
           cardBg={cardBg}
           titleColor={titleColor}
         />
         <Card
           title="Reservas Finalizadas"
-          value={finishedAttendances.length}
+          value={finishedAttendances?.length || 0}
           color="text-green-500"
           cardBg={cardBg}
           titleColor={titleColor}
