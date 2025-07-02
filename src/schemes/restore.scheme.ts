@@ -8,7 +8,7 @@ const RestoreScheme = yup
         password_confirmation: yup
             .string()
             .required()
-            .oneOf([yup.ref('new_password')], 'Passwords must match')
+            .oneOf([yup.ref('password')], 'Passwords must match')
             .min(6, 'Password must be at least 6 characters'),
     })
     .required();
