@@ -14,15 +14,17 @@ export async function POST(request: NextRequest) {
 
         const response = NextResponse.json({ status: 200, token: loginResponse.token });
 
-        response.cookies.set({
-            name: cookieName,
-            value: loginResponse.token,
-            httpOnly: true,
-            sameSite: isProd ? "none" : "lax",
-            secure: isProd,
-            path: "/",
-            maxAge: expiresInSeconds,
-        });
+        // response.cookies.set({
+        //     name: cookieName,
+        //     value: loginResponse.token,
+        //     httpOnly: true,
+        //     sameSite: isProd ? "none" : "lax",
+        //     secure: isProd,
+        //     path: "/",
+        //     maxAge: expiresInSeconds,
+        // });
+
+        response.cookies.delete("auth_token");
 
         return response;
     } catch (error) {
