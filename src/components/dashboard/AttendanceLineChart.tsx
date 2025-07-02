@@ -61,7 +61,7 @@ export const AttendanceLineChart = ({ data }: AttendanceLineChartProps) => {
           />
           <Tooltip
             contentStyle={{ backgroundColor: bgColor }}
-            formatter={(value: any) =>
+            formatter={(value: number) =>
               typeof value === "number" ? currencyCLP.format(value) : value
             }
             labelFormatter={(label: string) => {

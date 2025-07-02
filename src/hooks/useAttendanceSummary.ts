@@ -46,7 +46,7 @@ export function useAttendanceSummary(
                         params
                     ) as Promise<BranchResponse>,
                 ]);
-                
+
                 setSummary(summaryRes.summary);
                 setBranches(branchesRes.branches);
             } catch (error) {
@@ -58,10 +58,7 @@ export function useAttendanceSummary(
         };
 
         fetchSummary();
-    }, [organization?.id, userData?.branch_id, startDate, endDate, status]);
-
-    console.log('summary1', summary);
-    
+    }, [organization?.id, userData?.branch_id, userData?.id, userData?.role.name, startDate, endDate, status]);
 
     return {
         summary,
