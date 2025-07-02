@@ -140,15 +140,20 @@ const FilterPanel = ({
     ? users.filter((u) => u.branch_id?.toString() === localFilters.branch_id)
     : users;
 
-  const inputStyle =
-    `w-full px-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500`;
+  const inputStyle = `w-full px-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500`;
 
   return (
-    <div className={`w-[98%] border ${theme === 'dark' ? "border-gray-700" : "border-gray-300"} rounded-t-xl shadow-md`}>
+    <div
+      className={`w-[98%] border ${
+        theme === "dark" ? "border-gray-700" : "border-gray-300"
+      } rounded-t-xl shadow-md`}
+    >
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between px-6 py-4 text-left ${theme === 'dark' ? "hover:bg-gray-800" : "hover:bg-gray-200"} transition rounded-t-xl`}
+        className={`w-full flex items-center justify-between px-6 py-4 text-left ${
+          theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-200"
+        } transition rounded-t-xl`}
       >
         <span className="flex items-center gap-2 font-semibold">
           <Filter size={18} />
@@ -218,10 +223,9 @@ const FilterPanel = ({
                 }
                 className={inputStyle}
               >
-                {branches.length > 1 ||
-                  (branches.length === 1 && users.length > 1 && (
-                    <option value="">Todas las sucursales</option>
-                  ))}
+                {branches.length > 1 && (
+                  <option value="">Todas las sucursales</option>
+                )}
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name}
@@ -289,7 +293,11 @@ const FilterPanel = ({
               <button
                 type="button"
                 onClick={handleReset}
-                className={`px-4 py-2 rounded-lg ${theme === 'dark' ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-200 hover:bg-gray-300 text-gray-800"} transition`}
+                className={`px-4 py-2 rounded-lg ${
+                  theme === "dark"
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                } transition`}
               >
                 Limpiar filtros
               </button>

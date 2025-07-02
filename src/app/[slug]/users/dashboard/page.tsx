@@ -6,10 +6,12 @@ import { StatisticsCards } from "@/components/dashboard/StatisticsCards";
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { useTheme } from "@/components/ThemeProvider";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useUser } from "@/contexts/UserContext";
 import { useDashboardData } from "@/hooks/useDashboardData";
 
 export default function DashboardPage() {
   const { theme } = useTheme();
+  const { userData } = useUser();
   const {
     isLoading,
     revenue,
@@ -35,9 +37,12 @@ export default function DashboardPage() {
     <div
       className={`w-full flex flex-col justify-center space-y-6 p-6 mx-auto ${containerClass}`}
     >
-      <h1 className="text-2xl font-bold">🛗 Estadísticas de clientes</h1>
-
-      {statistics && <StatisticsCards statistics={statistics} />}
+      {statistics && userData?.role.name === "admin" && (
+        <>
+          <h1 className="text-2xl font-bold">🛗 Estadísticas de clientes</h1>
+          <StatisticsCards statistics={statistics} />
+        </>
+      )}
 
       <h1 className="text-2xl font-bold">📊 Dashboard del día</h1>
 

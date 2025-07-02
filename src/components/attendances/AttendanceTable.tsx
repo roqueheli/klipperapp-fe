@@ -1,6 +1,7 @@
 "use client";
 
 import { Attendance } from "@/types/attendance";
+import { translateStatus } from "@/utils/organization.utils";
 import { useMemo, useState } from "react";
 import { useTheme } from "../ThemeProvider";
 import PaginationControls from "../ui/PaginationControls";
@@ -83,7 +84,9 @@ const AttendanceTable = ({
                   {a.attended_by_user?.name || "No asignado"}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={getStatusStyle(a.status)}>{a.status}</span>
+                  <span className={getStatusStyle(a.status)}>
+                    {translateStatus(a.status)}
+                  </span>
                 </td>
                 <td className="px-4 py-3">
                   {new Date(a.created_at).toLocaleString()}

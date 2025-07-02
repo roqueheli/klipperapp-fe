@@ -1,13 +1,14 @@
 import { useTheme } from "@/components/ThemeProvider";
+import { useUser } from "@/contexts/UserContext";
 import { SummaryItem } from "@/types/dashboard";
 import {
-    Legend,
-    Line,
-    LineChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
 interface AttendanceLineChartProps {
@@ -22,6 +23,7 @@ const currencyCLP = new Intl.NumberFormat("es-CL", {
 
 export const AttendanceLineChart = ({ data }: AttendanceLineChartProps) => {
   const { theme } = useTheme();
+  const { userData } = useUser();
   const textColor = theme === "dark" ? "#ccc" : "#333";
   const bgColor = theme === "dark" ? "#1f2937" : "#fff";
 
@@ -34,7 +36,7 @@ export const AttendanceLineChart = ({ data }: AttendanceLineChartProps) => {
 
   return (
     <div
-      className={`p-4 rounded-2xl shadow-xl h-[400px] ${
+      className={`mb-6 p-4 rounded-2xl shadow-xl h-[400px] ${
         theme === "dark" ? "bg-gray-800 mb-8" : "bg-white"
       }`}
     >
@@ -105,12 +107,14 @@ export const AttendanceLineChart = ({ data }: AttendanceLineChartProps) => {
             stroke="#ef4444"
             name="Descuentos"
           />
-          <Line
-            type="monotone"
-            dataKey="extra_discount"
-            stroke="#ec4899"
-            name="Alicuota"
-          />
+          {userData?.role.name === "admin" && (
+            <Line
+              type="monotone"
+              dataKey="extra_discount"
+              stroke="#ec4899"
+              name="Alicuota"
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     </div>

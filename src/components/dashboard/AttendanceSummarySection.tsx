@@ -11,28 +11,41 @@ import LoadingSpinner from "../ui/LoadingSpinner";
 
 export default function AttendanceSummarySection() {
   const [filters, setFilters] = useState<FilterValues>({
-    from: new Date().toISOString().slice(0, 7) + "-01",
+    from: new Date().toISOString().slice(0, 7) + "-01", // primer día del mes actual
     to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
       .toISOString()
-      .slice(0, 10),
-    status: "finished",
+      .slice(0, 10), // último día del mes actual
+    status: "all",
+    branchId: "all",
+    userId: "all",
   });
 
   const formatDate = (date: string | null) =>
     date ? date.replace(/-/g, "") : "";
 
-  const { summary, branches, isLoading } = useAttendanceSummary(
+  const { summary, branches, users, isLoading } = useAttendanceSummary(
     formatDate(filters.from),
     formatDate(filters.to),
-    filters.status
+    filters.status,
+    filters.branchId,
+    filters.userId
   );
+
+  const handleSearch = (newFilters: FilterValues) => {
+    setFilters({
+      ...newFilters,
+      branchId: newFilters.branchId ?? "all",
+      userId: newFilters.userId ?? "all",
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
       <AttendanceSummaryFilters
         initialFilters={filters}
         branches={branches}
-        onSearch={(newFilters) => setFilters(newFilters)}
+        users={users}
+        onSearch={handleSearch}
       />
 
       {isLoading ? (
@@ -42,12 +55,6 @@ export default function AttendanceSummarySection() {
       ) : summary?.length > 0 ? (
         <AttendanceLineChart data={summary} />
       ) : (
-        <p className="text-center text-gray-500 mt-8">
-          No hay datos para el rango de fechas seleccionado.
-        </p>
-      )}
-
-      {!isLoading && summary?.length === 0 && (
         <p className="text-center text-gray-500 mt-8">
           No hay datos para el rango de fechas seleccionado.
         </p>

@@ -29,17 +29,17 @@ const AttendancesHistoryPage = () => {
         const branchesParams = new URLSearchParams();
         const usersParams = new URLSearchParams();
 
-        const agentRole = await getRoleByName("agent");
-
         if (data?.id) {
           branchesParams.set("organization_id", String(data.id));
           usersParams.set("organization_id", String(data.id));
         }
 
-        if (userData?.role.id === agentRole.id) {
-          branchesParams.set("branch_id", String(userData?.branch_id));
+        if (userData?.role.name !== "admin") {
+          branchesParams.set("id", String(userData?.branch_id));
           usersParams.set("id", String(userData?.id));
-          usersParams.set("branch_id", String(userData?.branch_id));
+          if (userData?.role.name !== "user") {
+            usersParams.set("branch_id", String(userData?.branch_id));
+          }
         }
 
         const [branchesRes, usersRes] = await Promise.all([
