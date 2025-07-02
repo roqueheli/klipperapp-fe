@@ -13,7 +13,6 @@ import { Branch, BranchResponse } from "@/types/branch";
 import { CalculatePaymentResponse } from "@/types/calculate";
 import { Payment } from "@/types/payments";
 import { User, UserResponse } from "@/types/user";
-import { getRoleByName } from "@/utils/roleUtils";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -34,9 +33,7 @@ const PaymentsManagementPage = () => {
       try {
         if (!data?.id || !userData?.role?.id) return;
 
-        // Obtener rol para verificar si puede ver
-        const role = await getRoleByName("admin");
-        setCanView(role.id === userData.role.id);
+        setCanView(userData?.role.name === 'admin');
 
         // Cargar datos iniciales
         const branchesParams = new URLSearchParams({
@@ -47,9 +44,9 @@ const PaymentsManagementPage = () => {
           organization_id: String(data.id),
         });
 
-        if (role.id !== userData.role.id) {
-          branchesParams.set("branch_id", String(userData.branch_id));
-          usersParams.set("id", String(userData.id));
+        if (userData.role.name !== "admin") {
+          branchesParams.set("id", String(userData?.branch_id));
+          usersParams.set("id", String(userData?.id));
         }
 
         const [branchesRes, usersRes] = await Promise.all([
@@ -65,8 +62,7 @@ const PaymentsManagementPage = () => {
 
         setBranches(branchesRes.branches);
         setUsers(usersRes.users);
-      } catch {
-      }
+      } catch {}
     };
 
     init();
@@ -96,10 +92,9 @@ const PaymentsManagementPage = () => {
     try {
       const payments: CalculatePaymentResponse[] =
         await httpInternalApi.httpGetPublic("/management", params);
-      setPayments(payments);
+      setPayments(payments.filter((payment) => payment?.finished_attendances?.length > 0));
       setLoading(false);
-    } catch {
-    }
+    } catch {}
   };
 
   const handleSend = async (data: {
@@ -130,25 +125,34 @@ const PaymentsManagementPage = () => {
           requestBody
         ),
         {
-          loading: `Sending payment ${method === "POST" ? "request" : "update"}`,
-          success: `Payment successfully ${method === "POST" ? "created" : "updated"}.`,
-          error: `Error ${method === "POST" ? "creating" : "updating"} payment.`,
+          loading: `Sending payment ${
+            method === "POST" ? "request" : "update"
+          }`,
+          success: `Payment successfully ${
+            method === "POST" ? "created" : "updated"
+          }.`,
+          error: `Error ${
+            method === "POST" ? "creating" : "updating"
+          } payment.`,
         }
       );
 
       if (searchFilters) {
         await handleSearch(searchFilters);
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const handleApprove = async (data: { id: number }) => {
     try {
       await toast.promise(
-        httpInternalApi.httpPostPublic("/management/payments/approve", "PATCH", {
-          id: data.id,
-        }),
+        httpInternalApi.httpPostPublic(
+          "/management/payments/approve",
+          "PATCH",
+          {
+            id: data.id,
+          }
+        ),
         {
           loading: "Approving payment...",
           success: "Payment successfully approved.",
@@ -159,8 +163,7 @@ const PaymentsManagementPage = () => {
       if (searchFilters) {
         await handleSearch(searchFilters);
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const handleReject = async (data: { id: number }) => {
@@ -179,8 +182,7 @@ const PaymentsManagementPage = () => {
       if (searchFilters) {
         await handleSearch(searchFilters);
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const handleReset = () => {
