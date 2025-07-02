@@ -102,6 +102,7 @@ export default function DashboardPage() {
   );
 
   const perService = useMemo(() => {
+    if (attendances === undefined) return [];
     const map: Record<string, number> = {};
     attendances.forEach((a) => {
       const services = a.services ?? [];
@@ -117,6 +118,7 @@ export default function DashboardPage() {
   }, [attendances]);
 
   const perUser = useMemo(() => {
+    if (!attendances) return [];
     const map: Record<string, number> = {};
     attendances.forEach((a) => {
       const name = a.attended_by_user?.name || "Sin asignar";
@@ -126,6 +128,7 @@ export default function DashboardPage() {
   }, [attendances]);
 
   const perClient = useMemo(() => {
+    if (attendances === undefined) return [];
     const map: Record<string, number> = {};
     attendances.forEach((a) => {
       const name = a.profile?.name || "Desconocido";
