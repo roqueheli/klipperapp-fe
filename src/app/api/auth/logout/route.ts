@@ -11,14 +11,15 @@ export async function POST() {
 
         const response = NextResponse.json({ message: "Logged out successfully", status: 200 });
 
-        response.cookies.set(process.env.AUTH_TOKEN_SECRET || '', '', {
-            expires: new Date(0), // Fecha en el pasado
-            httpOnly: true,
-            secure: true,
-            domain: process.env.NODE_ENV === 'production' ? process.env.DOMAIN : 'localhost',
-            path: '/',
-            sameSite: 'lax'
-        });
+        // response.cookies.set('auth_token', '', {
+        //     expires: new Date(0), // Fecha en el pasado
+        //     httpOnly: true,
+        //     secure: true,
+        //     path: '/',
+        //     sameSite: 'lax'
+        // });
+
+        response.cookies.delete("auth_token");
 
         return response;
     } catch (error) {

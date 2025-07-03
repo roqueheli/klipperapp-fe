@@ -35,6 +35,7 @@ export default function UserSettingsList({
   const [expandedUserIds, setExpandedUserIds] = useState<Set<number>>(
     new Set()
   );
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const isUserValid = (user: User) => {
     return (
@@ -59,9 +60,7 @@ export default function UserSettingsList({
 
   const handleConfirmDelete = async () => {
     if (confirmingId !== null) {
-      const payload = {
-        id: confirmingId,
-      };
+      const payload = { id: confirmingId };
       try {
         toast.promise(
           httpInternalApi.httpPostPublic(
@@ -89,6 +88,13 @@ export default function UserSettingsList({
   };
 
   const handleAddUser = () => {
+    if (branches.length > 1 && branchFilter === "all") {
+      setShowTooltip(true);
+      return;
+    }
+
+    setShowTooltip(false);
+
     const newUser: User = {
       id: tempId--,
       name: "",
@@ -96,7 +102,7 @@ export default function UserSettingsList({
       phone_number: "",
       active: true,
       photo_url: "",
-      branch_id: branches[0]?.id ?? null,
+      branch_id: Number(branchFilter) ?? null,
       role: {
         id: roles[0]?.id ?? null,
       },
@@ -176,20 +182,24 @@ export default function UserSettingsList({
 
   return (
     <div className="p-4">
-      {/* Filtro de sucursales */}
       <div className="mb-6">
         <label className="block mb-2 text-sm font-medium text-[--electric-blue]">
           Filtrar por sucursal
         </label>
         <select
           value={branchFilter}
-          onChange={(e) => setBranchFilter(e.target.value)}
-          className="w-full border rounded px-3 py-2 text-sm
-             bg-[var(--background)] text-[var(--foreground)]
-             dark:bg-[var(--dark-background)] dark:text-[var(--dark-foreground)] dark:border-[var(--dark-border)]"
+          onChange={(e) => {
+            setBranchFilter(e.target.value);
+            setShowTooltip(false);
+          }}
+          className="w-full border rounded px-3 py-2 text-sm bg-[var(--background)] text-[var(--foreground)] dark:bg-[var(--dark-background)] dark:text-[var(--dark-foreground)] dark:border-[var(--dark-border)]"
         >
-          <option value="all">Todas las sucursales</option>
-          {branches.map((branch) => (
+          {isAdmin && <option value="all">Todas las sucursales</option>}
+          {/* Mostrar solo la branch del usuario si no es admin */}
+          {(isAdmin
+            ? branches
+            : branches.filter((b) => b.id === initialUsers[0]?.branch_id)
+          ).map((branch) => (
             <option key={branch.id} value={branch.id}>
               {branch.name}
             </option>
@@ -197,7 +207,6 @@ export default function UserSettingsList({
         </select>
       </div>
 
-      {/* Lista de usuarios */}
       {filteredUsers.map((user) => (
         <UserItem
           key={user.id}
@@ -208,32 +217,59 @@ export default function UserSettingsList({
           branches={branches}
           roles={roles}
           expanded={expandedUserIds.has(user.id)}
-          setExpanded={(open) =>
+          setExpanded={(open) => {
             setExpandedUserIds((prev) => {
               const next = new Set(prev);
               if (open) next.add(user.id);
               else next.delete(user.id);
               return next;
-            })
-          }
+            });
+          }}
           isAdmin={isAdmin}
         />
       ))}
 
-      <div className="flex items-center justify-end mt-6">
-        {isAdmin && (
-          <button
-            onClick={handleAddUser}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-xl shadow transition-all mr-2"
-          >
-            + Nuevo Usuario
-          </button>
-        )}
+      <div className="flex flex-col sm:flex-row items-center justify-end mt-6 gap-3 sm:gap-0">
+        <div className="relative">
+          {isAdmin && (
+            <button
+              onClick={handleAddUser}
+              onMouseEnter={() => {
+                if (branches.length > 1 && branchFilter === "all") {
+                  setShowTooltip(true);
+                }
+              }}
+              onMouseLeave={() => setShowTooltip(false)}
+              onTouchStart={() => {
+                if (branches.length > 1 && branchFilter === "all") {
+                  setShowTooltip(true);
+                }
+              }}
+              className={`py-2 px-4 rounded-xl font-semibold shadow transition-all ${
+                branches.length > 1 && branchFilter === "all"
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+              }`}
+              disabled={branches.length > 1 && branchFilter === "all"}
+            >
+              + Nuevo Usuario
+            </button>
+          )}
+
+          {showTooltip && branches.length > 1 && branchFilter === "all" && (
+            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max z-10">
+              <div className="text-red-300 text-xs px-3 py-1 rounded shadow">
+                Selecciona una sucursal antes de agregar un nuevo usuario.
+              </div>
+              <div className="w-3 h-3 bg-red-500 rotate-45 absolute left-1/2 -translate-x-1/2 top-full"></div>
+            </div>
+          )}
+        </div>
 
         <button
           onClick={handleSubmit}
           disabled={!hasChanges}
-          className={`py-2 px-4 rounded-xl shadow-lg transition-all font-bold text-white ${
+          className={`ml-4 py-2 px-4 rounded-xl shadow-lg transition-all font-bold text-white ${
             hasChanges
               ? "bg-blue-600 hover:bg-blue-700"
               : "bg-gray-400 cursor-not-allowed"

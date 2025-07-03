@@ -19,3 +19,21 @@ export type FormData = {
     email: string;
     password: string;
 };
+
+export type ForgotFormData = {
+    email: string;
+};
+
+export type RestoreFormData = {
+    email: string;
+    code: string;
+    password: string;
+    password_confirmation: string;
+};
+
+export type ChangeFormData = {
+    id: number;
+    current_password: string;
+    new_password: string;
+    new_password_confirmation: string;
+};

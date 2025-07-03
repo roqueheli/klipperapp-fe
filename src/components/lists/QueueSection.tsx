@@ -3,6 +3,7 @@
 import { User } from "@/types/user";
 import { UserCircle2, Users } from "lucide-react";
 import { useMemo } from "react";
+import { useTheme } from "../ThemeProvider";
 
 interface Props {
   queue: User[];
@@ -15,6 +16,7 @@ const getRandomColor = () => {
 };
 
 export default function QueueSection({ queue }: Props) {
+  const { theme } = useTheme();
   const userColors = useMemo(() => {
     const map = new Map<number, string>();
     queue.forEach((user) => {
@@ -22,12 +24,22 @@ export default function QueueSection({ queue }: Props) {
     });
     return map;
   }, [queue]);
-
+  
   return (
-    <section className="col-span-1 bg-gradient-to-br from-[#0b0f1c] via-[#12182f] to-[#1a223a] ring-1 ring-[--electric-blue]/30 rounded-2xl p-6 shadow-[0_0_20px_rgba(61,217,235,0.1)] max-h-[80vh] overflow-y-auto">
+    <section
+      className={`
+        col-span-1 
+        rounded-2xl 
+        p-6 
+        overflow-y-auto 
+        transition-colors duration-300
+        ${theme === "dark" ? "ring-1 ring-[--electric-blue]/30 shadow-md dark:shadow-[0_0_20px_rgba(61,217,235,0.1)] dark:bg-gradient-to-br dark:from-[#0b0f1c] dark:via-[#12182f] dark:to-[#1a223a]" 
+        : "bg-white border shadow-md"}
+      `}
+    >
       <header className="flex items-center flex-col justify-between mb-5">
-        <h2 className="text-md font-bold text-[--electric-blue] flex justify-start text-left gap-2">
-          <Users className="w-5 h-5 text-[--electric-blue]" />
+        <h2 className="text-sm font-bold flex justify-start text-left gap-2">
+          <Users className="w-5 h-5" />
           Orden de Profesionales
         </h2>
       </header>
@@ -37,19 +49,21 @@ export default function QueueSection({ queue }: Props) {
           queue.map((user) => (
             <li
               key={user.id}
-              className="flex items-center gap-3 p-4 bg-[#1f273d] rounded-lg shadow-md transition hover:shadow-[0_0_12px_rgba(61,217,235,0.3)] group"
+              className={`flex items-center gap-3 p-4 rounded-lg shadow group transition 
+              ${theme === "dark" ? "hover:shadow-[0_0_12px_rgba(61,217,235,0.3)] bg-gray-100 dark:bg-[#1f273d]" : "bg-gray-100"}
+              `}
             >
               <UserCircle2
                 className="w-6 h-6 group-hover:scale-110 transition-transform"
                 style={{ color: userColors.get(user.id) }}
               />
-              <span className="text-sm font-medium text-[--soft-white]">
+              <span className="text-sm font-medium">
                 {user.name}
               </span>
             </li>
           ))
         ) : (
-          <li className="text-sm italic text-[--soft-white]/50 text-center py-10">
+          <li className="text-sm italic text-center py-10">
             💤 No hay profesionales sin clientes en este momento.
           </li>
         )}

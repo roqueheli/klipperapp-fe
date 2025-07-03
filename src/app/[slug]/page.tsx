@@ -18,7 +18,10 @@ const OrganizationPage = () => {
         {/* Card */}
         <div className="relative z-10 p-10 rounded-3xl shadow-2xl border border-white/10 bg-white/5 backdrop-blur-lg text-center max-w-xl">
           <div className="flex justify-center mb-4">
-            <Sparkles className="text-orange-400 animate-fade-in-up" size={40} />
+            <Sparkles
+              className="text-orange-400 animate-fade-in-up"
+              size={40}
+            />
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-blue-400 to-orange-400 drop-shadow">
             ¡Organización no encontrada!

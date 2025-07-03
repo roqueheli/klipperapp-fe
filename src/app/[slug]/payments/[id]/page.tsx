@@ -30,10 +30,19 @@ const PaymentsPage = () => {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSunday, setIsSunday] = useState(false);
 
   useEffect(() => {
     const attendanceParams = new URLSearchParams();
     attendanceParams.set("id", String(id));
+
+    setIsSunday(
+      new Date(
+        new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/Santiago",
+        }).format(new Date())
+      ).getDay() === 0
+    );
 
     const fetchAttendance = async () => {
       try {
@@ -43,8 +52,6 @@ const PaymentsPage = () => {
         )) as Attendances;
         setAttendance(response?.attendances[0]);
         setSelectedServices(response?.attendances[0].services || []);
-      } catch (error) {
-        console.error("Error al cargar asistencia:", error);
       } finally {
         setIsLoading(false);
       }
@@ -56,9 +63,7 @@ const PaymentsPage = () => {
           "/services"
         )) as ServicesResponse;
         setAvailableServices(response.services);
-      } catch (error) {
-        console.error("Error al cargar servicios:", error);
-      }
+      } catch {}
     };
 
     fetchAttendance();
@@ -82,9 +87,10 @@ const PaymentsPage = () => {
   const handleExecuteTransaction = async () => {
     const allAttendances = [attendance, ...selectedAttendances];
 
-    const extraDiscount = Number(
-      data?.metadata?.billing_configs?.extra_discount ?? 0
-    );
+    const extraDiscount = isSunday
+      ? 0
+      : Number(data?.metadata?.billing_configs?.extra_discount ?? 0);
+
     const userPercentage = Number(
       data?.metadata?.billing_configs?.user_percentage ?? 0
     );
@@ -110,9 +116,11 @@ const PaymentsPage = () => {
               discount: a.id === attendance.id ? discount : 0,
               extra_discount: extraDiscount,
               user_amount:
-                localTotal * (userPercentage / 100) - extraDiscount / 2,
+                localTotal * (userPercentage / 100) -
+                (extraDiscount > 0 ? extraDiscount / 2 : 0),
               organization_amount:
-                localTotal * (orgPercentage / 100) - extraDiscount / 2,
+                localTotal * (orgPercentage / 100) -
+                (extraDiscount > 0 ? extraDiscount / 2 : 0),
               total_amount: localTotal,
               payment_method: paymentType,
               service_ids: aServices.map((s) => s.id),
@@ -133,8 +141,7 @@ const PaymentsPage = () => {
 
       toast.success("Asistencias finalizadas correctamente.");
       router.push(`/${slug}/transactions`);
-    } catch (error) {
-      console.error("Error al finalizar asistencias:", error);
+    } catch {
       toast.error("Ocurrió un error al finalizar una o más asistencias.");
     }
   };

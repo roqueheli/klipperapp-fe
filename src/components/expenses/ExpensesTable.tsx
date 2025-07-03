@@ -2,9 +2,9 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Expenses } from "@/types/expenses";
 import { User, UserResponse } from "@/types/user";
-import clsx from "clsx";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import PaginationControls from "../ui/PaginationControls";
 
 interface ExpensesTableProps {
   expenses: Expenses[];
@@ -120,14 +120,14 @@ const ExpensesTable = ({
             <input
               type="text"
               placeholder="Buscar por descripción, ID o usuario..."
-              className="px-3 py-2 w-full md:w-72 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-[--electric-blue]"
+              className="px-3 py-2 w-full md:w-72 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-[var(--color-background)] dark:text-[var(--foreground)] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-[--electric-blue]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
             <table className="min-w-full table-auto text-sm">
-              <thead className="bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
+              <thead className="bg-[var(--color-background)] dark:text-[var(--foreground)]">
                 <tr>
                   <th className="w-15 px-4 py-3 text-left">Cód</th>
                   <th className="w-50 px-4 py-3 text-left">Fecha</th>
@@ -142,12 +142,14 @@ const ExpensesTable = ({
                 {currentItems.map((exp, i) => (
                   <tr
                     key={exp.id}
-                    className={clsx(
-                      "border-t dark:border-gray-700",
-                      i % 2 === 0
-                        ? "bg-white dark:bg-[#1a1a1a]"
-                        : "bg-gray-50 dark:bg-[#222]"
-                    )}
+                    className="border-t border-gray-300 dark:border-gray-700"
+                    style={{
+                      background:
+                        i % 2 === 0
+                          ? "var(--table-background)"
+                          : "var(--table-bg-2)",
+                      color: "var(--foreground)",
+                    }}
                   >
                     <td className="px-4 py-3 font-medium">{exp.id}</td>
                     <td className="px-4 py-3">
@@ -156,7 +158,10 @@ const ExpensesTable = ({
                         timeStyle: "short",
                       })}
                     </td>
-                    <td className="px-4 py-3">{users.find((user) => user.id === exp.user_id)?.name || `${data?.name}`}</td>
+                    <td className="px-4 py-3">
+                      {users.find((user) => user.id === exp.user_id)?.name ||
+                        `${data?.name}`}
+                    </td>
                     <td className="px-4 py-3 text-wrap break-words max-w-xs">
                       {exp.description}
                     </td>
@@ -202,29 +207,14 @@ const ExpensesTable = ({
       )}
 
       {totalPages > 1 && (
-        <div className="flex justify-end items-center gap-2 text-sm mt-2">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 rounded border dark:border-gray-600 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
-          >
-            ← Anterior
-          </button>
-          <span className="text-gray-700 dark:text-gray-300">
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded border dark:border-gray-600 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
-          >
-            Siguiente →
-          </button>
-        </div>
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       )}
     </div>
   );
 };
 
 export default ExpensesTable;
-

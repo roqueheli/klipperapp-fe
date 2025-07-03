@@ -16,6 +16,7 @@ import {
   History,
   ListOrdered,
   LogIn,
+  LogOut,
   Settings,
   Wallet,
 } from "lucide-react";
@@ -45,7 +46,7 @@ const iconMap: Record<string, JSX.Element> = {
 export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
   const [route, setRoute] = useState("/users");
   const router = useRouter();
@@ -113,7 +114,8 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         sessionStorage.removeItem("attendancesPage");
         sessionStorage.removeItem("attendancesFilters");
         sessionStorage.removeItem("attendancesHasSearched");
-        router.push(`/${slug}/auth/login`);
+        // router.push(`/${slug}/auth/login`);
+        window.location.href = `/${slug}/auth/login`;
       });
   };
 
@@ -130,7 +132,11 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
       {/* Toggle */}
       <div className="flex justify-end block xs:hidden">
         <button
-          className="mb-4 text-gray-600 dark:text-white hover:text-black dark:hover:text-white transition"
+          className={`mb-4 ${
+            theme === "dark"
+              ? "text-white hover:text-gray-600"
+              : "text-gray-500 hover:text-black"
+          } transition`}
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? (
@@ -173,14 +179,15 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
                 }}
                 className={clsx(
                   "flex items-center gap-3 px-2 py-2 rounded transition-colors",
-                  isActive
-                    ? "bg-gray-100 dark:bg-gray-700 font-semibold"
-                    : "text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700",
+                  theme === "dark"
+                    ? isActive
+                      ? "bg-gray-700 text-white"
+                      : "bg-gray-800 text-white dark:hover:bg-gray-700"
+                    : isActive
+                    ? "bg-gray-200 text-gray-700"
+                    : "bg-white text-gray-700 hover:bg-gray-200",
                   shouldDisable && "cursor-not-allowed opacity-50"
                 )}
-                style={{
-                  color: theme === "dark" ? "white" : "black",
-                }}
               >
                 {iconMap[menu.icon] || null}
                 {isOpen && <span>{menu.label}</span>}
@@ -202,10 +209,10 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
           <Link
             href={configMenu.path}
             className={clsx(
-              "flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors",
-              pathname === configMenu.path
-                ? "bg-gray-100 dark:bg-gray-700 font-semibold"
-                : "text-gray-700 dark:text-white"
+              "flex items-center gap-3 px-2 py-2 rounded transition-colors",
+              theme === "dark"
+                ? "bg-gray-800 text-white dark:hover:bg-gray-700"
+                : "bg-white text-gray-700 hover:bg-gray-200"
             )}
             style={{
               color: theme === "dark" ? "white" : "black",
@@ -217,37 +224,70 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         )}
 
         {/* Toggle theme */}
-        {/* <button
+        <button
           onClick={toggleTheme}
-          className={clsx(
-            "flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors w-full",
-            theme === "dark"
-              ? "bg-gray-800 text-white"
-              : "bg-white text-gray-700"
-          )}
+          className={`flex items-center gap-3 px-2 py-2 rounded transition-colors w-full 
+            ${
+              theme === "dark"
+                ? "bg-gray-800 text-white dark:hover:bg-gray-700"
+                : "bg-white text-gray-700 hover:bg-gray-200"
+            }`}
           title="Toggle dark mode"
         >
           <span className="text-xl">{theme === "dark" ? "☀️" : "🌙"}</span>
           {isOpen && <span>{theme === "dark" ? "Claro" : "Oscuro"}</span>}
-        </button> */}
+        </button>
 
         {/* Avatar e Logout */}
-        <div className="flex items-center gap-3 px-2 py-2">
-          <div
-            className="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold"
-            style={{ backgroundColor: "var(--cyber-gray, #555)" }}
-          >
-            {initials}
-          </div>
+        <div
+          className={clsx(
+            "flex items-center gap-3 px-2 py-2 w-full transition-all duration-300",
+            isOpen ? "flex-row" : "flex-col justify-center"
+          )}
+        >
+          {userData?.photo_url ? (
+            <Image
+              src={userData.photo_url}
+              alt="User Avatar"
+              width={isOpen ? 45 : 40} // w-12 : w-8
+              height={isOpen ? 45 : 40} // h-12 : h-8
+              className="rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div
+              className={clsx(
+                "flex items-center justify-center font-bold rounded-full shrink-0",
+                theme === "dark"
+                  ? "bg-gray-700 text-white"
+                  : "bg-gray-200 text-black",
+                isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
+              )}
+            >
+              {initials}
+            </div>
+          )}
 
-          <button
-            onClick={handleLogout}
-            className={clsx(
-              "text-sm text-red-600 dark:text-red-400 px-2 py-2 rounded hover:text-white hover:bg-red-100 dark:hover:bg-red-800 transition-colors w-full flex items-center justify-center"
-            )}
-          >
-            {isOpen ? "Cerrar sesión" : <LogIn className="h-5 w-5" />}
-          </button>
+          {isOpen ? (
+            <button
+              onClick={handleLogout}
+              className={clsx(
+                "flex items-center justify-center text-sm px-3 py-2 rounded transition-colors",
+                theme === "dark"
+                  ? "text-white bg-red-600 hover:text-red-600 hover:bg-gray-700 hover:border hover:border-red-600"
+                  : "text-red-600 hover:text-white hover:bg-red-600 border border-red-400"
+              )}
+            >
+              Cerrar sesión
+            </button>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="mt-2 p-2 text-red-600 hover:text-white hover:bg-red-600 rounded-full transition"
+              title="Cerrar sesión"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          )}
         </div>
       </div>
     </aside>

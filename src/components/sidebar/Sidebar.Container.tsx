@@ -47,7 +47,7 @@ export default function SidebarContainer({ token }: { token?: string }) {
     };
 
     fetchData();
-  }, [readyToFetch]);
+  }, [readyToFetch, data?.id, userData?.branch_id]);
 
   if (isLoginPage) return null;
 

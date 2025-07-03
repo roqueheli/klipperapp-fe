@@ -1,3 +1,4 @@
+import { useTheme } from "@/components/ThemeProvider";
 import { Attendance } from "@/types/attendance";
 import { Service } from "@/types/service";
 import { useState } from "react";
@@ -19,6 +20,7 @@ const UnifiedAttendancesList = ({
   availableServices,
   onAddService,
 }: UnifiedAttendancesListProps) => {
+  const { theme } = useTheme();
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
   const [search, setSearch] = useState("");
 
@@ -43,7 +45,7 @@ const UnifiedAttendancesList = ({
           return (
             <li
               key={attendance.id}
-              className="p-3 rounded bg-gray-100 dark:bg-gray-700"
+              className={`p-3 rounded ${theme === 'dark' ? "bg-gray-700" : "bg-gray-100"}`}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="w-[40%]">

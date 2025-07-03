@@ -3,6 +3,7 @@ import { Attendance, Attendances } from "@/types/attendance";
 import { Organization } from "@/types/organization";
 import { User } from "@/types/user";
 import { useEffect, useState } from "react";
+import { useTheme } from "../ThemeProvider";
 import LoadingSpinner from "../ui/LoadingSpinner";
 
 interface Props {
@@ -22,6 +23,7 @@ const UnifyPaymentsModal = ({
   onClose,
   onAddAttendances,
 }: Props) => {
+  const { theme } = useTheme();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [filteredAttendances, setFilteredAttendances] = useState<Attendance[]>(
     []
@@ -56,7 +58,7 @@ const UnifyPaymentsModal = ({
 
     fetchData();
   }, [organization?.id, userData, attendanceId]);
-  
+
   useEffect(() => {
     setFilteredAttendances(
       attendances.filter((attendance) =>
@@ -89,7 +91,7 @@ const UnifyPaymentsModal = ({
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 w-full max-w-2xl p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 space-y-6 h-[650px] overflow-hidden">
+      <div className={`${theme === "dark" ? "bg-gray-900 text-gray-100 border-gray-700" : "bg-white text-gray-800 border-gray-200"}  w-full max-w-2xl p-6 rounded-2xl shadow-xl border space-y-6 h-[650px] overflow-hidden`}>
         <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
           🔗 Unificar Pagos
         </h2>
@@ -97,7 +99,7 @@ const UnifyPaymentsModal = ({
         <div className="flex items-center gap-3">
           <label
             htmlFor="search"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            className={`block text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
           >
             Buscar:
           </label>
@@ -112,28 +114,28 @@ const UnifyPaymentsModal = ({
         </div>
 
         {filteredAttendances.length === 0 ? (
-          <p className="flex justify-center items-center text-center text-red-500 dark:text-red-400 h-[400px]">
+          <p className={`flex justify-center items-center text-center ${theme === "dark" ? "text-red-400" : "text-red-500"} h-[400px]`}>
             ¡No hay transacciones para unificar!
           </p>
         ) : (
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto h-[400px]">
+          <ul className={`divide-y ${theme === "dark" ? "divide-gray-700" : "divide-gray-200"} overflow-y-auto h-[400px]`}>
             {filteredAttendances.map((attendance) => (
               <li
                 key={attendance.id}
                 className="flex justify-between items-center py-3"
               >
                 <div className="w-[40%]">
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                  <p className={`font-medium ${theme === "dark" ? "text-gray-100" : "text-gray-900"}`}>
                     {attendance.profile.name}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
                     {new Date(attendance.created_at).toLocaleString("es-CL")}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Atendido por: {attendance.attended_by_user.name}
                   </p>
                 </div>
-                <p className="w-[50%] font-medium text-gray-900 dark:text-gray-100">
+                <p className={`w-[50%] font-medium ${ theme === 'dark' ? "text-gray-100" : "text-gray-900"}`}>
                   Código: {attendance.id}
                 </p>
                 <input
@@ -150,13 +152,13 @@ const UnifyPaymentsModal = ({
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            className={`px-4 py-2 rounded-xl ${theme === "dark" ? "bg-gray-700 text-gray-100 hover:bg-gray-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300"} transition`}
           >
             Cancelar
           </button>
           <button
             onClick={handleAddAttendances}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-pink-400 hover:from-cyan-500 hover:to-pink-500 text-white font-semibold transition"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-pink-400 hover:from-cyan-500 hover:to-pink-500 font-semibold transition"
           >
             Agregar
           </button>
@@ -167,4 +169,3 @@ const UnifyPaymentsModal = ({
 };
 
 export default UnifyPaymentsModal;
-

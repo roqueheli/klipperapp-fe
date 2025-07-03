@@ -18,6 +18,7 @@ import {
 import { useState } from "react";
 import ExpensesDetailsSection from "./ExpensesDetailsSection";
 import PaymentDetailsSection from "./PaymentDetailsSection";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface PaymentCardProps {
   user: User;
@@ -59,6 +60,10 @@ export default function PaymentCard({
   onReject
 }: PaymentCardProps) {
   const [open, setOpen] = useState(false);
+  const { theme } = useTheme();
+  let isDarkExpenses = "";
+  let isDarkOthers = "";
+  let isDarkFinisheds = "";
 
   const exportToPDF = () => {
     const doc = new jsPDF();
@@ -145,11 +150,11 @@ export default function PaymentCard({
   };
 
   return (
-    <div className="border-gray-300 rounded-2xl shadow-md bg-white dark:bg-slate-800 p-6 mb-6 transition-all duration-300">
+    <div className="border border-gray-700 rounded-2xl shadow-md p-6 mb-6 transition-all duration-300">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h3 className="font-bold text-xl text-gray-800 dark:text-gray-100">
+          <h3 className="font-bold text-xl">
             {user.name}
           </h3>
           <p className="text-sm text-gray-500">{user.email}</p>
@@ -243,39 +248,40 @@ export default function PaymentCard({
 
       {/* Details */}
       {open && (
-        <div className="mt-4 text-sm text-gray-700 dark:text-gray-100 space-y-4">
+        <div className="mt-4 text-sm space-y-4">
           <PaymentDetailsSection
             title="Turnos Finalizados"
             attendances={finishedAttendances}
             renderItem={(att) => (
+              isDarkFinisheds = theme === "dark" ? "text-green-300" : "text-green-700",
               <li
                 key={att.id}
                 className="w-full list-none bg-gradient-to-r from-green-100/60 to-green-50 dark:from-green-800/30 dark:to-green-900/10 border border-green-300 dark:border-green-700 rounded-2xl p-4 mb-3 shadow-md hover:shadow-lg transition-shadow"
               >
-                <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-800 dark:text-gray-100">
+                <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
                   <div>
-                    <span className="font-semibold text-green-700 dark:text-green-300">
+                    <span className={`font-semibold ${isDarkFinisheds}`}>
                       ID Atención:
                     </span>{" "}
                     <span>{att.id}</span>
                   </div>
 
                   <div>
-                    <span className="font-semibold text-green-700 dark:text-green-300">
+                    <span className={`font-semibold ${isDarkFinisheds}`}>
                       Monto:
                     </span>{" "}
                     <span>${att.user_amount?.toLocaleString("es-CL")}</span>
                   </div>
 
                   <div>
-                    <span className="font-semibold text-green-700 dark:text-green-300">
+                    <span className={`font-semibold ${isDarkFinisheds}`}>
                       Método de Pago:
                     </span>{" "}
                     <span>{att.payment_method || "-"}</span>
                   </div>
 
                   <div>
-                    <span className="font-semibold text-green-700 dark:text-green-300">
+                    <span className={`font-semibold ${isDarkFinisheds}`}>
                       Fecha:
                     </span>{" "}
                     <span>
@@ -296,20 +302,21 @@ export default function PaymentCard({
             title="Otros Turnos"
             attendances={otherAttendances}
             renderItem={(att) => (
+              isDarkOthers = theme === "dark" ? "text-yellow-300" : "text-yellow-700",
               <li
                 key={att.id}
                 className="w-full list-none bg-gradient-to-r from-yellow-100/60 to-yellow-50 dark:from-yellow-800/30 dark:to-yellow-900/10 border border-yellow-300 dark:border-yellow-700 rounded-2xl p-4 mb-3 shadow-md hover:shadow-lg transition-shadow"
               >
-                <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-800 dark:text-gray-100">
+                <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
                   <div>
-                    <span className="font-semibold text-yellow-700 dark:text-yellow-300">
+                    <span className={`font-semibold ${isDarkOthers}`}>
                       Id Atención:
                     </span>{" "}
                     <span>{att.id}</span>
                   </div>
 
                   <div>
-                    <span className="font-semibold text-yellow-700 dark:text-yellow-300">
+                    <span className={`font-semibold ${isDarkOthers}`}>
                       Estado:
                     </span>{" "}
                     <span>{att.status}</span>
@@ -321,6 +328,7 @@ export default function PaymentCard({
           />
 
           {expenses && (
+            isDarkExpenses = theme === "dark" ? "text-red-300" : "text-red-700",
             <ExpensesDetailsSection
               title="Gastos"
               expenses={expenses}
@@ -329,16 +337,16 @@ export default function PaymentCard({
                   key={expense.id}
                   className="w-full list-none bg-gradient-to-r from-red-100/60 to-red-50 dark:from-red-800/30 dark:to-red-900/10 border border-red-300 dark:border-red-700 rounded-2xl p-4 mb-3 shadow-md hover:shadow-lg transition-shadow"
                 >
-                  <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-800 dark:text-gray-100">
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
                     <div>
-                      <span className="font-semibold text-red-700 dark:text-red-300">
+                      <span className={`font-semibold ${isDarkExpenses}`}>
                         ID Gasto:
                       </span>{" "}
                       <span>{expense.id}</span>
                     </div>
 
                     <div>
-                      <span className="font-semibold text-red-700 dark:text-red-300">
+                      <span className={`font-semibold ${isDarkExpenses}`}>
                         Monto:
                       </span>{" "}
                       <span>
@@ -347,14 +355,14 @@ export default function PaymentCard({
                     </div>
 
                     <div>
-                      <span className="font-semibold text-red-700 dark:text-red-300">
+                      <span className={`font-semibold ${isDarkExpenses}`}>
                         Descripción:
                       </span>{" "}
                       <span>{expense.description}</span>
                     </div>
 
                     <div>
-                      <span className="font-semibold text-red-700 dark:text-red-300">
+                      <span className={`font-semibold ${isDarkExpenses}`}>
                         Fecha:
                       </span>{" "}
                       <span>
@@ -363,7 +371,7 @@ export default function PaymentCard({
                     </div>
 
                     <div>
-                      <span className="font-semibold text-red-700 dark:text-red-300">
+                      <span className={`font-semibold ${isDarkExpenses}`}>
                         Cantidad:
                       </span>{" "}
                       <span>{expense.quantity}</span>
@@ -375,8 +383,8 @@ export default function PaymentCard({
             />
           )}
 
-          <div className="mt-6 p-4 rounded-2xl shadow-md bg-gradient-to-br from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-base font-semibold text-gray-700 dark:text-gray-100 mb-3">
+          <div className={`mt-6 p-4 rounded-2xl shadow-md ${theme === "dark" ? "border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" : "from-white via-gray-50 to-white"}  border border-gray-200`}>
+            <h3 className="text-base font-semibold mb-3">
               💰 Resumen financiero
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-[15px] font-medium">
@@ -399,7 +407,7 @@ export default function PaymentCard({
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl px-4 py-2 text-blue-700 dark:text-blue-400 shadow-inner">
-                <span className="text-white block text-xs uppercase tracking-wide">
+                <span className={`${theme === "dark" ? "text-white" : "text-blue-500"} block text-xs uppercase tracking-wide`}>
                   Total a pagar
                 </span>
                 <span className="text-base font-semibold">

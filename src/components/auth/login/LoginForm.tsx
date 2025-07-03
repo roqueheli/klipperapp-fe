@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "@/components/ThemeProvider";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { AccesDeniedError } from "@/lib/common/http.errors";
 import httpInternalApi from "@/lib/common/http.internal.service";
@@ -7,20 +8,20 @@ import LoginScheme from "@/schemes/login.scheme";
 import { FormData } from "@/types/auth.d";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import InputField from "../../form/InputField";
 import SubmitButton from "../../form/SubmitButton";
 
 const LoginForm = () => {
+  const { theme } = useTheme();
   const { slug } = useOrganization();
   const methods = useForm<FormData>({
     resolver: yupResolver(LoginScheme),
   });
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get("redirect") || undefined;
+  const redirectPath = searchParams.get("redirect") || "";
 
   const { handleSubmit } = methods;
 
@@ -44,11 +45,7 @@ const LoginForm = () => {
         sessionStorage.removeItem("attendancesPage");
         sessionStorage.removeItem("attendancesFilters");
         sessionStorage.removeItem("attendancesHasSearched");
-        if (!redirectPath) {
-          window.location.href = `/${slug}/users`;
-        } else {
-          router.replace(redirectPath);
-        }
+        window.location.href = redirectPath || `/${slug}/users`;
       })
       .catch((error) => {
         if (error instanceof AccesDeniedError) {
@@ -65,7 +62,9 @@ const LoginForm = () => {
     <FormProvider {...methods}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full flex flex-col items-center justify-center w-full gap-5 sm:gap-6 text-black dark:text-white"
+        className={`w-full flex flex-col items-center justify-center w-full gap-5 sm:gap-6 ${
+          theme === "dark" ? "text-white" : "text-black"
+        }`}
       >
         <div className="w-[65%] flex items-center justify-center bg-transparent">
           <InputField
@@ -89,7 +88,11 @@ const LoginForm = () => {
           <SubmitButton
             label="Iniciar sesión"
             onSubmit={onSubmit}
-            styles="text-center md:w-[57%] sm:w-full bg-white text-black hover:bg-white hover:text-electric-blue transition-all font-semibold py-2 px-4 rounded-md mt-2"
+            styles={`text-center md:w-[57%] sm:w-full ${
+              theme === "dark"
+                ? "text-gray-600 hover:bg-white shadow-xl"
+                : "text-black hover:text-electric-blue"
+            } bg-gray-300 transition-all font-semibold py-2 px-4 rounded-md mt-2`}
           />
         </div>
 

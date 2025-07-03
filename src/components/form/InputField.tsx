@@ -34,7 +34,7 @@ const InputField = ({
       <input
         {...register(fieldName)}
         type={type}
-        className="rounded-md p-2 bg-transparent border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all"
+        className={`rounded-md p-2 bg-transparent border dark:border-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all`}
         placeholder={placeholder ?? ""}
         defaultValue={value}
         onChange={onChange}

@@ -24,7 +24,7 @@ const PhoneStep: React.FC<PhoneStepProps> = ({
       </h2>
       <input
         type="tel"
-        className="border border-gray-300 dark:border-gray-700 px-4 py-3 rounded-md w-full max-w-sm mx-auto text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 transition"
+        className="border placeholder:text-gray-400 dark:border-gray-700 px-4 py-3 rounded-md w-full max-w-sm mx-auto text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 transition"
         placeholder="Ej: 9 1234 5678"
         value={phone}
         onChange={(e) => onPhoneChange(e.target.value)}

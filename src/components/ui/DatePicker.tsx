@@ -11,14 +11,14 @@ export function DatePicker({ from, to, onChange }: Props) {
         type="date"
         value={from ?? ""}
         onChange={(e) => onChange({ from: e.target.value, to })}
-        className="bg-[var(--background)] text-[var(--foreground)] border border-[var(--electric-blue)] rounded-xl px-3 py-2 text-sm shadow-md"
+        className="bg-[var(--background)] text-[var(--foreground)] border border-gray-500 rounded-md px-3 py-2 text-sm shadow-md"
       />
       <span className="text-[var(--foreground)] text-sm">a</span>
       <input
         type="date"
         value={to ?? ""}
         onChange={(e) => onChange({ from, to: e.target.value })}
-        className="bg-[var(--background)] text-[var(--foreground)] border border-[var(--electric-blue)] rounded-xl px-3 py-2 text-sm shadow-md"
+        className="bg-[var(--background)] text-[var(--foreground)] border border-gray-500 rounded-md px-3 py-2 text-sm shadow-md"
       />
     </div>
   );

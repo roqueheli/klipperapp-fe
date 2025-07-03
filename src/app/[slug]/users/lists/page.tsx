@@ -102,7 +102,7 @@ export default function AttendanceListsPage() {
       channel.unsubscribe();
       pusher.disconnect();
     };
-  }, []);
+  }, [fetchQueue]);
 
   useEffect(() => {
     const loadData = async () => {

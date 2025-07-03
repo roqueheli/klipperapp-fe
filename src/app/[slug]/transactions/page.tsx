@@ -109,7 +109,7 @@ const TransactionsPage = () => {
 
   return (
     <div className="w-full min-h-screen p-6">
-      <h1 className="text-2xl font-bold bg-clip-text bg-gradient-to-r from-black-600 text-white via-blue-500 to-indigo-500 drop-shadow-lg mb-6">
+      <h1 className="text-2xl font-semibold drop-shadow-lg mb-6">
         📅 Atenciones del día
       </h1>
 
@@ -117,17 +117,17 @@ const TransactionsPage = () => {
         <input
           type="text"
           placeholder="🔍 Buscar por nombre, servicio o profesional"
-          className="w-full md:w-1/2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-100 rounded-lg px-4 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="w-full md:w-1/2 border border-gray-300 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-600 rounded-lg px-4 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <label className="text-gray-600 dark:text-gray-300 font-medium">
+          <label className="font-medium">
             Ordenar por:
           </label>
           <select
-            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >

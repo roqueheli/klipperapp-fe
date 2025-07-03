@@ -143,7 +143,6 @@ const CheckinPage = () => {
             requestBody
           );
           results.push({ status: "fulfilled", user: u });
-          window.location.href = `/${slug}/users/lists`;
         } catch (error) {
           results.push({ status: "rejected", user: u, error });
         }
@@ -157,6 +156,7 @@ const CheckinPage = () => {
         toast.success("Todos los check-ins completados.");
       }
 
+      window.location.href = `/${slug}/users/lists`;
       return results;
     } catch (error) {
       toast.error("Ocurrió un error al procesar los check-ins.");
@@ -173,14 +173,14 @@ const CheckinPage = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 p-6">
-      <h1 className="text-2xl font-bold mb-6 sm:mb-8 text-left text-white drop-shadow-md">
+    <div className="flex flex-col min-h-screen w-full p-6">
+      <h1 className="text-2xl font-bold mb-6 sm:mb-8 text-left drop-shadow-md">
         🪪 Check-in de Usuarios
       </h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex flex-col md:flex-row gap-6 sm:gap-8 flex-1">
           {/* Lista Seleccionados */}
-          <section className="flex flex-col w-full md:w-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+          <section className="flex flex-col w-full md:w-1/2 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
             <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-green-700 dark:text-green-400">
               Orden de llegada
             </h2>
@@ -189,7 +189,7 @@ const CheckinPage = () => {
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30 p-3 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100 dark:scrollbar-thumb-green-600 dark:scrollbar-track-green-800"
+                  className="text-white space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30 p-3 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100 dark:scrollbar-thumb-green-600 dark:scrollbar-track-green-800"
                 >
                   {selectedUsers.length === 0 && (
                     <li className="text-center text-green-500 italic">
@@ -248,8 +248,8 @@ const CheckinPage = () => {
           </section>
 
           {/* Lista Disponibles */}
-          <section className="flex flex-col w-full md:w-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-gray-700 dark:text-gray-300">
+          <section className="flex flex-col w-full md:w-1/2 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-gray-700 dark:text-gray-700">
               Usuarios Disponibles
             </h2>
             <Droppable droppableId="available">
@@ -257,7 +257,7 @@ const CheckinPage = () => {
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/40 p-3 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800"
+                  className="text-white space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/40 p-3 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800"
                 >
                   {availableUsers.length === 0 && (
                     <li className="text-center italic text-gray-500 dark:text-gray-400">

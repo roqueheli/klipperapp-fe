@@ -1,10 +1,16 @@
+"use client";
+
 import { Attendance } from "@/types/attendance";
+import { translateStatus } from "@/utils/organization.utils";
 import { useMemo, useState } from "react";
+import { useTheme } from "../ThemeProvider";
+import PaginationControls from "../ui/PaginationControls";
 
 const ITEMS_PER_PAGE = 7;
 
 const getStatusStyle = (status: string) => {
-  const base = "w-[40%] sm:w-[60%] xs:w-[70%] text-center px-3 py-1 rounded-full text-xs font-semibold capitalize inline-block";
+  const base =
+    "w-[40%] sm:w-[60%] xs:w-[70%] text-center px-3 py-1 rounded-full text-xs font-semibold capitalize inline-block";
 
   switch (status) {
     case "pending":
@@ -38,22 +44,23 @@ const AttendanceTable = ({
   onPay,
   onDetail,
 }: Props) => {
+  const { theme } = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(attendances.length / ITEMS_PER_PAGE);
 
   const paginated = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return attendances.slice(start, start + ITEMS_PER_PAGE);
   }, [attendances, currentPage]);
 
-  const totalPages = Math.ceil(attendances.length / ITEMS_PER_PAGE);
-
   return (
     <div className="my-10 mb-8">
-      <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
 
-      <div className="overflow-x-auto shadow-md border rounded-lg dark:border-gray-700 bg-white dark:bg-gray-900">
+      <div className="overflow-x-auto shadow-md border rounded-lg dark:border-gray-700">
         <table className="min-w-full text-sm text-left">
-          <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
+          <thead>
             <tr>
               <th className="px-4 py-3 w-20">Código</th>
               <th className="px-4 py-3 w-60">Cliente</th>
@@ -67,7 +74,9 @@ const AttendanceTable = ({
             {paginated.map((a) => (
               <tr
                 key={a.id}
-                className="border-t hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                className={`border-t ${
+                  theme === "dark" ? "hover:bg-gray-500" : "hover:bg-gray-300"
+                } transition`}
               >
                 <td className="px-4 py-3">{a.id || "0"}</td>
                 <td className="px-4 py-3">{a.profile?.name || "-"}</td>
@@ -75,7 +84,9 @@ const AttendanceTable = ({
                   {a.attended_by_user?.name || "No asignado"}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={getStatusStyle(a.status)}>{a.status}</span>
+                  <span className={getStatusStyle(a.status)}>
+                    {translateStatus(a.status)}
+                  </span>
                 </td>
                 <td className="px-4 py-3">
                   {new Date(a.created_at).toLocaleString()}
@@ -112,29 +123,13 @@ const AttendanceTable = ({
         </table>
       </div>
 
-      {/* Paginación */}
+      {/* Paginación usando el componente */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700"
-          >
-            ⬅ Anterior
-          </button>
-          <span className="text-sm">
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700"
-          >
-            Siguiente ➡
-          </button>
-        </div>
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       )}
     </div>
   );

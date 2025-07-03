@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import AddServiceSection from "../attendances/payment/AddServiceSection";
 import ClientInfo from "../attendances/payment/ClientInfo";
 import ServiceList from "../attendances/payment/ServiceList";
+import { useTheme } from "../ThemeProvider";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export default function AddServiceModal({
   onRemoveService,
   onConfirm,
 }: AddServiceModalProps) {
+  const { theme } = useTheme();
   const [attendance, setAttendance] = useState<Attendance>();
 
   useEffect(() => {
@@ -66,8 +68,8 @@ export default function AddServiceModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur">
-      <div className="w-full max-w-3xl relative p-6 rounded-2xl bg-gradient-to-br from-[#131b2c] via-[#1b2436] to-[#1e2b40] text-white shadow-xl">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center px-4 ${theme === 'dark' ? "bg-black/60" : "bg-black/30"} backdrop-blur`}>
+      <div className={`w-full max-w-3xl relative p-6 rounded-2xl shadow-xl ${theme === 'dark' ? "bg-gradient-to-br from-[#131b2c] via-[#1b2436] to-[#1e2b40]" : "bg-gray-200"} max-h-[90vh] overflow-y-auto`}>
         <button
           onClick={onClose}
           aria-label="Cerrar modal"
@@ -97,13 +99,13 @@ export default function AddServiceModal({
         <div className="mt-8 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-md font-semibold bg-gray-500/20 text-gray-300 hover:bg-gray-600/30 transition"
+            className={`px-4 py-2 rounded-md font-semibold bg-gray-500/20 hover:bg-gray-600/30 transition`}
           >
             Cancelar
           </button>
           <button
             onClick={() => onConfirm(selectedServices)}
-            className="px-4 py-2 rounded-md font-semibold bg-blue-600 hover:bg-blue-700 text-white transition"
+            className={`px-4 py-2 rounded-md font-semibold bg-blue-600 hover:bg-blue-700 text-white transition`}
           >
             Aceptar
           </button>

@@ -92,8 +92,7 @@ const ExpensesPage = () => {
       setUsers(usersRes.users);
       setExpenses(sortExpensesByDate(expensesRes.expenses));
       setIsLoading(false);
-    } catch (error) {
-      console.error("Error loading initial data:", error);
+    } catch {
     }
   }, [data?.id, userData, sortExpensesByDate]);
 
@@ -140,8 +139,8 @@ const ExpensesPage = () => {
       );
       setExpenses((prev) => prev.filter((e) => e.id !== expenseToDelete.id));
       toast.success("Gasto eliminado correctamente");
-    } catch (error) {
-      toast.error("Error al eliminar el gasto" + error);
+    } catch {
+      toast.error("Error al eliminar el gasto");
     } finally {
       setExpenseToDelete(null);
       setIsConfirmOpen(false);

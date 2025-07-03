@@ -1,3 +1,4 @@
+import { LogoutHandler } from "@/components/auth/handler/LogoutHandler";
 import SidebarContainer from "@/components/sidebar/Sidebar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
@@ -43,8 +44,7 @@ export async function generateMetadata({
         icon: organization.metadata?.media_configs?.favicon ?? "/favicon.ico",
       },
     };
-  } catch (error) {
-    console.error("Error en generateMetadata:", error);
+  } catch {
     return {
       title: "KlipperApp",
       description: "Sistema de gestión para barberías",
@@ -76,16 +76,14 @@ export default async function LayoutWithSlug({
       new URLSearchParams({ slug })
     );
     initialData = response.organization;
-  } catch (error) {
-    console.error("Error al cargar la organización:", error);
+  } catch {
   }
 
   if (auth_token) {
     try {
-      const response = await httpInternalApi.httpGetPublic<User>("/auth/me");
+      const response = await httpInternalApi.httpGet<User>("/auth/me", undefined, auth_token);
       userData = response;
-    } catch (error) {
-      console.error("Error al cargar el usuario:", error);
+    } catch {
     }
   }
 
@@ -97,8 +95,12 @@ export default async function LayoutWithSlug({
         <ThemeProvider>
           <OrganizationProvider initialData={initialData} slug={slug}>
             <UserProvider userData={userData}>
+              {/* 👇 Limpieza de logout (solo en cliente) */}
+              <LogoutHandler />
+
               <div className="w-full flex min-h-screen">
                 {auth_token &&
+                  userData?.email_verified === true &&
                   !isLoginPage &&
                   isValidOrganization(initialData) && (
                     <SidebarContainer token={auth_token} />
@@ -115,4 +117,3 @@ export default async function LayoutWithSlug({
     </html>
   );
 }
-

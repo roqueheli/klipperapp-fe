@@ -65,7 +65,7 @@ export default function ImageUploader({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="bg-[--electric-blue] hover:bg-[--menu-hover-bg] text-white font-semibold py-2 px-4 rounded transition"
+          className="bg-[--electric-blue] hover:bg-[--menu-hover-bg] font-semibold py-2 px-4 rounded transition"
         >
           {loading ? "Subiendo..." : "Seleccionar imagen"}
         </button>

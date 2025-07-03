@@ -1,78 +1,72 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import httpInternalApi from "./lib/common/http.internal.service";
-import { Organization } from "./types/organization";
-import { isValidOrganization } from "./utils/organization.utils";
+import { User } from "./types/user";
 
-const protectedRoutes = ["dashboard", "users", "profiles", "attendances", "services", "transactions", "expenses", "management", "payments"];
-const publicRoutes = ["login", "register"];
+const protectedRoutes = [
+    "dashboard", "users", "profiles", "attendances", "services",
+    "transactions", "expenses", "management", "payments",
+    "change-password", "restore-password",
+];
+
+const publicRoutes = ["login", "register", "forgot-password"];
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    const token = request.cookies.get(process.env.AUTH_TOKEN_SECRET || "")?.value;
+    const token = (await cookies()).get("auth_token")?.value || null;
 
-    // Ignorar archivos estáticos (.ico, .png, etc.)
-    const isStaticFile = /\.(ico|png|jpg|jpeg|svg|webp|css|js|txt)$/.test(pathname);
-    if (isStaticFile) return NextResponse.next();
-
-    if (pathname.startsWith("/_next") || pathname.startsWith("/api")) {
+    // Ignorar archivos estáticos y rutas internas
+    if (/\.(ico|png|jpg|jpeg|svg|webp|css|js|txt)$/.test(pathname) ||
+        pathname.startsWith("/_next") ||
+        pathname.startsWith("/api")) {
         return NextResponse.next();
     }
 
+    // Obtener slug y sección
     const match = pathname.match(/^\/([^\/]+)(?:\/([^\/]+))?/);
     if (!match) return NextResponse.next();
 
     const slug = match[1];
-    const section = match[2]; // Puede ser undefined
+    const section = match[2];
 
+    // Determinar tipo de ruta
+    const isProtectedRoute = section && protectedRoutes.includes(section);
+    const isPublicRoute = section && publicRoutes.includes(section);
     const isAuthRoute = pathname.startsWith(`/${slug}/auth`);
 
-    if ((!token && pathname === `/${slug}`) || (!token && section && protectedRoutes.includes(section))) {
-        return NextResponse.redirect(new URL(`/${slug}/auth/login`, request.url));
+    // 1. Redirigir a login si no hay token y es ruta protegida
+    if (!token && isProtectedRoute) {
+        const loginUrl = new URL(`/${slug}/auth/login`, request.url);
+        loginUrl.searchParams.set("redirect", pathname);
+        return NextResponse.redirect(loginUrl);
     }
 
-    // 👇 Validar si la organización existe
-    let organizationExists = false;
-    try {
-        const response = await httpInternalApi.httpGetPublic<Organization>("/organizations", new URLSearchParams({ slug }));
+    // 2. Redirigir a dashboard si hay token y es ruta pública
+    if (token && isPublicRoute) return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
 
-        if (isValidOrganization(response)) {
-            organizationExists = true;
+    // 3. Validar usuario si hay token y es ruta protegida
+    if (token && isProtectedRoute) {
+        try {
+            const user = await httpInternalApi.httpGet<User>("/auth/me", undefined, token);
+
+            if (!user?.active) {
+                const logoutUrl = new URL(`/${slug}/auth/login`, request.url);
+                logoutUrl.searchParams.set("logout", "1");
+                return NextResponse.redirect(logoutUrl);
+            }
+
+            if (user.email_verified === false) {
+                return NextResponse.redirect(new URL(`/${slug}/auth/restore-password`, request.url));
+            }
+        } catch {
+            const logoutUrl = new URL(`/${slug}/auth/login`, request.url);
+            logoutUrl.searchParams.set("logout", "1");
+            return NextResponse.redirect(logoutUrl);
         }
-    } catch (error) {
-        console.error("Middleware: Organization validation error", error);
     }
 
-    // ❌ Si NO existe la organización, dejarlo pasar (para que la página lo maneje)
-    if (!organizationExists) return NextResponse.next();
-
-    if (!token && request.nextUrl.pathname.includes("/users/checkin")) {
-        return NextResponse.redirect(
-            new URL(`${slug}/auth/login?redirect=${request.nextUrl.pathname}`, request.url)
-        );
-    }
-
-    if (token && pathname === `/${slug}` && !isAuthRoute) {
-        return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
-    }
-
-    if (token && section && publicRoutes.includes(section)) {
-        return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
-    }
+    // 4. Redirigir a dashboard si está en raíz del slug
+    if (token && pathname === `/${slug}` && !isAuthRoute) return NextResponse.redirect(new URL(`/${slug}/users`, request.url));
 
     return NextResponse.next();
 }
-
-export const config = {
-    matcher: [
-        "/:slug",
-        "/:slug/auth/:path*",
-        "/:slug/users/:path*",
-        "/:slug/profiles/:path*",
-        "/:slug/attendances/:path*",
-        "/:slug/services/:path*",
-        "/:slug/transactions/:path*",
-        "/:slug/management/:path*",
-        "/:slug/expenses/:path*",
-        "/:slug/payments/:path*",
-    ],
-};

@@ -2,6 +2,7 @@
 
 import AvatarCard from "@/components/attendances/detail/AvatarCard";
 import DetailSection from "@/components/attendances/detail/DetailSection";
+import { useTheme } from "@/components/ThemeProvider";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, Attendances } from "@/types/attendance";
@@ -12,6 +13,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const AttendanceDetailPage = () => {
+  const { theme } = useTheme();
   const { id } = useParams();
   const router = useRouter();
   const [attendance, setAttendance] = useState<Attendance | null>(null);
@@ -46,7 +48,7 @@ const AttendanceDetailPage = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold text-[--electric-blue] flex items-center gap-2 mb-8">
+      <h1 className="text-3xl font-bold flex items-center gap-2 mb-8">
         🧾 Detalle del Turno
       </h1>
 
@@ -55,11 +57,11 @@ const AttendanceDetailPage = () => {
         title="Información"
       >
         <p className="mb-2">
-          <span className="font-semibold text-[--electric-blue]">Estado:</span>{" "}
+          <span className="font-semibold">Estado:</span>{" "}
           <span className="capitalize">{translateStatus(status)}</span>
         </p>
         <p>
-          <span className="font-semibold text-[--accent-pink]">Creado el:</span>{" "}
+          <span className="font-semibold">Creado el:</span>{" "}
           {new Date(created_at).toLocaleString()}
         </p>
       </DetailSection>
@@ -70,7 +72,7 @@ const AttendanceDetailPage = () => {
       >
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1">
-            <p className="text-sm font-semibold text-[--accent-pink] mb-2">
+            <p className="text-sm font-semibold mb-2">
               Cliente
             </p>
             <AvatarCard
@@ -81,7 +83,7 @@ const AttendanceDetailPage = () => {
           </div>
 
           <div className="flex-1">
-            <p className="text-sm font-semibold text-[--electric-blue] mb-2">
+            <p className="text-sm font-semibold mb-2">
               Atendido por
             </p>
             <AvatarCard
@@ -101,7 +103,7 @@ const AttendanceDetailPage = () => {
             {services.map((service: Service) => (
               <li
                 key={service.id}
-                className="bg-[#1b273a] p-4 rounded-xl flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm text-white/90 ring-1 ring-[--electric-blue]/10"
+                className={`${theme === 'dark' ? "bg-[#1b273a]" : "bg-[#ededed]"} p-4 rounded-xl flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm ring-1 ring-[--electric-blue]/10`}
               >
                 <span className="font-medium">{service.name}</span>
                 <div className="flex gap-4 mt-2 sm:mt-0 sm:text-right">
@@ -173,7 +175,7 @@ const AttendanceDetailPage = () => {
       <div className="mt-8 flex justify-end">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#131b2c] text-white hover:bg-[#1a2236] transition ring-1 ring-white/10"
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl ${theme === 'dark' ? 'bg-[#131b2c] hover:bg-[#ededed] hover:text-gray-700' : 'bg-[#ededed] hover:text-white hover:bg-[#1a2236]'} transition ring-1 ring-white/10`}
         >
           <ChevronLeft size={18} />
           Volver

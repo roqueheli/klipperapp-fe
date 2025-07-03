@@ -1,3 +1,4 @@
+import { useTheme } from "@/components/ThemeProvider";
 import { Service } from "@/types/service";
 
 interface ServiceListProps {
@@ -6,6 +7,7 @@ interface ServiceListProps {
 }
 
 const ServiceList = ({ services, onRemove }: ServiceListProps) => {
+  const { theme } = useTheme();
   const uniqueServices = [...new Set(services.map((s) => s.id))];
 
   return (
@@ -16,7 +18,7 @@ const ServiceList = ({ services, onRemove }: ServiceListProps) => {
         return (
           <li
             key={id}
-            className="p-3 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-between"
+            className={`${theme === 'dark' ? "bg-gray-700" : "bg-gray-100"} p-3 rounded flex items-center justify-between`}
           >
             <div>
               <p className="font-semibold">{service?.name}</p>

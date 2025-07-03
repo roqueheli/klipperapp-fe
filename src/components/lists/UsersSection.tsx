@@ -20,7 +20,7 @@ export default function UsersSection({
 }: Props) {
   return (
     <section className="col-span-1 md:col-span-3 space-y-6">
-      <div className="flex items-center gap-2 text-xl font-bold text-[--accent-pink]">
+      <div className="flex items-center gap-2 text-xl font-bold">
         <Users className="w-5 h-5" />
         Turnos por Profesional
       </div>

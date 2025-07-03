@@ -10,7 +10,6 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import { Branch, BranchResponse } from "@/types/branch";
 import { User, UserResponse } from "@/types/user";
 import { translateStatus } from "@/utils/organization.utils";
-import { getRoleByName } from "@/utils/roleUtils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useEffect, useState } from "react";
@@ -29,17 +28,17 @@ const AttendancesHistoryPage = () => {
         const branchesParams = new URLSearchParams();
         const usersParams = new URLSearchParams();
 
-        const agentRole = await getRoleByName("agent");
-
         if (data?.id) {
           branchesParams.set("organization_id", String(data.id));
           usersParams.set("organization_id", String(data.id));
         }
 
-        if (userData?.role.id === agentRole.id) {
-          branchesParams.set("branch_id", String(userData?.branch_id));
+        if (userData?.role.name !== "admin") {
+          branchesParams.set("id", String(userData?.branch_id));
           usersParams.set("id", String(userData?.id));
-          usersParams.set("branch_id", String(userData?.branch_id));
+          if (userData?.role.name !== "user") {
+            usersParams.set("branch_id", String(userData?.branch_id));
+          }
         }
 
         const [branchesRes, usersRes] = await Promise.all([
@@ -55,9 +54,7 @@ const AttendancesHistoryPage = () => {
 
         setBranches(branchesRes.branches);
         setUsers(usersRes.users);
-      } catch (error) {
-        console.error("Error loading initial data:", error);
-      }
+      } catch {}
     };
 
     loadInitialData();
@@ -104,7 +101,7 @@ const AttendancesHistoryPage = () => {
 
   return (
     <div className="flex items-center flex-col w-full min-h-screen p-6 max-w-7xl mx-auto">
-      <h1 className="w-full text-left text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+      <h1 className="w-full text-left text-2xl font-bold mb-4">
         🗂️ Historial de Atenciones
       </h1>
       <FilterPanel

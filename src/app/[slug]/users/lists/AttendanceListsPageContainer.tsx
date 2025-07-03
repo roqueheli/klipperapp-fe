@@ -1,7 +1,7 @@
 "use client";
 
 import { Transition } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 import AttendanceModal from "@/components/modal/AttendanceModal";
@@ -242,6 +242,15 @@ export default function AttendanceListsPageContainer({
     }
   };
 
+  const filteredServicesBySearch = useMemo(() => {
+    if (!search) return filteredServices;
+    const lower = search.toLowerCase();
+
+    return filteredServices.filter((service) =>
+      service.name?.toLowerCase().includes(lower)
+    );
+  }, [filteredServices, search]);
+
   const hasProcessing =
     users.some(
       (u) => u.profiles.length === 1 && u.profiles[0].status === "postponed"
@@ -286,7 +295,7 @@ export default function AttendanceListsPageContainer({
           attendanceProfile={selectedAtt as AttendanceProfile}
           setSelectedServices={setSelectedServices}
           selectedServices={selectedServices}
-          filteredServices={filteredServices}
+          filteredServices={filteredServicesBySearch}
           search={search}
           onSearchChange={setSearch}
           onAddService={(s) => setSelectedServices((prev) => [...prev, s])}
@@ -310,7 +319,7 @@ export default function AttendanceListsPageContainer({
           <div className="overflow-x-hidden overflow-auto w-[72%] rounded-lg shadow-lg z-50">
             <div className="relative top-9 left-3 flex justify-start">
               <button
-                className="text-white hover:text-gray-700"
+                className="hover:text-gray-700"
                 onClick={() => setWizardOpen(false)}
               >
                 <svg
