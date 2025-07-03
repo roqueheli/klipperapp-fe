@@ -18,6 +18,7 @@ export interface User {
     premium?: boolean;
     branch_id?: number;
     email_verified?: boolean;
+    attendances_queue_count?: number;
 }
 
 export interface UserResponse {

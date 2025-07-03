@@ -23,7 +23,7 @@ export default function UserProfileCard({ user, onClick }: Props) {
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-md font-bold flex items-center gap-2">
           <UserCircle2 className="w-5 h-5" />
-          <span className="truncate">{user.user.name}</span>
+          <span className="truncate">{user.user.name.split(' ')[0]}</span>
         </h3>
         <span className="truncate text-xs">
           {user.profiles.length} turno(s)

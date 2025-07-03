@@ -36,7 +36,11 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
         {profile?.name && (
           <p className="w-full mt-3 text-left mb-4 text-xl font-semibold text-blue-700 dark:text-blue-400">
             Hola,{" "}
-            <span className={`${theme === 'dark' ? "text-white" : "font-bold text-gray-600"}`}>
+            <span
+              className={`${
+                theme === "dark" ? "text-white" : "font-bold text-gray-600"
+              }`}
+            >
               {profile?.name}
             </span>
           </p>
@@ -103,9 +107,37 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
                 className="rounded-md object-cover shadow"
               />
             </div>
-            <div className={`text-md truncate font-semibold ${theme === 'dark' ? "text-white" : "font-bold text-gray-600"}`}>
+            <div
+              className={`text-md truncate font-semibold ${
+                theme === "dark" ? "text-white" : "font-bold text-gray-600"
+              }`}
+            >
               {user.name}
             </div>
+            {user.attendances_queue_count !== undefined && (
+              <div
+                className={`w-full flex items-center justify-between text-xs font-semibold px-6 py-2 rounded-lg
+                ${
+                  user.attendances_queue_count === 0
+                    ? theme === "dark"
+                      ? "bg-gray-500 text-gray-300"
+                      : "bg-gray-200 text-gray-600"
+                    : theme === "dark"
+                    ? "bg-orange-900 text-white border border-orange-700"
+                    : "bg-orange-100 text-orange-400 border border-orange-400"
+                } shadow-sm`}
+              >
+                {user.attendances_queue_count === 0 ? (
+                  <span>✅ Sin clientes</span>
+                ) : (
+                  <>
+                    <span>🧍‍♂️ En espera</span>
+                    <span>{user.attendances_queue_count}</span>
+                  </>
+                )}
+              </div>
+            )}
+
             {user.premium && (
               <div className="text-yellow-400 font-semibold">⭐ Premium</div>
             )}
@@ -114,7 +146,14 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
       </div>
 
       <h2 className="ml-2 mt-8 text-xl font-extrabold mb-4 text-left text-blue-600 dark:text-blue-400 drop-shadow-sm">
-        Selecciona un servicio <span className={`${theme === 'dark' ? "text-white" : "font-bold text-gray-600"}`}>(Opcional)</span>
+        Selecciona un servicio{" "}
+        <span
+          className={`${
+            theme === "dark" ? "text-white" : "font-bold text-gray-600"
+          }`}
+        >
+          (Opcional)
+        </span>
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
         {services?.services.map((service) => (
@@ -143,7 +182,11 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
                 className="rounded-md object-cover shadow"
               />
             </div>
-            <h3 className={`text-md font-semibold truncate ${theme === 'dark' ? "text-white" : "font-bold text-gray-600"}`}>
+            <h3
+              className={`text-md font-semibold truncate ${
+                theme === "dark" ? "text-white" : "font-bold text-gray-600"
+              }`}
+            >
               {service.name}
             </h3>
             <p className="mt-1 text-md font-bold text-blue-700 dark:text-blue-400">

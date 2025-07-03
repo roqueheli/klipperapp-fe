@@ -1,5 +1,6 @@
 import { Profile } from "./profile"
 import { Service } from "./service"
+import { User } from "./user"
 
 export interface Attendance {
 	id: number
@@ -12,9 +13,10 @@ export interface Attendance {
 	attended_by: number | null
 	created_at: string
 	updated_at: string
-	attended_by_user: AttendedByUser
+	attended_by_user: User
 	discount: number | null
 	extra_discount: number | null
+	tip_amount: number | null
 	user_amount: number | null
 	organization_amount: number | null
 	start_attendance_at: string | null

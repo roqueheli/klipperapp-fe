@@ -114,7 +114,6 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         sessionStorage.removeItem("attendancesPage");
         sessionStorage.removeItem("attendancesFilters");
         sessionStorage.removeItem("attendancesHasSearched");
-        // router.push(`/${slug}/auth/login`);
         window.location.href = `/${slug}/auth/login`;
       });
   };
