@@ -64,7 +64,7 @@ const AttendanceDetailPage = () => {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold flex items-center gap-2 mb-8">
-        🧾 Detalle del Turno
+        🧾 Detalle de la atención
       </h1>
 
       <DetailSection
@@ -153,7 +153,7 @@ const AttendanceDetailPage = () => {
         attendance.child_attendances.length > 0 && (
           <DetailSection
             icon={<UserCircle2 className="text-teal-400" />}
-            title="Turnos asociados"
+            title="Atenciones unificadas"
           >
             <ul className="space-y-4 p-4 rounded-xl shadow-gray-100 shadow-xs">
               {attendance.child_attendances.map((child) => (
@@ -168,7 +168,7 @@ const AttendanceDetailPage = () => {
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                     <div>
                       <p>
-                        Código Turno:{" "}
+                        Código Atención:{" "}
                         <span className="font-semibold">{child.id}</span>
                       </p>
                       {child.profile?.name && (

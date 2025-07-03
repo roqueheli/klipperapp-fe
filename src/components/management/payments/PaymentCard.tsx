@@ -92,7 +92,7 @@ export default function PaymentCard({
         headStyles: { fillColor: [61, 217, 235] },
       });
     } else {
-      doc.text("Sin turnos finalizados.", 14, 35);
+      doc.text("Sin atenciones finalizadas.", 14, 35);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,7 +106,7 @@ export default function PaymentCard({
         theme: "striped",
       });
     } else {
-      doc.text("Sin otros turnos.", 14, offsetY + 10);
+      doc.text("Sin otras atenciones .", 14, offsetY + 10);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -250,7 +250,7 @@ export default function PaymentCard({
       {open && (
         <div className="mt-4 text-sm space-y-4">
           <PaymentDetailsSection
-            title="Turnos Finalizados"
+            title="Atenciones Finalizadas"
             attendances={finishedAttendances}
             renderItem={(att) => (
               isDarkFinisheds = theme === "dark" ? "text-green-300" : "text-green-700",
@@ -295,11 +295,11 @@ export default function PaymentCard({
                 </div>
               </li>
             )}
-            emptyText="Sin turnos finalizados."
+            emptyText="Sin atenciones finalizadas."
           />
 
           <PaymentDetailsSection
-            title="Otros Turnos"
+            title="Otras Atenciones"
             attendances={otherAttendances}
             renderItem={(att) => (
               isDarkOthers = theme === "dark" ? "text-yellow-300" : "text-yellow-700",
@@ -324,7 +324,7 @@ export default function PaymentCard({
                 </div>
               </li>
             )}
-            emptyText="Sin otros turnos."
+            emptyText="Sin otras atenciones."
           />
 
           {expenses && (
