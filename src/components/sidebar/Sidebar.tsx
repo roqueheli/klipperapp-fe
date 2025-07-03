@@ -240,37 +240,42 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         {/* Avatar e Logout */}
         <div
           className={clsx(
-            "flex items-center gap-3 px-2 py-2 w-full transition-all duration-300",
-            isOpen ? "flex-row" : "flex-col justify-center"
+            "flex w-full justify-between items-center gap-3 px-2 py-2 w-full transition-all duration-300",
+            isOpen ? "flex-col" : "flex-col justify-center"
           )}
         >
-          {userData?.photo_url ? (
-            <Image
-              src={userData.photo_url}
-              alt="User Avatar"
-              width={isOpen ? 45 : 40} // w-12 : w-8
-              height={isOpen ? 45 : 40} // h-12 : h-8
-              className="rounded-full object-cover shrink-0"
-            />
-          ) : (
-            <div
-              className={clsx(
-                "flex items-center justify-center font-bold rounded-full shrink-0",
-                theme === "dark"
-                  ? "bg-gray-700 text-white"
-                  : "bg-gray-200 text-black",
-                isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
-              )}
-            >
-              {initials}
-            </div>
-          )}
+          <div className="flex w-full items-center gap-4">
+            {userData?.photo_url ? (
+              <Image
+                src={userData.photo_url}
+                alt="User Avatar"
+                width={isOpen ? 45 : 40} // w-12 : w-8
+                height={isOpen ? 45 : 40} // h-12 : h-8
+                className="rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div
+                className={clsx(
+                  "flex items-center justify-center font-bold rounded-full shrink-0",
+                  theme === "dark"
+                    ? "bg-gray-700 text-white"
+                    : "bg-gray-200 text-black",
+                  isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
+                )}
+              >
+                {initials}
+              </div>
+            )}
+            {isOpen && (
+              <span className={`capitalize font-semibold px-5 py-1 rounded-lg text-xs inline-block ${theme === 'dark' ? "bg-gray-600" : "bg-gray-300"}`}>{`${userData?.role.name}`}</span>
+            )}
+          </div>
 
           {isOpen ? (
             <button
               onClick={handleLogout}
               className={clsx(
-                "flex items-center justify-center text-sm px-3 py-2 rounded transition-colors",
+                "flex w-full items-center justify-center text-sm px-3 py-2 rounded transition-colors",
                 theme === "dark"
                   ? "text-white bg-red-600 hover:text-red-600 hover:bg-gray-700 hover:border hover:border-red-600"
                   : "text-red-600 hover:text-white hover:bg-red-600 border border-red-400"
