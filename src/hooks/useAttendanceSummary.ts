@@ -20,13 +20,6 @@ export function useAttendanceSummary(
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    console.log(startDate,
-        endDate,
-        status,
-        branchId,
-        userId);
-
-
     useEffect(() => {
         const fetchSummary = async () => {
             if (!organization?.id || !userData?.branch_id) return;

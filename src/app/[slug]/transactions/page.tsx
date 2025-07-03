@@ -45,7 +45,6 @@ const TransactionsPage = () => {
     fetchData();
   }, [data?.id, userData]);
 
-  // Función simulada para editar attendance (deberías implementarla)
   const handleEditAttendance = (attendance: Attendance) => {
     const dataToStore = {
       attendanceId: attendance?.id,
@@ -59,7 +58,6 @@ const TransactionsPage = () => {
     router.push(`/${slug}/users/attendances`);
   };
 
-  // Función simulada para pagar attendance (deberías implementar la lógica real)
   const handlePayAttendance = (attendance: Attendance) => {
     router.push(`/${slug}/payments/${attendance.id}`);
   };

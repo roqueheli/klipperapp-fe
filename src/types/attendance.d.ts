@@ -27,7 +27,40 @@ export interface Attendance {
 	profile: Profile
 	services: Service[]
 	parent_attendance_id: number | null
-	child_attendances: Attendance[] | []
+	child_attendances: ChildAttendance[]
+}
+
+export interface ChildAttendance {
+	id: number;
+	status: string;
+	discount: number;
+	extra_discount: number;
+	user_amount: number;
+	organization_amount: number;
+	total_amount: number;
+	tip_amount: number;
+	start_attendance_at: string;
+	end_attendance_at: string;
+	attended_by: number;
+	branch_id: number;
+	organization_id: number;
+	profile_id: number;
+	payment_method: string;
+	created_at: string;
+	updated_at: string;
+	attended_by_user: {
+		id: number;
+		name: string;
+		email: string;
+		phone_number: string;
+		role_id: number;
+		organization_id: number;
+		branch_id: number;
+		active: boolean;
+		photo_url: string;
+	},
+	profile: Profile;
+	services: Service[];
 }
 
 export interface ServicesResponse {

@@ -5,9 +5,9 @@ import DetailSection from "@/components/attendances/detail/DetailSection";
 import { useTheme } from "@/components/ThemeProvider";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Attendance, Attendances } from "@/types/attendance";
+import { Attendance } from "@/types/attendance";
 import { Service } from "@/types/service";
-import { translateStatus } from "@/utils/organization.utils";
+import { getStatusStyle, translateStatus } from "@/utils/organization.utils";
 import { CalendarClock, ChevronLeft, UserCircle2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -26,11 +26,11 @@ const AttendanceDetailPage = () => {
     const fetchAttendance = async () => {
       try {
         const response = (await httpInternalApi.httpGetPublic(
-          `/attendances`,
+          `/attendances/${id}`,
           attendanceParams
-        )) as Attendances;
+        )) as Attendance;
 
-        setAttendance(response?.attendances[0]);
+        setAttendance(response);
       } catch (error) {
         console.error("Error al cargar asistencia:", error);
       } finally {
@@ -72,9 +72,15 @@ const AttendanceDetailPage = () => {
         title="Información"
       >
         <div className="flex items-center justify-between">
-          <p>
+          <p className="flex items-center gap-2">
             <span className="font-semibold">Estado:</span>{" "}
-            <span className="capitalize">{translateStatus(status)}</span>
+            <span
+              className={`capitalize font-semibold px-3 py-1 rounded-full text-xs inline-block ${getStatusStyle(
+                status
+              )}`}
+            >
+              {translateStatus(status)}
+            </span>
           </p>
           <p>
             <span className="font-semibold">Fecha de atención:</span>{" "}
@@ -142,56 +148,123 @@ const AttendanceDetailPage = () => {
         )}
       </DetailSection>
 
+      {/**CHILD ATTENDANCES */}
       {attendance.child_attendances &&
         attendance.child_attendances.length > 0 && (
           <DetailSection
             icon={<UserCircle2 className="text-teal-400" />}
             title="Turnos asociados"
           >
-            <ul className="space-y-4">
+            <ul className="space-y-4 p-4 rounded-xl shadow-gray-100 shadow-xs">
               {attendance.child_attendances.map((child) => (
                 <li
                   key={child.id}
                   className={`${
                     theme === "dark"
-                      ? "bg-[#1a263a] text-white/90"
-                      : "text-black shadow-md bg-[#ededed]"
-                  } p-4 rounded-xl text-sm ring-1 ring-[--electric-blue]/10 flex flex-col sm:flex-row sm:justify-between sm:items-center`}
+                      ? "text-white/90 shadow-gray-100"
+                      : "text-black shadow-gray-700"
+                  } p-4 rounded-xl shadow-xs text-sm`}
                 >
-                  <div>
-                    <p className="font-semibold text-[--electric-blue]">
-                      Código Turno: {child.id}
-                    </p>
-                    <p>
-                      Estado:{" "}
-                      <span className="capitalize">
-                        {translateStatus(child.status)}
-                      </span>
-                    </p>
-                    {child.attended_by && (
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                    <div>
                       <p>
-                        Atendido por Id:{" "}
-                        <span className="text-[--accent-pink]">
-                          {child.attended_by}
+                        Código Turno:{" "}
+                        <span className="font-semibold">{child.id}</span>
+                      </p>
+                      {child.profile?.name && (
+                        <p>
+                          Cliente:{" "}
+                          <span className="text-md font-bold">
+                            {child.profile.name}
+                          </span>
+                        </p>
+                      )}
+                      {child.attended_by_user?.name && (
+                        <p>
+                          Atendido por:{" "}
+                          <span className="text-md font-bold">
+                            {child.attended_by_user.name}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                    <div className="mt-4 sm:mt-0 sm:text-right">
+                      <p className="flex items-center gap-2">
+                        Estado:{" "}
+                        <span
+                          className={`capitalize font-semibold px-3 py-1 rounded-full text-xs inline-block ${getStatusStyle(
+                            child.status
+                          )}`}
+                        >
+                          {translateStatus(child.status)}
                         </span>
                       </p>
-                    )}
+                      <p className="text-[--accent-pink] mb-1">
+                        Total pagado:{" "}
+                        <span className="font-semibold">
+                          {Number(child.total_amount).toLocaleString("es-CL", {
+                            style: "currency",
+                            currency: "CLP",
+                          })}
+                        </span>
+                      </p>
+                      {child.payment_method && (
+                        <p className="text-xs italic text-gray-500">
+                          Método: {child.payment_method}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="mt-2 sm:mt-0 text-right">
-                    <p className="text-[--accent-pink]">
-                      Precio:{" "}
-                      {Number(child.total_amount).toLocaleString("es-CL", {
-                        style: "currency",
-                        currency: "CLP",
-                      })}
-                    </p>
-                  </div>
+
+                  {child.services && child.services.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium mb-1">Servicios:</p>
+                      {child.services && child.services.length > 0 ? (
+                        <ul className="space-y-4">
+                          {child.services.map((service: Service) => (
+                            <li
+                              key={service.id}
+                              className={`${
+                                theme === "dark"
+                                  ? "bg-[#1b273a]"
+                                  : "bg-[#ededed]"
+                              } p-4 rounded-xl flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm ring-1 ring-[--electric-blue]/10`}
+                            >
+                              <span className="font-medium">
+                                {service.name}
+                              </span>
+                              <div className="flex gap-4 mt-2 sm:mt-0 sm:text-right">
+                                <span className="text-[--accent-pink]">
+                                  Precio:{" "}
+                                  {Number(service.price).toLocaleString(
+                                    "es-CL",
+                                    {
+                                      style: "currency",
+                                      currency: "CLP",
+                                    }
+                                  )}
+                                </span>
+                                <span className="text-[--electric-blue]">
+                                  Duración: {service.duration} min
+                                </span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="italic text-gray-400">
+                          Sin servicios asignados.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
           </DetailSection>
         )}
 
+      {/** PAGO **/}
       {status === "finished" && (
         <DetailSection
           icon={<span className="text-green-500 text-xl font-bold">$</span>}
@@ -235,6 +308,7 @@ const AttendanceDetailPage = () => {
         </DetailSection>
       )}
 
+      {/** BOTON VOLVER **/}
       <div className="mt-8 flex justify-end">
         <button
           onClick={() => router.back()}
