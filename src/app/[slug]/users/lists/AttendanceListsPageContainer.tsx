@@ -298,10 +298,26 @@ export default function AttendanceListsPageContainer({
           filteredServices={filteredServicesBySearch}
           search={search}
           onSearchChange={setSearch}
-          onAddService={(s) => setSelectedServices((prev) => [...prev, s])}
-          onRemoveService={(id) =>
-            setSelectedServices((prev) => prev.filter((s) => s.id !== id))
-          }
+          onAddService={(s) => {
+            setSelectedServices((prev) => [...prev, s]);
+            toast.success(`Servicio ${s.name} agregado exitosamente.`, {
+              duration: 3000,
+              style: {
+                animation: "fade-out-slow 3s forwards",
+                width: "600px",
+              },
+            });
+          }}
+          onRemoveService={(id) => {
+            setSelectedServices((prev) => prev.filter((s) => s.id !== id));
+            toast.success("Servicio eliminado exitosamente.", {
+              duration: 3000,
+              style: {
+                animation: "fade-out-slow 3s forwards",
+                width: "600px",
+              },
+            });
+          }}
           onConfirm={handleConfirmServices}
         />
       )}

@@ -65,16 +65,24 @@ const AddServiceSection = ({
                 }
               `}
             >
-              <div>
-                <p className="font-semibold">{service.name}</p>
-                <p className="text-sm">Duración: {service.duration} min</p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p
+                    className="font-semibold truncate"
+                    title={service.name}
+                    style={{ maxWidth: "13rem" }}
+                  >
+                    {service.name}
+                  </p>
+                  <p className="text-sm">Duración: {service.duration} min</p>
+                </div>
+                <button
+                  onClick={() => onAddService(service)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                >
+                  Agregar
+                </button>
               </div>
-              <button
-                onClick={() => onAddService(service)}
-                className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-              >
-                Agregar
-              </button>
             </div>
           ))}
         </div>

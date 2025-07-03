@@ -148,6 +148,13 @@ const PaymentsPage = () => {
 
   const handleAddService = (service: Service) => {
     setSelectedServices((prev) => [...prev, service]);
+    toast.success(`Servicio "${service.name}" agregado`, {
+      duration: 3000,
+      style: {
+        animation: "fade-out-slow 3s forwards",
+        width: "600px",
+      },
+    });
   };
 
   const handleAddServiceToAttendance = (
@@ -161,6 +168,13 @@ const PaymentsPage = () => {
           : a
       )
     );
+    toast.success(`Servicio "${service.name}" agregado a la asistencia`, {
+      duration: 3000,
+      style: {
+        animation: "fade-out-slow 3s forwards",
+        width: "600px",
+      },
+    });
   };
 
   const handleUpdateAttendance = (updatedAttendance: Attendance) => {

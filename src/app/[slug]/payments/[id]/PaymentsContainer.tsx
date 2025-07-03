@@ -13,6 +13,7 @@ import { Organization } from "@/types/organization";
 import { Service } from "@/types/service";
 import { User } from "@/types/user";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface Props {
   organization: Organization;
@@ -97,15 +98,33 @@ const PaymentsContainer = ({
     setSelectedServices((prev) => {
       const existingIds = new Set(prev.map((s) => s.id));
       const newServices = unifiedServices.filter((s) => !existingIds.has(s.id));
+      
+      // Mostrar un toast por cada servicio agregado
+      newServices.forEach((service) => {
+        toast.success(`Servicio "${service.name}" agregado`, {
+          duration: 3000,
+          style: {
+            animation: "fade-out-slow 3s forwards",
+            width: "600px",
+          },
+        });
+      });
+
       return [...prev, ...newServices];
     });
   };
 
   return (
     <div className="w-full mx-auto p-4">
-      <div className={`${theme === 'dark' ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900 border border-gray-300"} shadow-lg rounded-md p-6`}>
+      <div
+        className={`${
+          theme === "dark"
+            ? "bg-gray-800 text-gray-100"
+            : "bg-white text-gray-900 border border-gray-300"
+        } shadow-lg rounded-md p-6`}
+      >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">Detalle de la transacción</h2>
+          <h2 className="text-2xl font-semibold">{`Detalle de la transacción: `}{attendance.id}</h2>
           <button
             onClick={handleOpenModal}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
@@ -124,13 +143,24 @@ const PaymentsContainer = ({
 
         <ClientInfo attendance={attendance} />
 
-        <hr className="border-gray-300 dark:border-gray-600 mb-6" />
+        <hr
+          className={`${
+            theme === "dark" ? "border-gray-600" : "border-gray-300"
+          } mb-2`}
+        />
 
         <UnifiedAttendancesList
           attendances={selectedAttendances}
-          onRemove={(id) =>
-            setSelectedAttendances((prev) => prev.filter((a) => a.id !== id))
-          }
+          onRemove={(id) => {
+            setSelectedAttendances((prev) => prev.filter((a) => a.id !== id));
+            toast.success("Asistencia eliminada exitosamente", {
+              duration: 3000,
+              style: {
+                animation: "fade-out-slow 3s forwards",
+                width: "305px",
+              },
+            });
+          }}
           onUpdateAttendance={handleUpdateAttendance}
           availableServices={availableServices}
           onAddService={handleAddServiceToAttendance}
@@ -140,9 +170,16 @@ const PaymentsContainer = ({
           <h5 className="text-lg font-medium mb-4">Servicios:</h5>
           <ServiceList
             services={services}
-            onRemove={(id) =>
-              setSelectedServices((prev) => prev.filter((s) => s.id !== id))
-            }
+            onRemove={(id) => {
+              setSelectedServices((prev) => prev.filter((s) => s.id !== id));
+              toast.success("Servicio eliminado exitosamente", {
+                duration: 3000,
+                style: {
+                  animation: "fade-out-slow 3s forwards",
+                  width: "305px",
+                },
+              });
+            }}
           />
         </div>
 
