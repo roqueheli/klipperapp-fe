@@ -146,13 +146,15 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         className="mb-2 flex items-center text-md font-extrabold tracking-wide transition-colors"
         aria-label="Home"
       >
-        <Image
-          src={data?.metadata?.media_configs?.logo_url ?? ""}
-          alt="Logo"
-          width="30"
-          height="40"
-          className="rounded-full"
-        />
+        <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0">
+          <Image
+            src={data?.metadata?.media_configs?.logo_url ?? ""}
+            alt="Logo"
+            fill
+            sizes="32px"
+            className="object-cover"
+          />
+        </div>
         {isOpen && <span className="ml-4">{data?.name}</span>}
       </Link>
 
@@ -267,19 +269,29 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         {/* Avatar e Logout */}
         <div
           className={clsx(
-            "flex w-full justify-between items-center gap-3 px-2 py-2 w-full transition-all duration-300",
+            "flex w-full justify-between items-center gap-3 px-2 py-2 transition-all duration-300",
             isOpen ? "flex-col" : "flex-col justify-center"
           )}
         >
-          <div className="flex w-full items-center gap-4">
+          <div
+            className={`flex w-full ${
+              !isOpen && "justify-center"
+            } items-center gap-4`}
+          >
             {userData?.photo_url ? (
-              <Image
-                src={userData.photo_url}
-                alt="User Avatar"
-                width={isOpen ? 45 : 40} // w-12 : w-8
-                height={isOpen ? 45 : 40} // h-12 : h-8
-                className="rounded-full object-cover shrink-0"
-              />
+              <div
+                className={clsx(
+                  "rounded-full overflow-hidden",
+                  isOpen ? "w-12 h-12" : "w-10 h-10"
+                )}
+              >
+                <Image
+                  src={userData.photo_url}
+                  alt="User Avatar"
+                  fill
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div
                 className={clsx(
