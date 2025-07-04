@@ -51,7 +51,7 @@ export default function UnderConstructionPage() {
         </button>
       </form>
 
-      <div className="relative w-82 h-48 rounded-md shadow-md overflow-hidden">
+      <div className="relative w-98 h-64 rounded-md shadow-md overflow-hidden">
         <Image
           src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif"
           alt="Trabajando en construcción"
