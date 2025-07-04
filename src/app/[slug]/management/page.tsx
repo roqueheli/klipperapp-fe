@@ -33,7 +33,7 @@ const PaymentsManagementPage = () => {
       try {
         if (!data?.id || !userData?.role?.id) return;
 
-        setCanView(userData?.role.name === "admin");
+        setCanView((userData?.role.name === "admin" || userData?.role.name === "user"));
 
         // Cargar datos iniciales
         const branchesParams = new URLSearchParams({
@@ -46,6 +46,7 @@ const PaymentsManagementPage = () => {
 
         if (userData.role.name !== "admin") {
           branchesParams.set("id", String(userData?.branch_id));
+          usersParams.set("branch_id", String(userData?.branch_id));
           if (userData.role.name !== "user") {
             usersParams.set("id", String(userData?.id));
           }

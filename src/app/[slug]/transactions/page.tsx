@@ -5,9 +5,9 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
+import { pusherClient } from "@/lib/pusher/pusher.client";
 import { Attendance, AttendanceCable, Attendances } from "@/types/attendance";
 import { useRouter } from "next/navigation";
-import Pusher from "pusher-js";
 import { useEffect, useMemo, useState } from "react";
 
 const TransactionsPage = () => {
@@ -43,14 +43,9 @@ const TransactionsPage = () => {
   };
 
   useEffect(() => {
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || "", {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "",
-      forceTLS: true, // importante para que use WSS (no HTTP inseguro)
-    });
+    const channel = pusherClient?.subscribe("attendance_channel");
 
-    const channel = pusher.subscribe("attendance_channel");
-
-    channel.bind("attendance", function (attendance: AttendanceCable) {
+    channel?.bind("attendance", function (attendance: AttendanceCable) {
       const { id: attendanceId, status } = attendance;
       if (!attendanceId || !status) return;
 
@@ -78,9 +73,8 @@ const TransactionsPage = () => {
 
     return () => {
       // 🔒 Limpieza al desmontar
-      channel.unbind_all();
-      channel.unsubscribe();
-      pusher.disconnect();
+      channel?.unbind_all();
+      channel?.unsubscribe();
     };
   }, [fetchData]);
 
