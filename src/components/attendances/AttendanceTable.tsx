@@ -105,7 +105,7 @@ const AttendanceTable = ({
                     >
                       Ver detalle
                     </button>
-                    {userData?.role.name === "admin" || userData?.role.name === "user" && (
+                    {(userData?.role.name === "admin" || userData?.role.name === "user") && (
                       <>
                         {a.status === "pending" && (
                           <button
