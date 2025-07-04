@@ -4,11 +4,11 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
+import { pusherClient } from "@/lib/pusher/pusher.client";
 import { AttendanceCable } from "@/types/attendance";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse, UserWithProfiles } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
-import Pusher from "pusher-js";
 import { startTransition, useCallback, useEffect, useState } from "react";
 import AttendanceListsPageContainer from "./AttendanceListsPageContainer";
 
@@ -36,14 +36,9 @@ export default function AttendanceListsPage() {
   }, []);
 
   useEffect(() => {
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || "", {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "",
-      forceTLS: true, // importante para que use WSS (no HTTP inseguro)
-    });
+    const channel = pusherClient?.subscribe("attendance_channel");
 
-    const channel = pusher.subscribe("attendance_channel");
-
-    channel.bind("attendance", function (attendance: AttendanceCable) {
+    channel?.bind("attendance", function (attendance: AttendanceCable) {
       const { attended_by, id: attendanceId, status, profile } = attendance;
       if (!attended_by || !attendanceId || !status || !profile) return;
 
@@ -98,9 +93,8 @@ export default function AttendanceListsPage() {
 
     return () => {
       // 🔒 Limpieza al desmontar
-      channel.unbind_all();
-      channel.unsubscribe();
-      pusher.disconnect();
+      channel?.unbind_all();
+      channel?.unsubscribe();
     };
   }, [fetchQueue]);
 
