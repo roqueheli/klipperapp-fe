@@ -99,41 +99,36 @@ export default async function LayoutWithSlug({
   }
 
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body
-        className={`${inter.className} bg-white text-black dark:bg-gray-900 dark:text-white transition-colors`}
-      >
-        <ThemeProvider>
-          <OrganizationProvider initialData={initialData} slug={slug}>
-            <UserProvider userData={userData}>
-              <BranchProvider
-                initialBranches={userBranches}
-                initialSelected={
-                  userData?.role?.name === "admin"
-                    ? userBranches[0]
-                    : userBranches?.find(b => b.id === userData?.branch_id) || [][0]
-                }
-              >
-                {/* 👇 Limpieza de logout (solo en cliente) */}
-                <LogoutHandler />
+    <ThemeProvider>
+      <OrganizationProvider initialData={initialData} slug={slug}>
+        <UserProvider userData={userData}>
+          <BranchProvider
+            initialBranches={userBranches}
+            initialSelected={
+              userData?.role?.name === "admin"
+                ? userBranches[0]
+                : userBranches?.find((b) => b.id === userData?.branch_id) ||
+                  [][0]
+            }
+          >
+            {/* 👇 Limpieza de logout (solo en cliente) */}
+            <LogoutHandler />
 
-                <div className="w-full flex min-h-screen">
-                  {auth_token &&
-                    userData?.email_verified === true &&
-                    !isLoginPage &&
-                    isValidOrganization(initialData) && (
-                      <SidebarContainer token={auth_token} />
-                    )}
-                  <div className="w-full transition-all duration-300 flex-grow">
-                    <main className="w-full flex-grow">{children}</main>
-                  </div>
-                </div>
-                <ToasterProvider />
-              </BranchProvider>
-            </UserProvider>
-          </OrganizationProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+            <div className="w-full flex min-h-screen">
+              {auth_token &&
+                userData?.email_verified === true &&
+                !isLoginPage &&
+                isValidOrganization(initialData) && (
+                  <SidebarContainer token={auth_token} />
+                )}
+              <div className="w-full transition-all duration-300 flex-grow">
+                <main className="w-full flex-grow">{children}</main>
+              </div>
+            </div>
+            <ToasterProvider />
+          </BranchProvider>
+        </UserProvider>
+      </OrganizationProvider>
+    </ThemeProvider>
   );
 }
