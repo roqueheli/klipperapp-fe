@@ -51,7 +51,7 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
   const pathname = usePathname();
   const [route, setRoute] = useState("/users");
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState<boolean | null>(null);
 
   const initials = userData?.name
     ?.split(" ")
@@ -79,26 +79,12 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
       setIsOpen(shouldBeOpen);
     };
 
-    handleResize(); // ejecuta al montar
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const shouldBeOpen = window.innerWidth >= 768;
-      setIsOpen(shouldBeOpen);
-    };
-
-    // Ejecutar una vez al cargar
-    handleResize();
-
-    // Agregar listener
-    window.addEventListener("resize", handleResize);
-
-    // Limpiar al desmontar
-    return () => window.removeEventListener("resize", handleResize);
+    // Defer to client
+    if (typeof window !== "undefined") {
+      handleResize(); // Ejecutar al montar
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
   }, []);
 
   const handleLogout = async () => {
@@ -119,6 +105,8 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         window.location.href = `/${slug}/auth/login`;
       });
   };
+
+  if (isOpen === null) return null;
 
   return (
     <aside
