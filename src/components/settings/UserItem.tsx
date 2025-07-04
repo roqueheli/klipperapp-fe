@@ -5,6 +5,7 @@ import { Branch } from "@/types/branch";
 import { Role } from "@/types/role";
 import { User } from "@/types/user";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { useTheme } from "../ThemeProvider";
 import ImageUploader from "./ImageUploader";
 
 interface UserItemProps {
@@ -30,27 +31,33 @@ export default function UserItem({
   setExpanded,
   isAdmin = true,
 }: UserItemProps) {
+  const { theme } = useTheme();
+
   return (
     <div className="border border-[--electric-blue] rounded-xl mb-3 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 bg-[--cyber-gray] hover:bg-[--menu-hover-bg] transition">
         <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={user.active}
-            onChange={(e) => onToggleActive(user.id, e.target.checked)}
-          />
+          {isAdmin && (
+            <input
+              type="checkbox"
+              checked={user.active}
+              onChange={(e) => onToggleActive(user.id, e.target.checked)}
+            />
+          )}
           <span className="text-[--electric-blue] font-semibold">
             {user.name}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => onDelete(user.id)}
-            className="text-red-500 hover:text-red-600 transition"
-            title="Eliminar usuario"
-          >
-            <Trash2 size={18} />
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => onDelete(user.id)}
+              className="text-red-500 hover:text-red-600 transition"
+              title="Eliminar usuario"
+            >
+              <Trash2 size={18} />
+            </button>
+          )}
           <button
             onClick={() => setExpanded(!expanded)}
             className="text-[--electric-blue]"
@@ -97,7 +104,7 @@ export default function UserItem({
               onChange={(e) =>
                 onChange(user.id, { role: { id: Number(e.target.value) } })
               }
-              className="w-full border rounded px-3 py-2 text-sm bg-white text-black"
+              className={`w-full border rounded px-3 py-2 text-sm ${theme === 'dark' ? "border-gray-600 bg-transparent" : "bg-white text-black"}`}
             >
               {isAdmin && <option value="">Selecciona un rol</option>}
               {roles.map((role) => (
@@ -116,7 +123,7 @@ export default function UserItem({
               onChange={(e) =>
                 onChange(user.id, { branch_id: Number(e.target.value) })
               }
-              className="w-full border rounded px-3 py-2 text-sm bg-white text-black"
+              className={`w-full border rounded px-3 py-2 text-sm ${theme === 'dark' ? "border-gray-600 bg-transparent" : "bg-white text-black"}`}
             >
               {isAdmin && <option value="">Selecciona una sucursal</option>}
               {branches.map((branch) => (

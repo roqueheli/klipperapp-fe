@@ -19,7 +19,7 @@ interface ExpensesTableProps {
 const ExpensesTable = ({
   expenses,
   title,
-  itemsPerPage = 10,
+  itemsPerPage = 8,
   allowActions = false,
   onEdit,
   onView,

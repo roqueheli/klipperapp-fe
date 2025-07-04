@@ -10,7 +10,6 @@ import { Branch, BranchResponse } from "@/types/branch";
 import { Role, RoleResponse } from "@/types/role";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse } from "@/types/user";
-import { getRoleByName } from "@/utils/roleUtils";
 import { KeyRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -41,21 +40,24 @@ const SettingsPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const agentRole = await getRoleByName("admin");
-      setIsAdmin(agentRole.id === userData?.role?.id);
-
       const servicesParams = new URLSearchParams();
       const usersParams = new URLSearchParams();
+      const branchesParams = new URLSearchParams();
+      const roesParams = new URLSearchParams();
 
       if (data?.id) {
         servicesParams.set("organization_id", String(data?.id));
         usersParams.set("organization_id", String(data?.id));
+        branchesParams.set("organization_id", String(data?.id));
+        roesParams.set("organization_id", String(data?.id));
       }
 
-      if (agentRole.id !== userData?.role?.id) {
+      if (userData?.role?.name !== "admin") {
         servicesParams.set("branch_id", String(userData?.branch_id));
+        branchesParams.set("id", String(userData?.branch_id));
         usersParams.set("branch_id", String(userData?.branch_id));
         usersParams.set("id", String(userData?.id));
+        roesParams.set("id", String(userData?.role?.id));
       }
 
       try {
@@ -72,17 +74,18 @@ const SettingsPage = () => {
             ) as Promise<UserResponse>,
             httpInternalApi.httpGetPublic(
               "/branches",
-              servicesParams
+              branchesParams
             ) as Promise<BranchResponse>,
             httpInternalApi.httpGetPublic(
               "/roles",
-              usersParams
+              roesParams
             ) as Promise<RoleResponse>,
           ]);
         setServices(servicesRes.services);
         setUsers(usersRes.users);
         setBranches(branchesRes.branches);
         setRoles(rolesRes.roles);
+        setIsAdmin(userData?.role?.name === "admin");
       } catch (error) {
         console.error("Error al cargar servicios y usuarios:", error);
       } finally {

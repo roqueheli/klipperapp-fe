@@ -1,10 +1,11 @@
 "use client";
 
+import { useUser } from "@/contexts/UserContext";
 import { Attendance } from "@/types/attendance";
+import { translateStatus } from "@/utils/organization.utils";
 import { useMemo, useState } from "react";
 import { useTheme } from "../ThemeProvider";
 import PaginationControls from "../ui/PaginationControls";
-import { translateStatus } from "@/utils/organization.utils";
 
 const ITEMS_PER_PAGE = 7;
 
@@ -45,6 +46,7 @@ const AttendanceTable = ({
   onDetail,
 }: Props) => {
   const { theme } = useTheme();
+  const { userData } = useUser();
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(attendances.length / ITEMS_PER_PAGE);
@@ -84,7 +86,11 @@ const AttendanceTable = ({
                   {a.attended_by_user?.name || "No asignado"}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`text-[75%] w-full truncate ${getStatusStyle(a.status)}`}>
+                  <span
+                    className={`text-[75%] w-full truncate ${getStatusStyle(
+                      a.status
+                    )}`}
+                  >
                     {translateStatus(a.status)}
                   </span>
                 </td>
@@ -99,21 +105,25 @@ const AttendanceTable = ({
                     >
                       Ver detalle
                     </button>
-                    {a.status === "pending" && (
-                      <button
-                        onClick={() => onEdit(a)}
-                        className="text-sm bg-yellow-600 text-white px-3 py-1 rounded"
-                      >
-                        Editar
-                      </button>
-                    )}
-                    {a.status === "completed" && (
-                      <button
-                        onClick={() => onPay(a)}
-                        className="text-sm bg-green-600 text-white px-3 py-1 rounded"
-                      >
-                        Pagar
-                      </button>
+                    {userData?.role.name === "admin" && (
+                      <>
+                        {a.status === "pending" && (
+                          <button
+                            onClick={() => onEdit(a)}
+                            className="text-sm bg-yellow-600 text-white px-3 py-1 rounded"
+                          >
+                            Editar
+                          </button>
+                        )}
+                        {a.status === "completed" && (
+                          <button
+                            onClick={() => onPay(a)}
+                            className="text-sm bg-green-600 text-white px-3 py-1 rounded"
+                          >
+                            Pagar
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </td>
