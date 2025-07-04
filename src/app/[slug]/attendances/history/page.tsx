@@ -35,8 +35,8 @@ const AttendancesHistoryPage = () => {
 
         if (userData?.role.name !== "admin") {
           branchesParams.set("id", String(userData?.branch_id));
-          usersParams.set("id", String(userData?.id));
           if (userData?.role.name !== "user") {
+            usersParams.set("id", String(userData?.id));
             usersParams.set("branch_id", String(userData?.branch_id));
           }
         }
