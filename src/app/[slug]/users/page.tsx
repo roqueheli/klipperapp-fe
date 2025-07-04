@@ -39,13 +39,12 @@ const UsersPage = () => {
       >
         {/* Organization Banner */}
         {data?.photo_url && (
-          <div className="w-full overflow-hidden rounded-xl shadow-md">
+          <div className="relative w-full max-h-[500px] aspect-[16/10] overflow-hidden rounded-xl shadow-md">
             <Image
               src={data.photo_url}
               alt={`Imagen de ${data.name}`}
-              width={800}
-              height={500}
-              className="w-full h-auto max-h-[500px] object-cover"
+              fill
+              className="object-cover"
               priority
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
             />
