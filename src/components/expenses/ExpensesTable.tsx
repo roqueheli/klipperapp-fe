@@ -1,7 +1,6 @@
 import { useOrganization } from "@/contexts/OrganizationContext";
-import httpInternalApi from "@/lib/common/http.internal.service";
 import { Expenses } from "@/types/expenses";
-import { User, UserResponse } from "@/types/user";
+import { User } from "@/types/user";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PaginationControls from "../ui/PaginationControls";

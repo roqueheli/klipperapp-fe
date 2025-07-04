@@ -82,7 +82,7 @@ const TransactionsPage = () => {
       channel.unsubscribe();
       pusher.disconnect();
     };
-  }, [fetchData]);
+  }, []);
 
   useEffect(() => {
     fetchData();

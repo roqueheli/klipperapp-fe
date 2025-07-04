@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@/components/ThemeProvider";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -50,11 +51,15 @@ export default function UnderConstructionPage() {
         </button>
       </form>
 
-      <img
-        src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif"
-        alt="Trabajando en construcción"
-        className="w-64 h-auto rounded-md shadow-md"
-      />
+      <div className="relative w-82 h-48 rounded-md shadow-md overflow-hidden">
+        <Image
+          src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif"
+          alt="Trabajando en construcción"
+          fill
+          sizes="256px"
+          className="object-cover"
+        />
+      </div>
     </div>
   );
 }
