@@ -281,7 +281,7 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
             {userData?.photo_url ? (
               <div
                 className={clsx(
-                  "rounded-full overflow-hidden",
+                  "relative rounded-full overflow-hidden",
                   isOpen ? "w-12 h-12" : "w-10 h-10"
                 )}
               >
