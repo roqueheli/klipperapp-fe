@@ -23,7 +23,7 @@ export default function UserProfileCard({ user, onClick }: Props) {
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-md font-bold flex items-center gap-2">
           <UserCircle2 className="w-5 h-5" />
-          <span className="truncate">{user.user.name}</span>
+          <span className="truncate">{user.user.name.split(' ')[0]}</span>
         </h3>
         <span className="truncate text-xs">
           {user.profiles.length} turno(s)
@@ -55,8 +55,8 @@ export default function UserProfileCard({ user, onClick }: Props) {
                 }
                 className={`flex items-center justify-between gap-3 rounded-md p-3 text-sm transition select-none ${
                   isClickable
-                    ? `cursor-pointer shadow-md shadow-[0_4px_16px_rgba(61,217,235,0.2)] hover:shadow-[0_6px_24px_rgba(61,217,235,0.4)] hover:translate-x-0.5 ${theme === "dark" && "bg-[#131b2c]"}`
-                    : "cursor-not-allowed bg-[#1e273b] opacity-50"
+                    ? `cursor-pointer shadow-md shadow-[0_4px_16px_rgba(61,217,235,0.2)] hover:shadow-[0_6px_24px_rgba(131,175,175,0.5)] hover:translate-x-0.5 ${theme === "dark" && "bg-[#131b2c]"}`
+                    : `cursor-not-allowed shadow-md ${theme === 'dark' ? "bg-[#1e273b]" : "bg-white"} opacity-50`
                 }`}
                 title={`Atención: ${att.name} - Estado: ${att.status}`}
               >

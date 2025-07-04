@@ -17,7 +17,7 @@ export function useFilteredMenusFromOrganization(): MenuItem[] {
         {
             label: "Gestión de Turnos",
             path: `/${slug}/users/attendances`,
-            allowedRoles: [1, 2],
+            allowedRoles: [1, 2, 4],
             icon: "CalendarCheck"
         },
         {

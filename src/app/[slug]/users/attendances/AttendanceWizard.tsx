@@ -11,6 +11,7 @@ import PhoneStep from "@/components/attendances/wizard/PhoneStep";
 import SelectionStep from "@/components/attendances/wizard/SelectionStep";
 
 import { useTheme } from "@/components/ThemeProvider";
+import { useUser } from "@/contexts/UserContext";
 import { Organization } from "@/types/organization";
 import { Profile, ProfileByNumberResponse } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
@@ -32,6 +33,7 @@ const AttendanceWizard = ({
   user,
   onClose,
 }: AttendanceWizardProps) => {
+  const { userData } = useUser();
   const { theme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
@@ -165,9 +167,13 @@ const AttendanceWizard = ({
       );
 
       onClose?.();
-      const targetPath = `/${slug}/users/lists`;
-      if (pathname !== targetPath) {
-        router.push(targetPath);
+      if (userData?.role.name === "viewer") {
+        window.location.href = `/${slug}/users/attendances`;
+      } else {
+        const targetPath = `/${slug}/users/lists`;
+        if (pathname !== targetPath) {
+          router.push(targetPath);
+        }
       }
     } catch {
       console.error("Error en la creación de atención:");
@@ -179,8 +185,10 @@ const AttendanceWizard = ({
   return (
     <div
       className={`${
-        theme === "dark" ? "bg-gray-800" : "bg-gray-200"
-      } min-h-screen mx-auto p-6 rounded-lg shadow-md`}
+        theme === "dark"
+          ? "bg-gray-800 border-gray-200/10"
+          : "bg-white border-gray-400"
+      } border min-h-screen mx-auto p-6 rounded-lg shadow-md`}
     >
       {step === 1 ? (
         <PhoneStep

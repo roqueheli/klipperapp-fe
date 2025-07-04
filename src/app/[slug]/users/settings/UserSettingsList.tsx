@@ -182,30 +182,32 @@ export default function UserSettingsList({
 
   return (
     <div className="p-4">
-      <div className="mb-6">
-        <label className="block mb-2 text-sm font-medium text-[--electric-blue]">
-          Filtrar por sucursal
-        </label>
-        <select
-          value={branchFilter}
-          onChange={(e) => {
-            setBranchFilter(e.target.value);
-            setShowTooltip(false);
-          }}
-          className="w-full border rounded px-3 py-2 text-sm bg-[var(--background)] text-[var(--foreground)] dark:bg-[var(--dark-background)] dark:text-[var(--dark-foreground)] dark:border-[var(--dark-border)]"
-        >
-          {isAdmin && <option value="all">Todas las sucursales</option>}
-          {/* Mostrar solo la branch del usuario si no es admin */}
-          {(isAdmin
-            ? branches
-            : branches.filter((b) => b.id === initialUsers[0]?.branch_id)
-          ).map((branch) => (
-            <option key={branch.id} value={branch.id}>
-              {branch.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {isAdmin && (
+        <div className="mb-6">
+          <label className="block mb-2 text-sm font-medium text-[--electric-blue]">
+            Filtrar por sucursal
+          </label>
+          <select
+            value={branchFilter}
+            onChange={(e) => {
+              setBranchFilter(e.target.value);
+              setShowTooltip(false);
+            }}
+            className="w-full border rounded px-3 py-2 text-sm bg-[var(--background)] text-[var(--foreground)] dark:bg-[var(--dark-background)] dark:text-[var(--dark-foreground)] dark:border-[var(--dark-border)]"
+          >
+            {isAdmin && <option value="all">Todas las sucursales</option>}
+            {/* Mostrar solo la branch del usuario si no es admin */}
+            {(isAdmin
+              ? branches
+              : branches.filter((b) => b.id === initialUsers[0]?.branch_id)
+            ).map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {filteredUsers.map((user) => (
         <UserItem

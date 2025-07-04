@@ -22,7 +22,7 @@ export default function UsersSection({
     <section className="col-span-1 md:col-span-3 space-y-6">
       <div className="flex items-center gap-2 text-xl font-bold">
         <Users className="w-5 h-5" />
-        Turnos por Profesional
+        Atenciones por Profesional
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">

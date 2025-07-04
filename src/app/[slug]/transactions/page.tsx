@@ -5,8 +5,9 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
-import { Attendance, Attendances } from "@/types/attendance";
+import { Attendance, AttendanceCable, Attendances } from "@/types/attendance";
 import { useRouter } from "next/navigation";
+import Pusher from "pusher-js";
 import { useEffect, useMemo, useState } from "react";
 
 const TransactionsPage = () => {
@@ -19,33 +20,74 @@ const TransactionsPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const router = useRouter();
 
+  const fetchData = async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+
+    if (data?.id !== undefined) {
+      params.set("organization_id", String(data.id));
+    }
+    if (userData?.id !== undefined && userData?.role.name !== "admin") {
+      params.set("branch_id", String(userData?.branch_id));
+    }
+    if (userData?.role.name === "agent") {
+      params.set("attended_by", String(userData?.id));
+    }
+
+    const response = (await httpInternalApi.httpGetPublic(
+      "/attendances/today",
+      params
+    )) as Attendances;
+    setAttendances(response.attendances);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const params = new URLSearchParams();
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || "", {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "",
+      forceTLS: true, // importante para que use WSS (no HTTP inseguro)
+    });
 
-      if (data?.id !== undefined) {
-        params.set("organization_id", String(data.id));
-      }
-      if (userData?.id !== undefined && userData?.role.name !== "admin") {
-        params.set("branch_id", String(userData?.branch_id));
-      }
-      if (userData?.role.name === "agent") {
-        params.set("attended_by", String(userData?.id));
-      }
+    const channel = pusher.subscribe("attendance_channel");
 
-      const response = (await httpInternalApi.httpGetPublic(
-        "/attendances/today",
-        params
-      )) as Attendances;
-      setAttendances(response.attendances);
-      setLoading(false);
+    channel.bind("attendance", function (attendance: AttendanceCable) {
+      const { id: attendanceId, status } = attendance;
+      if (!attendanceId || !status) return;
+
+      setAttendances((prevAttendances) => {
+        const index = prevAttendances.findIndex((a) => a.id === attendanceId);
+
+        // Si no existe la attendance, forzamos un refetch
+        if (index === -1) {
+          fetchData();
+          return prevAttendances;
+        }
+
+        // Si existe, actualizamos solo el estado
+        const updatedAttendance = {
+          ...prevAttendances[index],
+          status,
+        };
+
+        const updatedAttendances = [...prevAttendances];
+        updatedAttendances[index] = updatedAttendance;
+
+        return updatedAttendances;
+      });
+    });
+
+    return () => {
+      // 🔒 Limpieza al desmontar
+      channel.unbind_all();
+      channel.unsubscribe();
+      pusher.disconnect();
     };
+  }, [fetchData]);
 
+  useEffect(() => {
     fetchData();
   }, [data?.id, userData]);
 
-  // Función simulada para editar attendance (deberías implementarla)
   const handleEditAttendance = (attendance: Attendance) => {
     const dataToStore = {
       attendanceId: attendance?.id,
@@ -59,7 +101,6 @@ const TransactionsPage = () => {
     router.push(`/${slug}/users/attendances`);
   };
 
-  // Función simulada para pagar attendance (deberías implementar la lógica real)
   const handlePayAttendance = (attendance: Attendance) => {
     router.push(`/${slug}/payments/${attendance.id}`);
   };
@@ -123,9 +164,7 @@ const TransactionsPage = () => {
         />
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <label className="font-medium">
-            Ordenar por:
-          </label>
+          <label className="font-medium">Ordenar por:</label>
           <select
             className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             value={sortBy}

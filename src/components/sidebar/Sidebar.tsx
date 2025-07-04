@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@/components/ThemeProvider";
+import { useBranch } from "@/contexts/BranchContext";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOrganization";
@@ -63,6 +64,7 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
   const menus = useFilteredMenusFromOrganization();
   const configMenu = menus.find((m) => m.label === "Configuración");
   const otherMenus = menus.filter((m) => m.label !== "Configuración");
+  const { branches, selectedBranch, setSelectedBranch } = useBranch();
 
   useEffect(() => {
     if (!token) {
@@ -114,7 +116,6 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         sessionStorage.removeItem("attendancesPage");
         sessionStorage.removeItem("attendancesFilters");
         sessionStorage.removeItem("attendancesHasSearched");
-        // router.push(`/${slug}/auth/login`);
         window.location.href = `/${slug}/auth/login`;
       });
   };
@@ -130,9 +131,13 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
       )}
     >
       {/* Toggle */}
-      <div className="flex justify-end block xs:hidden">
+      <div
+        className={`flex ${
+          isOpen ? "justify-end" : "justify-center"
+        } block xs:hidden`}
+      >
         <button
-          className={`mb-4 ${
+          className={`mb-2 ${
             theme === "dark"
               ? "text-white hover:text-gray-600"
               : "text-gray-500 hover:text-black"
@@ -150,7 +155,7 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
       {/* Logo */}
       <Link
         href={`/${slug}${route}`}
-        className="mb-6 flex items-center text-md font-extrabold tracking-wide transition-colors"
+        className="mb-2 flex items-center text-md font-extrabold tracking-wide transition-colors"
         aria-label="Home"
       >
         <Image
@@ -162,6 +167,39 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         />
         {isOpen && <span className="ml-4">{data?.name}</span>}
       </Link>
+
+      {/** Sucursal/es */}
+      {isOpen && selectedBranch && (
+        <div className="mb-2">
+          <select
+            value={selectedBranch?.id}
+            onChange={(e) => {
+              const selected = branches.find(
+                (b) => b.id === Number(e.target.value)
+              );
+              if (selected) setSelectedBranch(selected);
+            }}
+            disabled={userData?.role.name !== "admin"} // ❗ esto evita la doble estructura
+            className={clsx(
+              "w-full px-3 py-2 text-sm rounded border",
+              theme === "dark"
+                ? "bg-gray-700 text-white border-gray-500"
+                : "bg-white text-black"
+            )}
+          >
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
+          {userData?.role.name !== "admin" && (
+            <p className="text-xs text-gray-500 mt-1 ml-1 italic">
+              Solo puedes acceder a esta sucursal
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Menús */}
       <nav className="space-y-3 flex-1">
@@ -241,37 +279,46 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
         {/* Avatar e Logout */}
         <div
           className={clsx(
-            "flex items-center gap-3 px-2 py-2 w-full transition-all duration-300",
-            isOpen ? "flex-row" : "flex-col justify-center"
+            "flex w-full justify-between items-center gap-3 px-2 py-2 w-full transition-all duration-300",
+            isOpen ? "flex-col" : "flex-col justify-center"
           )}
         >
-          {userData?.photo_url ? (
-            <Image
-              src={userData.photo_url}
-              alt="User Avatar"
-              width={isOpen ? 45 : 40} // w-12 : w-8
-              height={isOpen ? 45 : 40} // h-12 : h-8
-              className="rounded-full object-cover shrink-0"
-            />
-          ) : (
-            <div
-              className={clsx(
-                "flex items-center justify-center font-bold rounded-full shrink-0",
-                theme === "dark"
-                  ? "bg-gray-700 text-white"
-                  : "bg-gray-200 text-black",
-                isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
-              )}
-            >
-              {initials}
-            </div>
-          )}
+          <div className="flex w-full items-center gap-4">
+            {userData?.photo_url ? (
+              <Image
+                src={userData.photo_url}
+                alt="User Avatar"
+                width={isOpen ? 45 : 40} // w-12 : w-8
+                height={isOpen ? 45 : 40} // h-12 : h-8
+                className="rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div
+                className={clsx(
+                  "flex items-center justify-center font-bold rounded-full shrink-0",
+                  theme === "dark"
+                    ? "bg-gray-700 text-white"
+                    : "bg-gray-200 text-black",
+                  isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
+                )}
+              >
+                {initials}
+              </div>
+            )}
+            {isOpen && (
+              <span
+                className={`capitalize font-semibold px-5 py-1 rounded-lg text-xs inline-block ${
+                  theme === "dark" ? "bg-gray-600" : "bg-gray-300"
+                }`}
+              >{`${userData?.role.name}`}</span>
+            )}
+          </div>
 
           {isOpen ? (
             <button
               onClick={handleLogout}
               className={clsx(
-                "flex items-center justify-center text-sm px-3 py-2 rounded transition-colors",
+                "flex w-full items-center justify-center text-sm px-3 py-2 rounded transition-colors",
                 theme === "dark"
                   ? "text-white bg-red-600 hover:text-red-600 hover:bg-gray-700 hover:border hover:border-red-600"
                   : "text-red-600 hover:text-white hover:bg-red-600 border border-red-400"

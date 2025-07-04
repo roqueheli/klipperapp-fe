@@ -158,7 +158,7 @@ const UnifyPaymentsModal = ({
           </button>
           <button
             onClick={handleAddAttendances}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-pink-400 hover:from-cyan-500 hover:to-pink-500 font-semibold transition"
+            className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold transition"
           >
             Agregar
           </button>

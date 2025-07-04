@@ -31,7 +31,7 @@ const TransactionActionButtons = ({
 
   const disabledReason =
     amountPaid <= 0
-      ? "El monto pagado debe ser mayor que cero."
+      ? "El monto a pagar debe ser mayor que cero."
       : amountPaid < finalTotal
       ? "El monto pagado no puede ser menor al total."
       : servicesCount === 0
@@ -55,8 +55,8 @@ const TransactionActionButtons = ({
           disabled={isDisabled}
           className={`px-4 py-2 rounded font-semibold ${
             isDisabled
-              ? "bg-blue-300 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           }`}
         >
           Ejecutar transacción

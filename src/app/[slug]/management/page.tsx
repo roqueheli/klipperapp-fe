@@ -33,7 +33,7 @@ const PaymentsManagementPage = () => {
       try {
         if (!data?.id || !userData?.role?.id) return;
 
-        setCanView(userData?.role.name === 'admin');
+        setCanView(userData?.role.name === "admin");
 
         // Cargar datos iniciales
         const branchesParams = new URLSearchParams({
@@ -46,7 +46,9 @@ const PaymentsManagementPage = () => {
 
         if (userData.role.name !== "admin") {
           branchesParams.set("id", String(userData?.branch_id));
-          usersParams.set("id", String(userData?.id));
+          if (userData.role.name !== "user") {
+            usersParams.set("id", String(userData?.id));
+          }
         }
 
         const [branchesRes, usersRes] = await Promise.all([
@@ -92,7 +94,9 @@ const PaymentsManagementPage = () => {
     try {
       const payments: CalculatePaymentResponse[] =
         await httpInternalApi.httpGetPublic("/management", params);
-      setPayments(payments.filter((payment) => payment?.finished_attendances?.length > 0));
+      setPayments(
+        payments.filter((payment) => payment?.finished_attendances?.length > 0)
+      );
       setLoading(false);
     } catch {}
   };

@@ -128,7 +128,6 @@ const FilterPanel = ({
             value={selectedWeek}
             onChange={(e) => setSelectedWeek(e.target.value)}
           >
-            <option value="">Todas</option>
             {weeks.map((w, i) => (
               <option key={i} value={`${w.from}_${w.to}`}>
                 {w.label}

@@ -2,11 +2,13 @@ import { LogoutHandler } from "@/components/auth/handler/LogoutHandler";
 import SidebarContainer from "@/components/sidebar/Sidebar.Container";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToasterProvider from "@/components/ui/ToasterProvider";
+import { BranchProvider } from "@/contexts/BranchContext";
 import { OrganizationProvider } from "@/contexts/OrganizationContext";
 import { UserProvider } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { getToken } from "@/lib/utils/auth.utils";
 import "@/styles/globals.css";
+import { Branch, BranchResponse } from "@/types/branch";
 import { Organization, OrganizationResponse } from "@/types/organization";
 import { User } from "@/types/user";
 import { isValidOrganization } from "@/utils/organization.utils";
@@ -69,6 +71,7 @@ export default async function LayoutWithSlug({
 
   let initialData: Organization | null = null;
   let userData: User | null = null;
+  let userBranches: Branch[] = [];
 
   try {
     const response = await httpInternalApi.httpGetPublic<OrganizationResponse>(
@@ -76,15 +79,23 @@ export default async function LayoutWithSlug({
       new URLSearchParams({ slug })
     );
     initialData = response.organization;
-  } catch {
-  }
+  } catch {}
 
   if (auth_token) {
+    const params = new URLSearchParams(String(initialData?.id ?? "") || "");
     try {
-      const response = await httpInternalApi.httpGet<User>("/auth/me", undefined, auth_token);
-      userData = response;
-    } catch {
-    }
+      const [branchesResponse, userResponse] = await Promise.all([
+        httpInternalApi.httpGet<BranchResponse>(
+          "/branches",
+          params,
+          auth_token
+        ),
+        httpInternalApi.httpGet<User>("/auth/me", undefined, auth_token),
+      ]);
+
+      userData = userResponse;
+      userBranches = branchesResponse.branches;
+    } catch {}
   }
 
   return (
@@ -95,21 +106,30 @@ export default async function LayoutWithSlug({
         <ThemeProvider>
           <OrganizationProvider initialData={initialData} slug={slug}>
             <UserProvider userData={userData}>
-              {/* 👇 Limpieza de logout (solo en cliente) */}
-              <LogoutHandler />
+              <BranchProvider
+                initialBranches={userBranches}
+                initialSelected={
+                  userData?.role?.name === "admin"
+                    ? userBranches[0]
+                    : userBranches.find(b => b.id === userData?.branch_id) || userBranches[0]
+                }
+              >
+                {/* 👇 Limpieza de logout (solo en cliente) */}
+                <LogoutHandler />
 
-              <div className="w-full flex min-h-screen">
-                {auth_token &&
-                  userData?.email_verified === true &&
-                  !isLoginPage &&
-                  isValidOrganization(initialData) && (
-                    <SidebarContainer token={auth_token} />
-                  )}
-                <div className="w-full transition-all duration-300 flex-grow">
-                  <main className="w-full flex-grow">{children}</main>
+                <div className="w-full flex min-h-screen">
+                  {auth_token &&
+                    userData?.email_verified === true &&
+                    !isLoginPage &&
+                    isValidOrganization(initialData) && (
+                      <SidebarContainer token={auth_token} />
+                    )}
+                  <div className="w-full transition-all duration-300 flex-grow">
+                    <main className="w-full flex-grow">{children}</main>
+                  </div>
                 </div>
-              </div>
-              <ToasterProvider />
+                <ToasterProvider />
+              </BranchProvider>
             </UserProvider>
           </OrganizationProvider>
         </ThemeProvider>

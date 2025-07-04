@@ -2,6 +2,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Attendance } from "@/types/attendance";
 import { Service } from "@/types/service";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import AddServiceSection from "./AddServiceSection";
 import ServiceList from "./ServiceList";
 
@@ -45,7 +46,9 @@ const UnifiedAttendancesList = ({
           return (
             <li
               key={attendance.id}
-              className={`p-3 rounded ${theme === 'dark' ? "bg-gray-700" : "bg-gray-100"}`}
+              className={`p-3 rounded ${
+                theme === "dark" ? "bg-gray-700" : "bg-white"
+              } shadow-md`}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="w-[40%]">
@@ -80,14 +83,21 @@ const UnifiedAttendancesList = ({
                     <h5 className="text-lg font-medium mb-4">Servicios:</h5>
                     <ServiceList
                       services={attendance.services || []}
-                      onRemove={(serviceId) =>
+                      onRemove={(serviceId) => {
                         onUpdateAttendance({
                           ...attendance,
                           services: (attendance.services || []).filter(
                             (s) => s.id !== serviceId
                           ),
-                        })
-                      }
+                        });
+                        toast.success(`Servicio eliminado exitosamente`, {
+                          duration: 3000,
+                          style: {
+                            animation: "fade-out-slow 3s forwards",
+                            width: "305px",
+                          },
+                        });
+                      }}
                     />
                   </div>
                   <AddServiceSection

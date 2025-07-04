@@ -11,7 +11,7 @@ class AttendancesAPI {
     getAttendancesSummary = async (params?: URLSearchParams, token?: string): Promise<SummaryItem[]> => httpExternalApi.httpGet(`/attendances/summary`, params, token);
     getAttendancesByUserWorking = async (params?: URLSearchParams, token?: string): Promise<UserWithProfiles[]> => httpExternalApi.httpGet(`/attendances/by_users_working_today`, params, token);
     getUsersQueue = async (token?: string): Promise<User[]> => httpExternalApi.httpGet(`/attendances/by_users_queue`, undefined, token);
-    getAttendanceById = async (id?: URLSearchParams, token?: string): Promise<Attendance[]> => httpExternalApi.httpGet(`/attendances`, id, token);
+    getAttendanceById = async (id?: number, token?: string): Promise<Attendance[]> => httpExternalApi.httpGet(`/attendances/${id}`, undefined, token);
     createAttendance = async (body: object, token: string): Promise<Attendance> => httpExternalApi.httpPost('/attendances', 'POST', body, token);
     updateAttendance = async (body: Attendance, token: string): Promise<Attendance> => httpExternalApi.httpPost(`/attendances/${body?.id}`, 'PUT', body, token);
 }

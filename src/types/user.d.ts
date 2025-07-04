@@ -18,6 +18,7 @@ export interface User {
     premium?: boolean;
     branch_id?: number;
     email_verified?: boolean;
+    attendances_queue_count?: number;
 }
 
 export interface UserResponse {
@@ -48,7 +49,6 @@ export interface UserCreate {
     phone_number?: string;
     birth_date?: string;
     active?: boolean;
-    password_digest?: string;
     role_id?: number;
     organization_id?: number;
     start_working_at?: string;

@@ -20,7 +20,7 @@ const Footer = () => {
           </div>
           <p>
             Plataforma de gestión para barberías, salones de belleza y spas.
-            Asigna turnos, ordena al personal y optimiza la atención al cliente
+            Asigna atenciones, ordena al personal y optimiza la atención al cliente
             con colas inteligentes.
           </p>
         </div>
