@@ -8,6 +8,7 @@ import PaginationControls from "../ui/PaginationControls";
 
 interface ExpensesTableProps {
   expenses: Expenses[];
+  users: User[];
   title: string;
   itemsPerPage?: number;
   allowActions?: boolean;
@@ -18,6 +19,7 @@ interface ExpensesTableProps {
 
 const ExpensesTable = ({
   expenses,
+  users,
   title,
   itemsPerPage = 8,
   allowActions = false,
@@ -28,29 +30,6 @@ const ExpensesTable = ({
   const { data } = useOrganization();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const params = new URLSearchParams({
-        organization_id: data?.id?.toString() || "",
-        role_name: "agent",
-      });
-
-      try {
-        const { users } = await httpInternalApi.httpGetPublic<UserResponse>(
-          "/users",
-          params
-        );
-
-        setUsers(users);
-      } catch (error) {
-        console.error("Error loading initial data:", error);
-      }
-    };
-
-    fetchUsers();
-  }, [data?.id]);
 
   useEffect(() => {
     setCurrentPage(1);

@@ -111,7 +111,7 @@ export default async function LayoutWithSlug({
                 initialSelected={
                   userData?.role?.name === "admin"
                     ? userBranches[0]
-                    : userBranches.find(b => b.id === userData?.branch_id) || userBranches[0]
+                    : userBranches?.find(b => b.id === userData?.branch_id) || [][0]
                 }
               >
                 {/* 👇 Limpieza de logout (solo en cliente) */}

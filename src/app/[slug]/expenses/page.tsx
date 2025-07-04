@@ -9,7 +9,6 @@ import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { Expenses, ExpensesResponse } from "@/types/expenses";
 import { User, UserResponse } from "@/types/user";
-import { getRoleByName } from "@/utils/roleUtils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -53,31 +52,26 @@ const ExpensesPage = () => {
 
   const loadInitialData = useCallback(async () => {
     try {
-      const branchesParams = new URLSearchParams();
       const usersParams = new URLSearchParams();
       const expensesParams = new URLSearchParams();
 
-      const agentRole = await getRoleByName("agent");
-
       if (data?.id) {
-        branchesParams.set("organization_id", String(data.id));
         usersParams.set("organization_id", String(data.id));
         expensesParams.set("organization_id", String(data.id));
       }
 
-      if (userData?.role.id === agentRole.id) {
-        branchesParams.set("branch_id", String(userData?.branch_id));
-        usersParams.set("id", String(userData?.id));
+      if (userData?.role.name === "agent" || userData?.role.name === "user") {
         usersParams.set("branch_id", String(userData?.branch_id));
+        expensesParams.set("branch_id", String(userData?.branch_id));
+      }
+
+      if (userData?.role.name === "agent") {
+        usersParams.set("id", String(userData?.id));
       }
 
       expensesParams.set("type", "user");
 
       const [usersRes, expensesRes] = await Promise.all([
-        // httpInternalApi.httpGetPublic(
-        //   "/branches",
-        //   branchesParams
-        // ) as Promise<BranchResponse>,
         httpInternalApi.httpGetPublic(
           "/users",
           usersParams
@@ -92,8 +86,7 @@ const ExpensesPage = () => {
       setUsers(usersRes.users);
       setExpenses(sortExpensesByDate(expensesRes.expenses));
       setIsLoading(false);
-    } catch {
-    }
+    } catch {}
   }, [data?.id, userData, sortExpensesByDate]);
 
   useEffect(() => {
@@ -196,6 +189,7 @@ const ExpensesPage = () => {
           onEdit={openEditModal}
           onView={openViewModal}
           onDelete={openDeleteConfirm}
+          users={users}
         />
       </section>
 
@@ -205,6 +199,7 @@ const ExpensesPage = () => {
           title="Gastos anteriores"
           allowActions={false}
           onView={openViewModal}
+          users={users}
         />
       </section>
 
