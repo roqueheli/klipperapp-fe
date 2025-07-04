@@ -82,11 +82,11 @@ const TransactionsPage = () => {
       channel.unsubscribe();
       pusher.disconnect();
     };
-  }, []);
+  }, [fetchData]);
 
   useEffect(() => {
     fetchData();
-  }, [data?.id, userData]);
+  }, [data?.id, userData, fetchData]);
 
   const handleEditAttendance = (attendance: Attendance) => {
     const dataToStore = {

@@ -13,10 +13,7 @@ import { Organization, OrganizationResponse } from "@/types/organization";
 import { User } from "@/types/user";
 import { isValidOrganization } from "@/utils/organization.utils";
 import { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { headers } from "next/headers";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const dynamic = "force-dynamic";
 
