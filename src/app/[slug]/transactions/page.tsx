@@ -47,7 +47,10 @@ const TransactionsPage = () => {
 
     channel?.bind("attendance", function (attendance: AttendanceCable) {
       const { id: attendanceId, status } = attendance;
-      if (!attendanceId || !status) return;
+      if (!attendanceId || !status) {
+        fetchData();
+        return;
+      }
 
       setAttendances((prevAttendances) => {
         const index = prevAttendances.findIndex((a) => a.id === attendanceId);
