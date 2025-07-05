@@ -95,17 +95,23 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
             aria-pressed={selectedUserId === user.id}
           >
             <div className="flex w-full justify-center items-center relative">
-              <Image
-                src={
-                  user.photo_url ||
-                  "https://instagram.fscl38-1.fna.fbcdn.net/v/t51.2885-15/72779367_1162328503937413_1372969658332728921_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0uaW1hZ2VfdXJsZ2VuLjE0NDB4OTYxLnNkci5mMjg4NS5kZWZhdWx0X2ltYWdlIn0&_nc_ht=instagram.fscl38-1.fna.fbcdn.net&_nc_cat=101&_nc_oc=Q6cZ2QGqsf8D2uoR4Hhc3fQmiT_UPgRhTc3e-z2LnwJUwI6kZj4I3Jg7ZOu6O4TPVP2cn_4kY_wxxqep5ywMjUpoFVV1&_nc_ohc=iwGxY0ntePAQ7kNvwH-LH4V&_nc_gid=hOXug_uAvaELCDV45wE3TA&edm=APoiHPcBAAAA&ccb=7-5&ig_cache_key=MjE4MTM1NzI5MDExNDg1NDczMA%3D%3D.3-ccb7-5&oh=00_AfNln6KkJVhygGRM6hJx1m-3iWyEjudKFvaV6Rxg4HtOlg&oe=6858C667&_nc_sid=22de04"
-                }
-                alt={user.name}
-                width={130}
-                height={120}
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="rounded-md object-cover shadow"
-              />
+              {user.photo_url ? (
+                <Image
+                  src={user.photo_url}
+                  alt={user.name}
+                  width={130}
+                  height={120}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="rounded-md object-cover shadow"
+                />
+              ) : (
+                <div className="flex items-center justify-center rounded-md bg-gray-200 w-32 h-28 text-2xl font-bold text-gray-600">
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </div>
+              )}
             </div>
             <div
               className={`text-md truncate font-semibold ${
