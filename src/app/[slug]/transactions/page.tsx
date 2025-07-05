@@ -8,7 +8,7 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import { pusherClient } from "@/lib/pusher/pusher.client";
 import { Attendance, AttendanceCable, Attendances } from "@/types/attendance";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const TransactionsPage = () => {
   const { slug, data } = useOrganization();
@@ -20,7 +20,7 @@ const TransactionsPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const router = useRouter();
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     setLoading(true);
     const params = new URLSearchParams();
 
@@ -40,7 +40,7 @@ const TransactionsPage = () => {
     )) as Attendances;
     setAttendances(response.attendances);
     setLoading(false);
-  }, [data, userData, httpInternalApi]);
+  };
 
   useEffect(() => {
     const channel = pusherClient?.subscribe("attendance_channel");
@@ -83,7 +83,7 @@ const TransactionsPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [data?.id, userData]);
 
   const handleEditAttendance = (attendance: Attendance) => {
     const dataToStore = {

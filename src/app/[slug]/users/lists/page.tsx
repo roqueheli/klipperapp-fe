@@ -164,11 +164,11 @@ export default function AttendanceListsPage() {
       channel?.unbind_all();
       channel?.unsubscribe();
     };
-  }, [fetchQueue, loadData]);
+  }, [fetchQueue]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, []);
 
   if (isLoading) return <LoadingSpinner />;
 
