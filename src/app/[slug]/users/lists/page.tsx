@@ -8,6 +8,7 @@ import { pusherClient } from "@/lib/pusher/pusher.client";
 import { AttendanceCable } from "@/types/attendance";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse, UserWithProfiles } from "@/types/user";
+import { getRoleByName } from "@/utils/roleUtils";
 import { startTransition, useCallback, useEffect, useState } from "react";
 import AttendanceListsPageContainer from "./AttendanceListsPageContainer";
 
@@ -22,18 +23,20 @@ export default function AttendanceListsPage() {
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadData = useCallback(async () => {
+  const loadData = async () => {
     try {
       setIsLoading(true);
 
       // Validaciones mínimas
       if (!userData?.role?.id || !data?.id) return;
 
-      if (userData?.role?.name === "agent") setIsAgent(userData);
+      const agentRole = await getRoleByName("agent");
+
+      if (userData.role.name === "agent") setIsAgent(userData);
 
       const usersParams = new URLSearchParams({
         organization_id: String(data.id),
-        role_id: String(userData?.role.id),
+        role_id: String(agentRole.id),
       });
 
       const servicesParams = new URLSearchParams({
@@ -51,7 +54,7 @@ export default function AttendanceListsPage() {
 
       const attendancesParams = new URLSearchParams({
         organization_id: String(data.id),
-        role_id: String(userData?.role.id),
+        role_id: String(agentRole.id),
         branch_id: String(userData.branch_id || 1),
       });
 
@@ -81,7 +84,7 @@ export default function AttendanceListsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [data, userData]);
+  };
 
   const fetchQueue = useCallback(async () => {
     try {
@@ -161,11 +164,11 @@ export default function AttendanceListsPage() {
       channel?.unbind_all();
       channel?.unsubscribe();
     };
-  }, [fetchQueue, loadData]);
+  }, [fetchQueue]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, []);
 
   if (isLoading) return <LoadingSpinner />;
 
