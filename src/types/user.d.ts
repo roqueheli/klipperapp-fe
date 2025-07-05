@@ -29,7 +29,7 @@ export interface UserResponse {
 export interface MenuItem {
     label: string;
     path: string;
-    allowedRoles: number[];
+    allowedRoles: string[];
     icon: string;
 }
 

@@ -8,7 +8,6 @@ import { pusherClient } from "@/lib/pusher/pusher.client";
 import { AttendanceCable } from "@/types/attendance";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse, UserWithProfiles } from "@/types/user";
-import { getRoleByName } from "@/utils/roleUtils";
 import { startTransition, useCallback, useEffect, useState } from "react";
 import AttendanceListsPageContainer from "./AttendanceListsPageContainer";
 
@@ -30,14 +29,11 @@ export default function AttendanceListsPage() {
       // Validaciones mínimas
       if (!userData?.role?.id || !data?.id) return;
 
-      const agentRole = await getRoleByName("agent");
-
-      const isUserAgent = userData.role.id === agentRole.id;
-      if (isUserAgent) setIsAgent(userData);
+      if (userData?.role?.name === "agent") setIsAgent(userData);
 
       const usersParams = new URLSearchParams({
         organization_id: String(data.id),
-        role_id: String(agentRole.id),
+        role_id: String(userData?.role.id),
       });
 
       const servicesParams = new URLSearchParams({
@@ -55,7 +51,7 @@ export default function AttendanceListsPage() {
 
       const attendancesParams = new URLSearchParams({
         organization_id: String(data.id),
-        role_id: String(agentRole.id),
+        role_id: String(userData?.role.id),
         branch_id: String(userData.branch_id || 1),
       });
 

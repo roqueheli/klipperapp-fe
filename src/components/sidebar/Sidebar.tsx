@@ -51,7 +51,7 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
   const pathname = usePathname();
   const [route, setRoute] = useState("/users");
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState<boolean | null>(null);
+  const [isOpen, setIsOpen] = useState<boolean | null>(false);
 
   const initials = userData?.name
     ?.split(" ")
@@ -75,17 +75,18 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
 
   useEffect(() => {
     const handleResize = () => {
-      const shouldBeOpen = window.innerWidth >= 768;
+      // Si el rol es viewer, el sidebar siempre parte cerrado
+      const isViewer = userData?.role?.name === "viewer";
+      const shouldBeOpen = !isViewer && window.innerWidth >= 768;
       setIsOpen(shouldBeOpen);
     };
 
-    // Defer to client
     if (typeof window !== "undefined") {
       handleResize(); // Ejecutar al montar
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
     }
-  }, []);
+  }, [userData?.role?.name]);
 
   const handleLogout = async () => {
     await toast
@@ -124,20 +125,22 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
           isOpen ? "justify-end" : "justify-center"
         } block xs:hidden`}
       >
-        <button
-          className={`mb-2 ${
-            theme === "dark"
-              ? "text-white hover:text-gray-600"
-              : "text-gray-500 hover:text-black"
-          } transition`}
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? (
-            <ChevronLeft className="h-5 w-5" />
-          ) : (
-            <ChevronRight className="h-5 w-5" />
-          )}
-        </button>
+        {userData?.role?.name !== "viewer" && (
+          <button
+            className={`mb-2 ${
+              theme === "dark"
+                ? "text-white hover:text-gray-600"
+                : "text-gray-500 hover:text-black"
+            } transition`}
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? (
+              <ChevronLeft className="h-5 w-5" />
+            ) : (
+              <ChevronRight className="h-5 w-5" />
+            )}
+          </button>
+        )}
       </div>
 
       {/* Logo */}
