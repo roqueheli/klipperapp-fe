@@ -103,23 +103,24 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
             aria-pressed={selectedUserId === user.id}
           >
             <div className="flex w-full justify-center items-center relative">
-              {user.photo_url ? (
-                <Image
-                  src={user.photo_url}
-                  alt={user.name}
-                  width={130}
-                  height={120}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="rounded-md object-cover shadow"
-                />
-              ) : (
-                <div className="flex items-center justify-center rounded-md bg-gray-200 w-32 h-28 text-2xl font-bold text-gray-600">
-                  {user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </div>
-              )}
+              <div className="relative w-32 h-28 rounded-md overflow-hidden">
+                {user.photo_url ? (
+                  <Image
+                    src={user.photo_url}
+                    alt={user.name}
+                    fill
+                    className="object-cover shadow"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-gray-200 text-2xl font-bold text-gray-600">
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </div>
+                )}
+              </div>
             </div>
             <div
               className={`text-md truncate font-semibold ${
