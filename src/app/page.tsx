@@ -23,6 +23,16 @@ export default function UnderConstructionPage() {
         🚧 Página en construcción
       </h1>
 
+      <div className="relative w-98 h-64 rounded-md shadow-md overflow-hidden">
+        <Image
+          src="/500x500.png"
+          alt="Trabajando en construcción"
+          fill
+          sizes="256px"
+          className="object-cover"
+        />
+      </div>
+
       <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
         Estamos trabajando para traerte algo genial. Mientras tanto, puedes
         ingresar el alias de tu organización:

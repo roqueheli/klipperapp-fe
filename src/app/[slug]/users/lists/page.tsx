@@ -40,7 +40,10 @@ export default function AttendanceListsPage() {
 
     channel?.bind("attendance", function (attendance: AttendanceCable) {
       const { attended_by, id: attendanceId, status, profile } = attendance;
-      if (!attended_by || !attendanceId || !status || !profile) return;
+      if (!attended_by || !attendanceId || !status || !profile) {
+        fetchQueue();
+        return;
+      }
 
       const isVisibleStatus = ["pending", "processing", "postponed"].includes(
         status
