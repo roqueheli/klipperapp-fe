@@ -92,18 +92,17 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
           <div
             key={user.id}
             onClick={() => onUserSelect(user.id)}
-            className={`cursor-pointer border rounded-lg p-5 flex flex-col items-center justify-between gap-3 shadow-sm transition min-h-[300px] 
-    ${
-      selectedUserId === user.id
-        ? "border-blue-600 shadow-blue-300 dark:shadow-blue-700"
-        : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500"
-    }`}
+            className={`cursor-pointer border rounded-lg p-5 flex flex-col items-center justify-between gap-3 shadow-sm transition 
+              ${
+                selectedUserId === user.id
+                  ? "border-blue-600 shadow-blue-300 dark:shadow-blue-700"
+                  : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500"
+              }`}
             tabIndex={0}
             role="button"
             aria-pressed={selectedUserId === user.id}
           >
-            {/* Foto */}
-            <div className="flex justify-center items-center relative w-full">
+            <div className="flex w-full justify-center items-center relative">
               {user.photo_url ? (
                 <Image
                   src={user.photo_url}
@@ -122,8 +121,6 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
                 </div>
               )}
             </div>
-
-            {/* Nombre */}
             <div
               className={`text-md truncate font-semibold ${
                 theme === "dark" ? "text-white" : "font-bold text-gray-600"
@@ -131,34 +128,32 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
             >
               {user.name}
             </div>
+            {user.attendances_queue_count !== undefined && (
+              <div
+                className={`w-full flex items-center justify-between text-xs font-semibold px-6 py-2 rounded-lg
+                ${
+                  user.attendances_queue_count === 0
+                    ? theme === "dark"
+                      ? "bg-gray-500 text-gray-300"
+                      : "bg-gray-200 text-gray-600"
+                    : theme === "dark"
+                    ? "bg-orange-900 text-white border border-orange-700"
+                    : "bg-orange-100 text-orange-400 border border-orange-400"
+                } shadow-sm`}
+              >
+                {user.attendances_queue_count === 0 ? (
+                  <span>✅ Sin clientes</span>
+                ) : (
+                  <>
+                    <span>🧍‍♂️ En espera</span>
+                    <span>{user.attendances_queue_count}</span>
+                  </>
+                )}
+              </div>
+            )}
 
-            {/* Estado de la cola */}
-            <div
-              className={`w-full flex items-center justify-between text-xs font-semibold px-6 py-2 rounded-lg
-              ${user.attendances_queue_count === 0
-                  ? theme === "dark"
-                    ? "bg-gray-500 text-gray-300"
-                    : "bg-gray-200 text-gray-600"
-                  : theme === "dark"
-                  ? "bg-orange-900 text-white border border-orange-700"
-                  : "bg-orange-100 text-orange-400 border border-orange-400"
-              } shadow-sm`}
-            >
-              {user.attendances_queue_count === 0 ? (
-                <span>✅ Sin clientes</span>
-              ) : (
-                <>
-                  <span>🧍‍♂️ En espera</span>
-                  <span>{user.attendances_queue_count}</span>
-                </>
-              )}
-            </div>
-
-            {/* Premium */}
-            {user.premium ? (
+            {user.premium && (
               <div className="text-yellow-400 font-semibold">⭐ Premium</div>
-            ) : (
-              <div className="h-5" /> // espacio reservado para alinear
             )}
           </div>
         ))}
