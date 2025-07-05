@@ -23,6 +23,70 @@ export default function AttendanceListsPage() {
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+
+      // Validaciones mínimas
+      if (!userData?.role?.id || !data?.id) return;
+
+      const agentRole = await getRoleByName("agent");
+
+      const isUserAgent = userData.role.id === agentRole.id;
+      if (isUserAgent) setIsAgent(userData);
+
+      const usersParams = new URLSearchParams({
+        organization_id: String(data.id),
+        role_id: String(agentRole.id),
+      });
+
+      const servicesParams = new URLSearchParams({
+        organization_id: String(data.id),
+      });
+
+      if (userData.branch_id) {
+        usersParams.set("branch_id", String(userData.branch_id));
+      }
+
+      const workingTodayUsersPromise = httpInternalApi.httpGetPublic(
+        "/users/working_today",
+        usersParams
+      ) as Promise<UserResponse>;
+
+      const attendancesParams = new URLSearchParams({
+        organization_id: String(data.id),
+        role_id: String(agentRole.id),
+        branch_id: String(userData.branch_id || 1),
+      });
+
+      const [workingTodayUsers, queueRes, usersRes, servicesRes] =
+        await Promise.all([
+          workingTodayUsersPromise,
+          httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
+          httpInternalApi.httpGetPublic(
+            "/attendances/by_usersworking_today",
+            attendancesParams
+          ),
+          httpInternalApi.httpGetPublic(
+            "/services/",
+            servicesParams
+          ) as Promise<ServiceResponse>,
+        ]);
+
+      setIsEmpty(workingTodayUsers.users.length === 0);
+
+      startTransition(() => {
+        setQueue(queueRes as User[]);
+        setUsers(usersRes as UserWithProfiles[]);
+        setFilteredServices(servicesRes.services);
+      });
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchQueue = useCallback(async () => {
     try {
       const queueRes = await httpInternalApi.httpGetPublic(
@@ -42,6 +106,7 @@ export default function AttendanceListsPage() {
       const { attended_by, id: attendanceId, status, profile } = attendance;
       if (!attended_by || !attendanceId || !status || !profile) {
         fetchQueue();
+        loadData();
         return;
       }
 
@@ -91,6 +156,7 @@ export default function AttendanceListsPage() {
 
         return newUsers;
       });
+
       fetchQueue();
     });
 
@@ -102,72 +168,8 @@ export default function AttendanceListsPage() {
   }, [fetchQueue]);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-
-        // Validaciones mínimas
-        if (!userData?.role?.id || !data?.id) return;
-
-        const agentRole = await getRoleByName("agent");
-
-        const isUserAgent = userData.role.id === agentRole.id;
-        if (isUserAgent) setIsAgent(userData);
-
-        const usersParams = new URLSearchParams({
-          organization_id: String(data.id),
-          role_id: String(agentRole.id),
-        });
-
-        const servicesParams = new URLSearchParams({
-          organization_id: String(data.id),
-        });
-
-        if (userData.branch_id) {
-          usersParams.set("branch_id", String(userData.branch_id));
-        }
-
-        const workingTodayUsersPromise = httpInternalApi.httpGetPublic(
-          "/users/working_today",
-          usersParams
-        ) as Promise<UserResponse>;
-
-        const attendancesParams = new URLSearchParams({
-          organization_id: String(data.id),
-          role_id: String(agentRole.id),
-          branch_id: String(userData.branch_id || 1),
-        });
-
-        const [workingTodayUsers, queueRes, usersRes, servicesRes] =
-          await Promise.all([
-            workingTodayUsersPromise,
-            httpInternalApi.httpGetPublic("/attendances/by_users_queue"),
-            httpInternalApi.httpGetPublic(
-              "/attendances/by_usersworking_today",
-              attendancesParams
-            ),
-            httpInternalApi.httpGetPublic(
-              "/services/",
-              servicesParams
-            ) as Promise<ServiceResponse>,
-          ]);
-
-        setIsEmpty(workingTodayUsers.users.length === 0);
-
-        startTransition(() => {
-          setQueue(queueRes as User[]);
-          setUsers(usersRes as UserWithProfiles[]);
-          setFilteredServices(servicesRes.services);
-        });
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadData();
-  }, [data?.id, userData]);
+  }, []);
 
   if (isLoading) return <LoadingSpinner />;
 
