@@ -1,9 +1,11 @@
+"use client";
+
 import { useTheme } from "@/components/ThemeProvider";
 import { Profile } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { UserResponse } from "@/types/user";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 
 interface SelectionStepProps {
   profile?: Profile;
@@ -29,6 +31,12 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
   onFinish,
 }) => {
   const { theme } = useTheme();
+
+  useEffect(() => {
+    if (selectedUserId === null) {
+      onUserSelect(0); // Preselecciona "Próximo disponible"
+    }
+  }, [selectedUserId, onUserSelect]);
 
   return (
     <div>
