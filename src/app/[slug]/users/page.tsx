@@ -30,7 +30,7 @@ const UsersPage = () => {
       channel?.unbind_all();
       channel?.unsubscribe();
     };
-  }, []);
+  }, [slug, userData?.role.name]);
 
   if (!filteredMenus || filteredMenus.length === 0) {
     return <LoadingSpinner />;

@@ -22,7 +22,7 @@ export default function AttendanceListsPage() {
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -81,7 +81,7 @@ export default function AttendanceListsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [data, userData]);
 
   const fetchQueue = useCallback(async () => {
     try {
@@ -161,11 +161,11 @@ export default function AttendanceListsPage() {
       channel?.unbind_all();
       channel?.unsubscribe();
     };
-  }, [fetchQueue]);
+  }, [fetchQueue, loadData]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   if (isLoading) return <LoadingSpinner />;
 
