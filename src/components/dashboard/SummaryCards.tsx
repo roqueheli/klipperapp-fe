@@ -58,7 +58,7 @@ export const SummaryCards = ({ metrics }: SummaryCardsProps) => {
         titleColor={titleColor}
       />
       <Card
-        title="Extra Descuentos"
+        title="Alicuota"
         value={`$${metrics?.totalExtraDiscount?.toLocaleString() || 0}`}
         color="text-orange-400"
         cardBg={cardBg}
