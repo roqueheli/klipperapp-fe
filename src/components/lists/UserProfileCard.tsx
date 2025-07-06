@@ -19,11 +19,17 @@ export default function UserProfileCard({ user, onClick }: Props) {
   const { theme } = useTheme();
 
   return (
-    <article className={`transition-shadow duration-300 flex flex-col h-full rounded-2xl p-5 shadow-xl ${theme === "dark" ? "bg-gradient-to-br from-[#101522] via-[#1a2337] to-[#202a45] ring-1 ring-[--electric-blue]/30 shadow-[0_8px_24px_rgba(61,217,235,0.2)] hover:shadow-[0_12px_36px_rgba(61,217,235,0.35)]" : "bg-white"}`}>
+    <article
+      className={`transition-shadow duration-300 flex flex-col h-full rounded-2xl p-5 shadow-xl ${
+        theme === "dark"
+          ? "bg-gradient-to-br from-[#101522] via-[#1a2337] to-[#202a45] ring-1 ring-[--electric-blue]/30 shadow-[0_8px_24px_rgba(61,217,235,0.2)] hover:shadow-[0_12px_36px_rgba(61,217,235,0.35)]"
+          : "bg-white"
+      }`}
+    >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-md font-bold flex items-center gap-2">
           <UserCircle2 className="w-5 h-5" />
-          <span className="truncate">{user.user.name.split(' ')[0]}</span>
+          <span className="truncate">{user.user.name.split(" ")[0]}</span>
         </h3>
         <span className="truncate text-xs">
           {user.profiles.length} turno(s)
@@ -32,48 +38,59 @@ export default function UserProfileCard({ user, onClick }: Props) {
 
       <ul className="space-y-3 max-h-[300px] overflow-y-auto p-1">
         {user.profiles.length > 0 ? (
-          user.profiles.map((att, index) => {
-            const isClickable =
-              index === 0 ||
-              (index === 1 && user.profiles[0]?.status === "postponed");
+          [...user.profiles]
+            .sort((a, b) => {
+              // Si el primero está en postponed y el segundo no, los intercambiamos
+              if (a.status === "postponed" && b.status !== "postponed") {
+                return 1;
+              }
+              if (a.status !== "postponed" && b.status === "postponed") {
+                return -1;
+              }
+              return 0; // mantener el orden si no aplica
+            })
+            .map((att, index) => {
+              const isClickable = index === 0;
 
-            const statusClass =
-              statusClasses[att.status as keyof typeof statusClasses] ??
-              statusClasses.pending;
-            const { ping, dot } = statusClass;
+              const statusClass =
+                statusClasses[att.status as keyof typeof statusClasses] ??
+                statusClasses.pending;
+              const { ping, dot } = statusClass;
 
-            return (
-              <li
-                key={att.id}
-                onClick={() =>
-                  isClickable &&
-                  onClick(
-                    user.user.id,
-                    user.user.name,
-                    att as AttendanceProfile
-                  )
-                }
-                className={`flex items-center justify-between gap-3 rounded-md p-3 text-sm transition select-none ${
-                  isClickable
-                    ? `cursor-pointer shadow-md shadow-[0_4px_16px_rgba(61,217,235,0.2)] hover:shadow-[0_6px_24px_rgba(131,175,175,0.5)] hover:translate-x-0.5 ${theme === "dark" && "bg-[#131b2c]"}`
-                    : `cursor-not-allowed shadow-md ${theme === 'dark' ? "bg-[#1e273b]" : "bg-white"} opacity-50`
-                }`}
-                title={`Atención: ${att.name} - Estado: ${att.status}`}
-              >
-                <span className="truncate font-medium">
-                  {att.name}
-                </span>
-                <span className="relative flex h-3 w-3 shrink-0">
-                  <span
-                    className={`animate-ping absolute inline-flex h-full w-full rounded-full ${ping} opacity-75`}
-                  />
-                  <span
-                    className={`relative inline-flex rounded-full h-3 w-3 ${dot}`}
-                  />
-                </span>
-              </li>
-            );
-          })
+              return (
+                <li
+                  key={att.id}
+                  onClick={() =>
+                    isClickable &&
+                    onClick(
+                      user.user.id,
+                      user.user.name,
+                      att as AttendanceProfile
+                    )
+                  }
+                  className={`flex items-center justify-between gap-3 rounded-md p-3 text-sm transition select-none ${
+                    isClickable
+                      ? `cursor-pointer shadow-md shadow-[0_4px_16px_rgba(61,217,235,0.2)] hover:shadow-[0_6px_24px_rgba(131,175,175,0.5)] hover:translate-x-0.5 ${
+                          theme === "dark" && "bg-[#131b2c]"
+                        }`
+                      : `cursor-not-allowed shadow-md ${
+                          theme === "dark" ? "bg-[#1e273b]" : "bg-white"
+                        } opacity-50`
+                  }`}
+                  title={`Atención: ${att.name} - Estado: ${att.status}`}
+                >
+                  <span className="truncate font-medium">{att.name}</span>
+                  <span className="relative flex h-3 w-3 shrink-0">
+                    <span
+                      className={`animate-ping absolute inline-flex h-full w-full rounded-full ${ping} opacity-75`}
+                    />
+                    <span
+                      className={`relative inline-flex rounded-full h-3 w-3 ${dot}`}
+                    />
+                  </span>
+                </li>
+              );
+            })
         ) : (
           <li className="text-sm italic text-[--soft-white]/60 py-3 text-center">
             Sin clientes en espera.

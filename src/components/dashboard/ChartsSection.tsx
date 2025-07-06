@@ -22,22 +22,22 @@ export const ChartsSection = ({
       <BarChartCard
         data={perService}
         title="Por Servicio"
-        barColor={theme === "dark" ? "#f87171" : "#F55376"}
-        cardBg={cardBg}
+        barColor={theme === "dark" ? "#f47145" : "#E53E3E"}
+        cardBg={theme === "dark" ? "bg-gray-900" : "bg-gray-100"}
         titleColor={titleColor}
       />
       <BarChartCard
         data={perUser}
         title="Por Usuario"
-        barColor={theme === "dark" ? "#60a5fa" : "#3DD9EB"}
-        cardBg={cardBg}
+        barColor={theme === "dark" ? "#63b3ed" : "#3498db"}
+        cardBg={theme === "dark" ? "bg-gray-900" : "bg-gray-100"}
         titleColor={titleColor}
       />
       <BarChartCard
         data={perClient}
         title="Por Cliente"
-        barColor={theme === "dark" ? "#818cf8" : "#007bff"}
-        cardBg={cardBg}
+        barColor={theme === "dark" ? "#55d6be" : "#1abc9c"}
+        cardBg={theme === "dark" ? "bg-gray-900" : "bg-gray-100"}
         titleColor={titleColor}
       />
     </div>

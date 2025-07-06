@@ -52,6 +52,7 @@ const AttendanceWizard = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasStoredData, setHasStoredData] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const loadFromStorageAndFetch = async () => {
@@ -154,6 +155,8 @@ const AttendanceWizard = ({
     };
 
     try {
+      setIsSubmitting(true);
+
       const action = hasStoredData ? "PUT" : "POST";
       const message = hasStoredData ? "actualizada" : "creada";
 
@@ -177,6 +180,8 @@ const AttendanceWizard = ({
       }
     } catch {
       console.error("Error en la creación de atención:");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -212,6 +217,7 @@ const AttendanceWizard = ({
             ? { onBack: () => setStep(1) }
             : { onBack: () => router.back() })}
           onFinish={handleFinish}
+          isSubmitting={isSubmitting}
         />
       )}
     </div>

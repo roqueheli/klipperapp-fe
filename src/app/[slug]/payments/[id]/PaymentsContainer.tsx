@@ -42,6 +42,7 @@ interface Props {
   setDiscount: React.Dispatch<React.SetStateAction<number>>;
   setPaymentType: React.Dispatch<React.SetStateAction<string>>;
   handleUpdateAttendance: (updatedAttendance: Attendance) => void;
+  isSubmitting: boolean;
 }
 
 const PaymentsContainer = ({
@@ -68,6 +69,7 @@ const PaymentsContainer = ({
   setPaymentType,
   setDiscount,
   handleUpdateAttendance,
+  isSubmitting,
 }: Props) => {
   const { theme } = useTheme();
   const [filteredServices, setFilteredServices] = useState(availableServices);
@@ -207,6 +209,7 @@ const PaymentsContainer = ({
           servicesCount={services.length}
           unifiedAttendances={selectedAttendances}
           onExecute={handleExecuteTransaction}
+          isSubmitting={isSubmitting}
         />
       </div>
     </div>

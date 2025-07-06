@@ -3,13 +3,34 @@
 import { useTheme } from "@/components/ThemeProvider";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
+import { useUser } from "@/contexts/UserContext";
 import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOrganization";
+import { pusherClient } from "@/lib/pusher/pusher.client";
+import { AttendanceCable } from "@/types/attendance";
 import Image from "next/image";
+import { useEffect } from "react";
 
 const UsersPage = () => {
-  const { data } = useOrganization();
+  const { data, slug } = useOrganization();
   const { theme } = useTheme();
+  const { userData } = useUser();
   const filteredMenus = useFilteredMenusFromOrganization();
+
+  useEffect(() => {
+    const channel = pusherClient?.subscribe("attendance_channel");
+
+    channel?.bind("attendance", function (attendance: AttendanceCable) {
+      if (!attendance.id && userData?.role.name === "viewer") {
+        window.location.href = `/${slug}/users/attendances`;
+      }
+    });
+
+    return () => {
+      // 🔒 Limpieza al desmontar
+      channel?.unbind_all();
+      channel?.unsubscribe();
+    };
+  }, [slug, userData?.role.name]);
 
   if (!filteredMenus || filteredMenus.length === 0) {
     return <LoadingSpinner />;

@@ -32,8 +32,7 @@ export default function AttendanceListsPage() {
 
       const agentRole = await getRoleByName("agent");
 
-      const isUserAgent = userData.role.id === agentRole.id;
-      if (isUserAgent) setIsAgent(userData);
+      if (userData.role.name === "agent") setIsAgent(userData);
 
       const usersParams = new URLSearchParams({
         organization_id: String(data.id),

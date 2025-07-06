@@ -1,9 +1,11 @@
+"use client";
+
 import { useTheme } from "@/components/ThemeProvider";
 import { Profile } from "@/types/profile";
 import { ServiceResponse } from "@/types/service";
 import { UserResponse } from "@/types/user";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 
 interface SelectionStepProps {
   profile?: Profile;
@@ -15,6 +17,7 @@ interface SelectionStepProps {
   onServiceSelect: (serviceId: number) => void;
   onBack?: () => void;
   onFinish: () => void;
+  isSubmitting: boolean;
 }
 
 const SelectionStep: React.FC<SelectionStepProps> = ({
@@ -27,8 +30,15 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
   onServiceSelect,
   onBack,
   onFinish,
+  isSubmitting,
 }) => {
   const { theme } = useTheme();
+
+  useEffect(() => {
+    if (selectedUserId === null) {
+      onUserSelect(0); // Preselecciona "Próximo disponible"
+    }
+  }, [selectedUserId, onUserSelect]);
 
   return (
     <div>
@@ -53,11 +63,39 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
             Volver
           </button>
           <button
-            disabled={selectedUserId === null}
+            disabled={selectedUserId === null || isSubmitting}
             onClick={onFinish}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-md shadow-sm transition"
-          >
-            Finalizar
+            className={`text-white font-semibold px-6 py-3 rounded-md shadow-sm transition
+              ${selectedUserId === null || isSubmitting
+                  ? "bg-blue-300 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }
+            `}
+            >
+            {isSubmitting ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 018 8h-4l3 3 3-3h-4a8 8 0 01-8 8z"
+                ></path>
+              </svg>
+            ) : (
+              "Finalizar"
+            )}
           </button>
         </div>
       </div>
@@ -84,7 +122,7 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
           <div
             key={user.id}
             onClick={() => onUserSelect(user.id)}
-            className={`cursor-pointer border rounded-lg p-5 flex flex-col items-center gap-3 shadow-sm transition 
+            className={`cursor-pointer border rounded-lg p-5 flex flex-col items-center justify-between gap-3 shadow-sm transition 
               ${
                 selectedUserId === user.id
                   ? "border-blue-600 shadow-blue-300 dark:shadow-blue-700"
@@ -95,17 +133,24 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
             aria-pressed={selectedUserId === user.id}
           >
             <div className="flex w-full justify-center items-center relative">
-              <Image
-                src={
-                  user.photo_url ||
-                  "https://instagram.fscl38-1.fna.fbcdn.net/v/t51.2885-15/72779367_1162328503937413_1372969658332728921_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0uaW1hZ2VfdXJsZ2VuLjE0NDB4OTYxLnNkci5mMjg4NS5kZWZhdWx0X2ltYWdlIn0&_nc_ht=instagram.fscl38-1.fna.fbcdn.net&_nc_cat=101&_nc_oc=Q6cZ2QGqsf8D2uoR4Hhc3fQmiT_UPgRhTc3e-z2LnwJUwI6kZj4I3Jg7ZOu6O4TPVP2cn_4kY_wxxqep5ywMjUpoFVV1&_nc_ohc=iwGxY0ntePAQ7kNvwH-LH4V&_nc_gid=hOXug_uAvaELCDV45wE3TA&edm=APoiHPcBAAAA&ccb=7-5&ig_cache_key=MjE4MTM1NzI5MDExNDg1NDczMA%3D%3D.3-ccb7-5&oh=00_AfNln6KkJVhygGRM6hJx1m-3iWyEjudKFvaV6Rxg4HtOlg&oe=6858C667&_nc_sid=22de04"
-                }
-                alt={user.name}
-                width={130}
-                height={120}
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="rounded-md object-cover shadow"
-              />
+              <div className="relative w-32 h-28 rounded-md overflow-hidden">
+                {user.photo_url ? (
+                  <Image
+                    src={user.photo_url}
+                    alt={user.name}
+                    fill
+                    className="object-cover shadow"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-gray-200 text-2xl font-bold text-gray-600">
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </div>
+                )}
+              </div>
             </div>
             <div
               className={`text-md truncate font-semibold ${
