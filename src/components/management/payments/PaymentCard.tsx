@@ -176,11 +176,11 @@ export default function PaymentCard({
                 <span
                   className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl shadow-sm ${
                     state === "pending"
-                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800/30 dark:text-yellow-200"
+                      ? `${theme === 'dark' ? "bg-yellow-800/30 text-yellow-200" : "bg-yellow-100 text-yellow-800"} animate-pulse`
                       : state === "approved"
-                      ? "bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-200"
+                      ? `${theme === 'dark' ? "bg-green-100 text-green-800" : "bg-green-800/30 text-green-800"}`
                       : state === "rejected"
-                      ? "bg-red-100 text-red-800 dark:bg-red-800/30 dark:text-red-200"
+                      ? `${theme === 'dark' ? "bg-red-800/30 text-red-200" : "bg-red-100 text-red-800"} animate-pulse`
                       : "bg-gray-200 text-gray-700"
                   }`}
                 >
@@ -206,8 +206,7 @@ export default function PaymentCard({
             )}
 
           {!canView &&
-            (!payments?.[0]?.aasm_state ||
-              payments[0].aasm_state === "pending") && (
+            (payments.length >= 1 && payments[0].aasm_state === "pending") && (
               <>
                 <button
                   onClick={() => payments[0]?.id ? onApprove?.({ id: payments[0].id }) : undefined}

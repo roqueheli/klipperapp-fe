@@ -49,7 +49,7 @@ export default function UserProfileCard({ user, onClick }: Props) {
               }
               return 0; // mantener el orden si no aplica
             })
-            .map((att, index, sortedProfiles) => {
+            .map((att, index) => {
               const isClickable = index === 0;
 
               const statusClass =
