@@ -41,10 +41,7 @@ export default function AttendanceListsPageContainer({
   const { userData } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{
-    userId: number;
-    userName: string;
-  } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{ userId: number; userName: string; } | null>(null);
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
@@ -251,10 +248,8 @@ export default function AttendanceListsPageContainer({
     );
   }, [filteredServices, search]);
 
-  const hasProcessing =
-    users.some(
-      (u) => u.profiles.length === 1 && u.profiles[0].status === "postponed"
-    ) || !users.some((u) => u.profiles.some((p) => p.status === "processing"));
+  const hasProcessing = users.some((u) => u.profiles.length === 1 && u.profiles[0].status === "postponed") || !users.some((u) => u.profiles.some((p) => p.status === "processing"));
+  const hasPostponed = false;
 
   return (
     <div className="w-full mx-auto p-6 min-h-screen flex flex-col">
@@ -286,6 +281,7 @@ export default function AttendanceListsPageContainer({
         onResume={handleResume}
         onAddService={handleAddService}
         hasProcessing={hasProcessing}
+        hasPostponed={hasPostponed}
       />
 
       {selectedAtt && addServiceModalOpen && (

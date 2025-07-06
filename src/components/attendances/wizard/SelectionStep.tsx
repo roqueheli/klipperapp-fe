@@ -17,6 +17,7 @@ interface SelectionStepProps {
   onServiceSelect: (serviceId: number) => void;
   onBack?: () => void;
   onFinish: () => void;
+  isSubmitting: boolean;
 }
 
 const SelectionStep: React.FC<SelectionStepProps> = ({
@@ -29,6 +30,7 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
   onServiceSelect,
   onBack,
   onFinish,
+  isSubmitting,
 }) => {
   const { theme } = useTheme();
 
@@ -61,11 +63,39 @@ const SelectionStep: React.FC<SelectionStepProps> = ({
             Volver
           </button>
           <button
-            disabled={selectedUserId === null}
+            disabled={selectedUserId === null || isSubmitting}
             onClick={onFinish}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-md shadow-sm transition"
-          >
-            Finalizar
+            className={`text-white font-semibold px-6 py-3 rounded-md shadow-sm transition
+              ${selectedUserId === null || isSubmitting
+                  ? "bg-blue-300 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }
+            `}
+            >
+            {isSubmitting ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 018 8h-4l3 3 3-3h-4a8 8 0 01-8 8z"
+                ></path>
+              </svg>
+            ) : (
+              "Finalizar"
+            )}
           </button>
         </div>
       </div>

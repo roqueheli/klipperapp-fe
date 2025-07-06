@@ -31,6 +31,7 @@ const PaymentsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSunday, setIsSunday] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const attendanceParams = new URLSearchParams();
@@ -99,6 +100,8 @@ const PaymentsPage = () => {
     );
 
     try {
+      setIsSubmitting(true);
+
       await Promise.all(
         allAttendances.map(async (a) => {
           const aServices =
@@ -143,6 +146,8 @@ const PaymentsPage = () => {
       router.push(`/${slug}/transactions`);
     } catch {
       toast.error("Ocurrió un error al finalizar una o más asistencias.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -208,6 +213,7 @@ const PaymentsPage = () => {
       setPaymentType={setPaymentType}
       setDiscount={setDiscount}
       handleUpdateAttendance={handleUpdateAttendance}
+      isSubmitting={isSubmitting}
     />
   );
 };
