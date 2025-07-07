@@ -8,8 +8,14 @@ export function useFilteredMenusFromOrganization(): MenuItem[] {
     const { slug, data: organization } = useOrganization();
     const { userData } = useUser();
     const roleName = userData?.role?.name;
-    
+
     const defaultMenus: MenuItem[] = [
+        {
+            "label": "Cuadre de caja",
+            "path": `/${slug}/till-check`,
+            "allowedRoles": ["admin", "user"],
+            "icon": "BanknoteArrowUp"
+        },
         {
             label: "Registro de Entrada",
             path: `/${slug}/users/checkin`,
@@ -63,7 +69,7 @@ export function useFilteredMenusFromOrganization(): MenuItem[] {
             path: `/${slug}/users/settings`,
             allowedRoles: ["admin", "user", "agent"],
             icon: "Settings"
-        },
+        }
     ];
 
     if (!organization || roleName === undefined) return [];

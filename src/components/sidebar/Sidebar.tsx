@@ -8,6 +8,7 @@ import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOr
 import httpInternalApi from "@/lib/common/http.internal.service";
 import clsx from "clsx";
 import {
+  BanknoteArrowUp,
   BarChart3,
   CalendarCheck,
   ChevronLeft,
@@ -42,6 +43,7 @@ const iconMap: Record<string, JSX.Element> = {
   Settings: <Settings className="h-5 w-5 shrink-0" />,
   FileBarChart2: <FileBarChart2 className="h-5 w-5 shrink-0" />,
   Wallet: <Wallet className="h-5 w-5 shrink-0" />,
+  BanknoteArrowUp: <BanknoteArrowUp className="h-5 w-5 shrink-0" />,
 };
 
 export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {

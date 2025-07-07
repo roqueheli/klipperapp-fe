@@ -111,7 +111,7 @@ export default async function LayoutWithSlug({
             {/* 👇 Limpieza de logout (solo en cliente) */}
             <LogoutHandler />
 
-            <div className="w-full flex min-h-screen">
+            <div className="w-full flex min-h-[1000px]">
               {auth_token &&
                 userData?.email_verified === true &&
                 !isLoginPage &&
