@@ -278,7 +278,7 @@ const AttendanceDetailPage = () => {
             <div className="flex flex-col gap-2">
               <p>
                 <span className="font-semibold">Propina:</span>{" "}
-                {Number(0).toLocaleString("es-CL", {
+                {Number(attendance.tip_amount).toLocaleString("es-CL", {
                   style: "currency",
                   currency: "CLP",
                 })}

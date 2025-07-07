@@ -248,8 +248,7 @@ export default function AttendanceListsPageContainer({
     );
   }, [filteredServices, search]);
 
-  const hasProcessing = users.some((u) => u.profiles.length === 1 && u.profiles[0].status === "postponed") || !users.some((u) => u.profiles.some((p) => p.status === "processing"));
-  const hasPostponed = false;
+  const hasProcessing = users?.some((u) => u.profiles.length === 1 && u.profiles[0].status === "postponed") || !users.some((u) => u.profiles.some((p) => p.status === "processing"));
 
   return (
     <div className="w-full mx-auto p-6 min-h-screen flex flex-col">
@@ -281,7 +280,6 @@ export default function AttendanceListsPageContainer({
         onResume={handleResume}
         onAddService={handleAddService}
         hasProcessing={hasProcessing}
-        hasPostponed={hasPostponed}
       />
 
       {selectedAtt && addServiceModalOpen && (

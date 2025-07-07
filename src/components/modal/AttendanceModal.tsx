@@ -27,7 +27,6 @@ interface AttendanceModalProps {
   onResume: () => void;
   onAddService: () => void;
   hasProcessing: boolean;
-  hasPostponed: boolean;
 }
 
 export default function AttendanceModal({
@@ -42,10 +41,10 @@ export default function AttendanceModal({
   onResume,
   onAddService,
   hasProcessing,
-  hasPostponed,
 }: AttendanceModalProps) {
   const { theme } = useTheme();
   const { userData } = useUser();
+  const hasPostponed = false;
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -146,7 +145,7 @@ export default function AttendanceModal({
                   >
                     Declinar
                   </button>
-                  {(hasPostponed) && (
+                  {hasPostponed && (
                     <button
                       onClick={onPostpone}
                       className={`px-4 py-2 rounded-md font-semibold ${
