@@ -19,6 +19,7 @@ export default function DashboardPage() {
     userRevenue,
     totalDiscount,
     totalExtraDiscount,
+    totalTips,
     attendances,
     activeAttendances,
     finishedAttendances,
@@ -54,6 +55,7 @@ export default function DashboardPage() {
           revenue,
           totalDiscount,
           totalExtraDiscount,
+          totalTips,
           organizationRevenue,
           userRevenue,
         }}

@@ -83,24 +83,28 @@ export const AttendanceLineChart = ({ data }: AttendanceLineChartProps) => {
             stroke="#3b82f6"
             name="Total Atenciones"
           />
-          <Line
-            type="monotone"
-            dataKey="organization_amount"
-            stroke="#8b5cf6"
-            name="Org. Ganancias"
-          />
+          {userData?.role.name === "admin" && (
+            <Line
+              type="monotone"
+              dataKey="organization_amount"
+              stroke="#8b5cf6"
+              name="Org. Ganancias"
+            />
+          )}
           <Line
             type="monotone"
             dataKey="user_amount"
             stroke="#10b981"
-            name="Usuarios Ganancias"
+            name="Ganancias Usuarios"
           />
-          <Line
-            type="monotone"
-            dataKey="total_amount"
-            stroke="#f59e0b"
-            name="Monto Total"
-          />
+          {userData?.role.name === "admin" && (
+            <Line
+              type="monotone"
+              dataKey="total_amount"
+              stroke="#f59e0b"
+              name="Monto Total"
+            />
+          )}
           <Line
             type="monotone"
             dataKey="discount"
