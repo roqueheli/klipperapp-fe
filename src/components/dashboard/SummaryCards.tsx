@@ -75,15 +75,13 @@ export const SummaryCards = ({ metrics }: SummaryCardsProps) => {
           titleColor={titleColor}
         />
       )}
-      {userData?.role.name === "agent" && (
-        <Card
-          title="Propinas"
-          value={`$${metrics?.totalTips?.toLocaleString() || 0}`}
-          color="text-blue-400"
-          cardBg={cardBg}
-          titleColor={titleColor}
-        />
-      )}
+      <Card
+        title="Propinas"
+        value={`$${metrics?.totalTips?.toLocaleString() || 0}`}
+        color="text-blue-400"
+        cardBg={cardBg}
+        titleColor={titleColor}
+      />
       {userData?.role.name === "admin" && (
         <Card
           title="Ingresos Organización"
