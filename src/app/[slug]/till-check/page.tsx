@@ -3,9 +3,7 @@
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useEffect, useState } from "react";
 
-type Props = {};
-
-const TillCheckPage = (props: Props) => {
+const TillCheckPage = () => {
   const { data: organization } = useOrganization();
   const [banks_accounts, setBanksAccounts] = useState<
     Array<{ bank_name: string; bank_account_number: string }>
