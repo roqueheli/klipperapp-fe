@@ -5,7 +5,6 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
 import httpInternalApi from "@/lib/common/http.internal.service";
 import { pusherClient } from "@/lib/pusher/pusher.client";
-import { AttendanceCable } from "@/types/attendance";
 import { Service, ServiceResponse } from "@/types/service";
 import { User, UserResponse, UserWithProfiles } from "@/types/user";
 import { getRoleByName } from "@/utils/roleUtils";
@@ -108,7 +107,7 @@ export default function AttendanceListsPage() {
   useEffect(() => {
     const channel = pusherClient?.subscribe("attendance_channel");
 
-    channel?.bind("attendance", function (attendance: AttendanceCable) {
+    channel?.bind("attendance", function () {
       fetchUsersWithProfiles();
       fetchQueue();
     });
