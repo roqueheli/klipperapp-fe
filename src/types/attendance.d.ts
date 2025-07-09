@@ -83,6 +83,7 @@ export interface AttendanceProfile {
 	attendance_id?: number;
 	name: string;
 	status: "pending" | "processing" | "postponed" | "canceled" | "declined";
+	clickeable: boolean | null;
 }
 
 export interface AttendanceCable {

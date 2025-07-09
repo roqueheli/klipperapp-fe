@@ -7,6 +7,8 @@ class UsersAPI {
     updateUser = async (body: User, token: string): Promise<User> => httpExternalApi.httpPost(`/users/${body?.id}`, 'PUT', body, token);
     createUser = async (body: User, token: string): Promise<User> => httpExternalApi.httpPost(`/users`, 'POST', body, token);
     deleteUser = async (body: User, token: string): Promise<User> => httpExternalApi.httpPost(`/users/${body?.id}`, 'DELETE', undefined, token);
+    setNotAvailable = async (body: User, token: string): Promise<User> => httpExternalApi.httpPost(`/users/${body?.id}/not_available`, 'PATCH', undefined, token);
+    setAvailable = async (body: User, token: string): Promise<User> => httpExternalApi.httpPost(`/users/${body?.id}/available`, 'PATCH', undefined, token);
 }
 
 const usersAPI = new UsersAPI();

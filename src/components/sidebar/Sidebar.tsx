@@ -8,6 +8,7 @@ import { useFilteredMenusFromOrganization } from "@/hooks/useFilteredMenusFromOr
 import httpInternalApi from "@/lib/common/http.internal.service";
 import clsx from "clsx";
 import {
+  BanknoteArrowUp,
   BarChart3,
   CalendarCheck,
   ChevronLeft,
@@ -18,14 +19,16 @@ import {
   ListOrdered,
   LogIn,
   LogOut,
+  NotebookPen,
   Settings,
   Wallet,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { JSX, useEffect, useState } from "react";
+import { JSX, RefObject, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import StatusSelectorModal from "./StatusSelectorModal";
 
 type SidebarProps = {
   token?: string;
@@ -33,6 +36,7 @@ type SidebarProps = {
 };
 
 const iconMap: Record<string, JSX.Element> = {
+  NotebookPen: <NotebookPen className="h-5 w-5 shrink-0" />,
   LogIn: <LogIn className="h-5 w-5 shrink-0" />,
   CalendarCheck: <CalendarCheck className="h-5 w-5 shrink-0" />,
   ListOrdered: <ListOrdered className="h-5 w-5 shrink-0" />,
@@ -42,6 +46,7 @@ const iconMap: Record<string, JSX.Element> = {
   Settings: <Settings className="h-5 w-5 shrink-0" />,
   FileBarChart2: <FileBarChart2 className="h-5 w-5 shrink-0" />,
   Wallet: <Wallet className="h-5 w-5 shrink-0" />,
+  BanknoteArrowUp: <BanknoteArrowUp className="h-5 w-5 shrink-0" />,
 };
 
 export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
@@ -52,6 +57,7 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
   const [route, setRoute] = useState("/users");
   const router = useRouter();
   const [isOpen, setIsOpen] = useState<boolean | null>(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
   const initials = userData?.name
     ?.split(" ")
@@ -65,6 +71,7 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
   const configMenu = menus.find((m) => m.label === "Configuración");
   const otherMenus = menus.filter((m) => m.label !== "Configuración");
   const { branches, selectedBranch, setSelectedBranch } = useBranch();
+  const avatarButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!token) {
@@ -281,33 +288,68 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
               !isOpen && "justify-center"
             } items-center gap-4`}
           >
-            {userData?.photo_url ? (
-              <div
-                className={clsx(
-                  "relative rounded-full overflow-hidden",
-                  isOpen ? "w-12 h-12" : "w-10 h-10"
-                )}
+            <div className="relative">
+              <button
+                disabled={userData?.role.name !== "agent"}
+                ref={avatarButtonRef}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsStatusModalOpen((prev) => !prev);
+                }}
+                className={`focus:outline-none relative ${
+                  userData?.role.name !== "agent"
+                    ? "cursor-not-allowed cursor-default"
+                    : ""
+                }`}
               >
-                <Image
-                  src={userData.photo_url}
-                  alt="User Avatar"
-                  fill
-                  className="object-cover"
+                {userData?.photo_url ? (
+                  <div
+                    className={clsx(
+                      "relative rounded-full overflow-hidden",
+                      isOpen ? "w-12 h-12" : "w-10 h-10"
+                    )}
+                  >
+                    <Image
+                      src={userData.photo_url}
+                      alt="User Avatar"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className={clsx(
+                      "flex items-center justify-center font-bold rounded-full shrink-0",
+                      theme === "dark"
+                        ? "bg-gray-700 text-white"
+                        : "bg-gray-200 text-black",
+                      isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
+                    )}
+                  >
+                    {initials}
+                  </div>
+                )}
+
+                {/* Badge de estado */}
+                <span
+                  className={clsx(
+                    "absolute top-0 right-0 w-3 h-3 rounded-full border-2",
+                    userData?.work_state !== "not_available"
+                      ? "bg-green-500"
+                      : "bg-gray-400",
+                    theme === "dark" ? "border-gray-900" : "border-white"
+                  )}
                 />
-              </div>
-            ) : (
-              <div
-                className={clsx(
-                  "flex items-center justify-center font-bold rounded-full shrink-0",
-                  theme === "dark"
-                    ? "bg-gray-700 text-white"
-                    : "bg-gray-200 text-black",
-                  isOpen ? "w-12 h-12 text-lg" : "w-8 h-8 text-sm"
-                )}
-              >
-                {initials}
-              </div>
-            )}
+              </button>
+
+              {/* Modal de estado */}
+              <StatusSelectorModal
+                isOpen={isStatusModalOpen}
+                onClose={() => setIsStatusModalOpen(false)}
+                avatarRef={avatarButtonRef as RefObject<HTMLElement>}
+              />
+            </div>
+
             {isOpen && (
               <span
                 className={`capitalize font-semibold px-5 py-1 rounded-lg text-xs inline-block ${

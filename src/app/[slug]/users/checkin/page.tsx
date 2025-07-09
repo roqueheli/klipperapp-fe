@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "@/components/ThemeProvider";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { useUser } from "@/contexts/UserContext";
@@ -19,6 +20,7 @@ import toast from "react-hot-toast";
 const CheckinPage = () => {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
+  const { theme } = useTheme();
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isWorkingTodayEmpty, setIsWorkingTodayEmpty] = useState(false);
@@ -180,8 +182,16 @@ const CheckinPage = () => {
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex flex-col md:flex-row gap-6 sm:gap-8 flex-1">
           {/* Lista Seleccionados */}
-          <section className="flex flex-col w-full md:w-1/2 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-green-700 dark:text-green-400">
+          <section
+            className={`flex flex-col w-full md:w-1/2 rounded-2xl shadow-lg p-4 sm:p-6 border ${
+              theme === "dark" ? "border-gray-700" : "border-gray-200"
+            }`}
+          >
+            <h2
+              className={`text-xl sm:text-2xl font-semibold mb-4 text-center ${
+                theme === "dark" ? "text-green-400" : "text-green-700"
+              }`}
+            >
               Orden de llegada
             </h2>
             <Droppable droppableId="selected">
@@ -189,7 +199,11 @@ const CheckinPage = () => {
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="text-white space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30 p-3 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100 dark:scrollbar-thumb-green-600 dark:scrollbar-track-green-800"
+                  className={`text-white space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border ${
+                    theme === "dark"
+                      ? "border-green-700 bg-green-900/30 scrollbar-thumb-green-600 scrollbar-track-green-800"
+                      : "border-green-300 bg-green-50 scrollbar-thumb-green-400 scrollbar-track-green-100"
+                  } p-3 scrollbar-thin`}
                 >
                   {selectedUsers.length === 0 && (
                     <li className="text-center text-green-500 italic">
@@ -248,8 +262,16 @@ const CheckinPage = () => {
           </section>
 
           {/* Lista Disponibles */}
-          <section className="flex flex-col w-full md:w-1/2 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center text-gray-700 dark:text-gray-700">
+          <section
+            className={`flex flex-col w-full md:w-1/2 rounded-2xl shadow-lg p-4 sm:p-6 border ${
+              theme === "dark" ? "border-gray-700" : "border-gray-200"
+            }`}
+          >
+            <h2
+              className={`text-xl sm:text-2xl font-semibold mb-4 text-center ${
+                theme === "dark" ? "text-white" : "text-black"
+              }`}
+            >
               Usuarios Disponibles
             </h2>
             <Droppable droppableId="available">
@@ -257,10 +279,18 @@ const CheckinPage = () => {
                 <ul
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="text-white space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/40 p-3 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800"
+                  className={`text-white space-y-3 min-h-[560px] max-h-full overflow-y-auto rounded border ${
+                    theme === "dark"
+                      ? "border-gray-600 bg-gray-900/40 scrollbar-thumb-gray-700 scrollbar-track-gray-800"
+                      : "border-gray-300 bg-gray-200 scrollbar-thumb-gray-400 scrollbar-track-gray-200"
+                  } p-3 scrollbar-thin`}
                 >
                   {availableUsers.length === 0 && (
-                    <li className="text-center italic text-gray-500 dark:text-gray-400">
+                    <li
+                      className={`text-center italic ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
                       No hay usuarios disponibles
                     </li>
                   )}
@@ -278,8 +308,16 @@ const CheckinPage = () => {
                           className={`p-4 rounded-xl shadow cursor-grab select-none transition
                           ${
                             snapshot.isDragging
-                              ? "bg-blue-300 dark:bg-blue-700 shadow-lg scale-105"
-                              : "bg-blue-100 dark:bg-blue-900"
+                              ? `${
+                                  theme === "dark"
+                                    ? "bg-blue-700"
+                                    : "bg-blue-400"
+                                } shadow-lg scale-105`
+                              : `${
+                                  theme === "dark"
+                                    ? "bg-blue-900"
+                                    : "bg-blue-700"
+                                }`
                           }`}
                         >
                           {user.name}

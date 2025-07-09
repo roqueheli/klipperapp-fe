@@ -22,7 +22,6 @@ interface Props {
   services: Service[];
   total: number;
   finalTotal: number;
-  amountPaid: number;
   discount: number;
   paymentType: string;
   availableServices: Service[];
@@ -43,6 +42,8 @@ interface Props {
   setPaymentType: React.Dispatch<React.SetStateAction<string>>;
   handleUpdateAttendance: (updatedAttendance: Attendance) => void;
   isSubmitting: boolean;
+  tipAmount: number;
+  setTipAmount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const PaymentsContainer = ({
@@ -52,7 +53,6 @@ const PaymentsContainer = ({
   services,
   total,
   finalTotal,
-  amountPaid,
   discount,
   paymentType,
   availableServices,
@@ -70,6 +70,8 @@ const PaymentsContainer = ({
   setDiscount,
   handleUpdateAttendance,
   isSubmitting,
+  tipAmount,
+  setTipAmount,
 }: Props) => {
   const { theme } = useTheme();
   const [filteredServices, setFilteredServices] = useState(availableServices);
@@ -100,7 +102,7 @@ const PaymentsContainer = ({
     setSelectedServices((prev) => {
       const existingIds = new Set(prev.map((s) => s.id));
       const newServices = unifiedServices.filter((s) => !existingIds.has(s.id));
-      
+
       // Mostrar un toast por cada servicio agregado
       newServices.forEach((service) => {
         toast.success(`Servicio "${service.name}" agregado`, {
@@ -116,6 +118,8 @@ const PaymentsContainer = ({
     });
   };
 
+  const amountPaid = finalTotal;
+
   return (
     <div className="w-full mx-auto p-4">
       <div
@@ -126,7 +130,10 @@ const PaymentsContainer = ({
         } shadow-lg rounded-md p-6`}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">{`Detalle de la transacción: `}{attendance.id}</h2>
+          <h2 className="text-2xl font-semibold">
+            {`Detalle de la transacción: `}
+            {attendance.id}
+          </h2>
           <button
             onClick={handleOpenModal}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
@@ -201,6 +208,8 @@ const PaymentsContainer = ({
           onDiscountChange={setDiscount}
           onPaymentTypeChange={setPaymentType}
           date={new Date(attendance.created_at).toLocaleString("es-CL")}
+          tipAmount={tipAmount}
+          setTipAmount={setTipAmount}
         />
 
         <TransactionActionButtons

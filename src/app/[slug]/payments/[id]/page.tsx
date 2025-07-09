@@ -32,6 +32,7 @@ const PaymentsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSunday, setIsSunday] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tipAmount, setTipAmount] = useState(0);
 
   useEffect(() => {
     const attendanceParams = new URLSearchParams();
@@ -82,8 +83,7 @@ const PaymentsPage = () => {
     (sum, service) => sum + Number(service.price || 0),
     0
   );
-  const finalTotal = total - discount;
-  const amountPaid = finalTotal;
+  const finalTotal = total - discount + tipAmount;
 
   const handleExecuteTransaction = async () => {
     const allAttendances = [attendance, ...selectedAttendances];
@@ -124,6 +124,7 @@ const PaymentsPage = () => {
               organization_amount:
                 localTotal * (orgPercentage / 100) -
                 (extraDiscount > 0 ? extraDiscount / 2 : 0),
+              tip_amount: a.id === attendance.id ? tipAmount : 0,
               total_amount: localTotal,
               payment_method: paymentType,
               service_ids: aServices.map((s) => s.id),
@@ -196,7 +197,6 @@ const PaymentsPage = () => {
       services={selectedServices}
       total={total}
       finalTotal={finalTotal}
-      amountPaid={amountPaid}
       discount={discount}
       paymentType={paymentType}
       availableServices={availableServices}
@@ -214,6 +214,8 @@ const PaymentsPage = () => {
       setDiscount={setDiscount}
       handleUpdateAttendance={handleUpdateAttendance}
       isSubmitting={isSubmitting}
+      tipAmount={tipAmount}
+      setTipAmount={setTipAmount}
     />
   );
 };

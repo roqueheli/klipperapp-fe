@@ -57,7 +57,7 @@ export default function QueueSection({ queue }: Props) {
                 className="w-6 h-6 group-hover:scale-110 transition-transform"
                 style={{ color: userColors.get(user.id) }}
               />
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium truncate">
                 {user.name}
               </span>
             </li>

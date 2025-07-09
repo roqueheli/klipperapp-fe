@@ -51,6 +51,12 @@ const ExpenseModal = ({
   }, []);
 
   useEffect(() => {
+    if (isOpen && isCreateMode) {
+      resetForm(); // limpiar al abrir el modal si es modo creación
+    }
+  }, [isOpen, isCreateMode, resetForm]);
+
+  useEffect(() => {
     if (expense && (isEditMode || isViewMode)) {
       setDescription(expense.description);
       setAmount(expense.amount);

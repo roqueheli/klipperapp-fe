@@ -11,12 +11,18 @@ export interface Organization {
         media_configs?: {
             logo_url?: string;
             favicon?: string;
-		}
+        }
         menus: [] | undefined;
         payment_config: {
             week_start: number;
             week_end: number;
         }
+        banks_accounts?: [
+            {
+                bank_name: string;
+                alias: string;
+            }
+        ]
     } | null;
     bio?: string | null;
     photo_url?: string | null;
@@ -29,4 +35,3 @@ export interface OrganizationResponse {
 export interface UpateOrganization {
     profile: Organization;
 }
-

@@ -28,6 +28,7 @@ interface AttendanceListsPageContainerProps {
   users: UserWithProfiles[];
   queue: User[];
   filteredServices: Service[];
+  hasPostponed: boolean;
 }
 
 export default function AttendanceListsPageContainer({
@@ -36,12 +37,16 @@ export default function AttendanceListsPageContainer({
   users,
   queue,
   filteredServices,
+  hasPostponed,
 }: AttendanceListsPageContainerProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{ userId: number; userName: string; } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{
+    userId: number;
+    userName: string;
+  } | null>(null);
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
@@ -248,9 +253,6 @@ export default function AttendanceListsPageContainer({
     );
   }, [filteredServices, search]);
 
-  const hasProcessing = users.some((u) => u.profiles.length === 1 && u.profiles[0].status === "postponed") || !users.some((u) => u.profiles.some((p) => p.status === "processing"));
-  const hasPostponed = false;
-
   return (
     <div className="w-full mx-auto p-6 min-h-screen flex flex-col">
       <HeaderSection />
@@ -280,7 +282,6 @@ export default function AttendanceListsPageContainer({
         onDecline={handleDecline}
         onResume={handleResume}
         onAddService={handleAddService}
-        hasProcessing={hasProcessing}
         hasPostponed={hasPostponed}
       />
 

@@ -10,6 +10,7 @@ export interface Profile {
 	photo_url?: string | null;
 	last_attendance_at?: string | null;
     attendance_id?: number | null;
+    clickeable: boolean | null;
 };
 
 export interface ProfileResponse {

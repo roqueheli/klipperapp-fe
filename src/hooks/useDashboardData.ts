@@ -42,6 +42,7 @@ export function useDashboardData() {
     const userRevenue = useMemo(() => finishedAttendances?.reduce((sum, a) => sum + (a.user_amount ?? 0), 0), [finishedAttendances]);
     const totalDiscount = useMemo(() => finishedAttendances?.reduce((sum, a) => sum + (a.discount ?? 0), 0), [finishedAttendances]);
     const totalExtraDiscount = useMemo(() => finishedAttendances?.reduce((sum, a) => sum + (a.extra_discount ?? 0), 0), [finishedAttendances]);
+    const totalTips = useMemo(() => finishedAttendances?.reduce((sum, a) => sum + (a.tip_amount ?? 0), 0), [finishedAttendances]);
 
     const perService = useMemo(() => {
         const map: Record<string, number> = {};
@@ -86,6 +87,7 @@ export function useDashboardData() {
         userRevenue,
         totalDiscount,
         totalExtraDiscount,
+        totalTips,
         perService,
         perUser,
         perClient,

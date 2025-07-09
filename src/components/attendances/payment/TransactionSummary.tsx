@@ -10,6 +10,8 @@ interface TransactionSummaryProps {
   onDiscountChange: (value: number) => void;
   onPaymentTypeChange: (value: string) => void;
   date: string;
+  tipAmount: number;
+  setTipAmount: (value: number) => void;
 }
 
 const TransactionSummary = ({
@@ -21,6 +23,8 @@ const TransactionSummary = ({
   onDiscountChange,
   onPaymentTypeChange,
   date,
+  tipAmount,
+  setTipAmount,
 }: TransactionSummaryProps) => {
   const { theme } = useTheme();
 
@@ -35,16 +39,22 @@ const TransactionSummary = ({
             max={total}
             value={discount}
             onChange={(e) => onDiscountChange(Number(e.target.value))}
-            className={`${ theme === 'dark' ? "border-gray-600 bg-gray-700" : "border-gray-300 bg-gray-100"} w-full border rounded px-3 py-2`}
+            className={`${
+              theme === "dark"
+                ? "border-gray-600 bg-gray-700"
+                : "border-gray-300 bg-gray-100"
+            } w-full border rounded px-3 py-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
           />
         </div>
-        <MoneyField label="Monto Total" value={total} />
+        <MoneyField label="Monto Servicios" value={total} />
         <div>
           <label className="font-semibold block mb-1">Fecha</label>
           <input
             type="text"
             readOnly
-            className={`${theme === 'dark' ? "bg-gray-700" : "bg-gray-100"} w-full rounded px-3 py-2`}
+            className={`${
+              theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+            } w-full rounded px-3 py-2`}
             value={date}
           />
         </div>
@@ -56,14 +66,32 @@ const TransactionSummary = ({
           <select
             value={paymentType}
             onChange={(e) => onPaymentTypeChange(e.target.value)}
-            className={`${theme === 'dark' ? "bg-gray-700 border-gray-600 " : "bg-gray-100 border-gray-300"} w-full border rounded px-3 py-2`}
+            className={`${
+              theme === "dark"
+                ? "bg-gray-700 border-gray-600 "
+                : "bg-gray-100 border-gray-300"
+            } w-full border rounded px-3 py-2`}
           >
             <option>Efectivo</option>
             <option>Transferencia</option>
             <option>Punto de venta</option>
           </select>
         </div>
-        <MoneyField label="Total Final" value={finalTotal} />
+        <div>
+          <label className="font-semibold block mb-1">Propina</label>
+          <input
+            type="number"
+            min={0}
+            value={tipAmount}
+            onChange={(e) => setTipAmount(Number(e.target.value))}
+            className={`${
+              theme === "dark"
+                ? "border-gray-600 bg-gray-700"
+                : "border-gray-300 bg-gray-100"
+            } w-full border rounded px-3 py-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+          />
+        </div>
+        <MoneyField label="Total a Pagar" value={finalTotal} />
         <MoneyField label="Monto Pagado" value={amountPaid} />
       </div>
     </>

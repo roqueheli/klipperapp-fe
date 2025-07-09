@@ -9,6 +9,7 @@ interface UserContextType {
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
+  setUserData: (user: User) => void;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -16,6 +17,7 @@ const UserContext = createContext<UserContextType>({
   loading: true,
   error: null,
   refresh: async () => {},
+  setUserData: () => {},
 });
 
 export function UserProvider({
@@ -30,7 +32,15 @@ export function UserProvider({
     loading: !userData, // Si no hay datos iniciales, cargamos
     error: null,
     refresh: async () => {},
+    setUserData: () => {},
   });
+
+  const setUserData = (user: User) => {
+    setState((prev) => ({
+      ...prev,
+      userData: user,
+    }));
+  };
 
   // Efecto para manejar la hidratación
   useEffect(() => {
@@ -40,7 +50,7 @@ export function UserProvider({
     const loadData = async () => {
       try {
         const userData = await httpInternalApi.httpGetPublic<User>("/auth/me");
-        
+
         setState((prev) => ({
           ...prev,
           userData,
@@ -68,6 +78,7 @@ export function UserProvider({
         loading: false,
         error: null,
         refresh,
+        setUserData,
       });
     } catch (err) {
       setState((prev) => ({
@@ -78,7 +89,11 @@ export function UserProvider({
     }
   };
 
-  return <UserContext.Provider value={{ ...state, refresh }}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={{ ...state, refresh, setUserData }}>
+      {children}
+    </UserContext.Provider>
+  );
 }
 
 export const useUser = () => useContext(UserContext);

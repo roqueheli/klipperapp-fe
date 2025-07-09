@@ -13,8 +13,6 @@ export const ChartsSection = ({
   perClient,
   theme,
 }: ChartsSectionProps) => {
-  const cardBg =
-    theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black";
   const titleColor = theme === "dark" ? "text-white" : "text-gray-700";
 
   return (
