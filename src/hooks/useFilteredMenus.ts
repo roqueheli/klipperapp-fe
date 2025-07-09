@@ -18,7 +18,7 @@ export const useFilteredMenus = (): MenuItem[] => {
             label: "Registro de Entrada",
             path: `/${slug}/users/checkin`,
             allowedRoles: ["admin", "user"],
-            icon: "LogIn"
+            icon: "NotebookPen"
         },
         {
             label: "Gestión de Turnos",

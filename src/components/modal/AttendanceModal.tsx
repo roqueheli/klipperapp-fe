@@ -26,6 +26,7 @@ interface AttendanceModalProps {
   onDecline: () => void;
   onResume: () => void;
   onAddService: () => void;
+  hasPostponed: boolean;
 }
 
 export default function AttendanceModal({
@@ -39,6 +40,7 @@ export default function AttendanceModal({
   onDecline,
   onResume,
   onAddService,
+  hasPostponed,
 }: AttendanceModalProps) {
   const { theme } = useTheme();
   const { userData } = useUser();
@@ -142,16 +144,18 @@ export default function AttendanceModal({
                   >
                     Declinar
                   </button>
-                  <button
-                    onClick={onPostpone}
-                    className={`px-4 py-2 rounded-md font-semibold ${
-                      theme === "dark"
-                        ? "bg-gray-500/10 text-gray-300"
-                        : "bg-gray-300 border border-gray-400 text-gray-700"
-                    } hover:bg-gray-600/20 transition`}
-                  >
-                    Posponer
-                  </button>
+                  {!hasPostponed && (
+                    <button
+                      onClick={onPostpone}
+                      className={`px-4 py-2 rounded-md font-semibold ${
+                        theme === "dark"
+                          ? "bg-gray-500/10 text-gray-300"
+                          : "bg-gray-300 border border-gray-400 text-gray-700"
+                      } hover:bg-gray-600/20 transition`}
+                    >
+                      Posponer
+                    </button>
+                  )}
                 </>
               )}
               <button

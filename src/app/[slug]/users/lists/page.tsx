@@ -109,60 +109,7 @@ export default function AttendanceListsPage() {
     const channel = pusherClient?.subscribe("attendance_channel");
 
     channel?.bind("attendance", function (attendance: AttendanceCable) {
-      const { attended_by, id: attendanceId, status, profile } = attendance;
-      if (!attended_by || !attendanceId || !status || !profile) {
-        fetchQueue();
-        fetchUsersWithProfiles();
-        return;
-      }
-
-      const isVisibleStatus = ["pending", "processing", "postponed"].includes(
-        status
-      );
-
-      setUsers((prevUsers) => {
-        const userIndex = prevUsers.findIndex((u) => u.user.id === attended_by);
-        if (userIndex === -1) return prevUsers;
-
-        const user = prevUsers[userIndex];
-        const originalProfiles = [...user.profiles];
-
-        // Buscar el índice actual del attendance
-        const existingIndex = originalProfiles.findIndex(
-          (p) => p.attendance_id === attendanceId
-        );
-
-        // Eliminar duplicados (por si acaso)
-        const profiles = originalProfiles.filter(
-          (p) => p.attendance_id !== attendanceId
-        );
-
-        // Si es visible, insertarlo en el lugar correcto
-        if (isVisibleStatus) {
-          const updatedProfile = {
-            ...profile,
-            attendance_id: attendanceId,
-            status,
-            name: profile.name,
-            // service_ids: profile.service_ids ?? [],
-          };
-
-          if (existingIndex !== -1) {
-            // Insertar en la posición original
-            profiles.splice(existingIndex, 0, updatedProfile);
-          } else {
-            // Si no existía, agregar al final
-            profiles.push(updatedProfile);
-          }
-        }
-
-        const updatedUser = { ...user, profiles };
-        const newUsers = [...prevUsers];
-        newUsers[userIndex] = updatedUser;
-
-        return newUsers;
-      });
-
+      fetchUsersWithProfiles();
       fetchQueue();
     });
 
@@ -171,11 +118,15 @@ export default function AttendanceListsPage() {
       channel?.unbind_all();
       channel?.unsubscribe();
     };
-  }, [fetchQueue]);
+  }, [fetchQueue, fetchUsersWithProfiles]);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  const hasPostponed = users.some((user) =>
+    user.profiles.some((profile) => profile.status === "postponed")
+  );
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -187,6 +138,7 @@ export default function AttendanceListsPage() {
         users={users}
         queue={queue}
         filteredServices={filteredServices}
+        hasPostponed={hasPostponed}
       />
     </>
   );

@@ -28,6 +28,7 @@ interface AttendanceListsPageContainerProps {
   users: UserWithProfiles[];
   queue: User[];
   filteredServices: Service[];
+  hasPostponed: boolean;
 }
 
 export default function AttendanceListsPageContainer({
@@ -36,12 +37,16 @@ export default function AttendanceListsPageContainer({
   users,
   queue,
   filteredServices,
+  hasPostponed,
 }: AttendanceListsPageContainerProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
   const [modalOpen, setModalOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{ userId: number; userName: string; } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{
+    userId: number;
+    userName: string;
+  } | null>(null);
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
@@ -277,6 +282,7 @@ export default function AttendanceListsPageContainer({
         onDecline={handleDecline}
         onResume={handleResume}
         onAddService={handleAddService}
+        hasPostponed={hasPostponed}
       />
 
       {selectedAtt && addServiceModalOpen && (

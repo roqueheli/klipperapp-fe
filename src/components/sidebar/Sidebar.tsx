@@ -19,6 +19,7 @@ import {
   ListOrdered,
   LogIn,
   LogOut,
+  NotebookPen,
   Settings,
   Wallet,
 } from "lucide-react";
@@ -35,6 +36,7 @@ type SidebarProps = {
 };
 
 const iconMap: Record<string, JSX.Element> = {
+  NotebookPen: <NotebookPen className="h-5 w-5 shrink-0" />,
   LogIn: <LogIn className="h-5 w-5 shrink-0" />,
   CalendarCheck: <CalendarCheck className="h-5 w-5 shrink-0" />,
   ListOrdered: <ListOrdered className="h-5 w-5 shrink-0" />,
@@ -294,7 +296,11 @@ export default function Sidebar({ token, isWorkingTodayEmpty }: SidebarProps) {
                   e.stopPropagation();
                   setIsStatusModalOpen((prev) => !prev);
                 }}
-                className={`focus:outline-none relative ${userData?.role.name !== "agent" ? "cursor-not-allowed cursor-default" : ""}`}
+                className={`focus:outline-none relative ${
+                  userData?.role.name !== "agent"
+                    ? "cursor-not-allowed cursor-default"
+                    : ""
+                }`}
               >
                 {userData?.photo_url ? (
                   <div
