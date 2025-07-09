@@ -4,6 +4,7 @@ import { User } from "@/types/user";
 import { UserCircle2, Users } from "lucide-react";
 import { useMemo } from "react";
 import { useTheme } from "../ThemeProvider";
+import clsx from "clsx";
 
 interface Props {
   queue: User[];
@@ -24,7 +25,7 @@ export default function QueueSection({ queue }: Props) {
     });
     return map;
   }, [queue]);
-  
+
   return (
     <section
       className={`
@@ -33,8 +34,11 @@ export default function QueueSection({ queue }: Props) {
         p-6 
         overflow-y-auto 
         transition-colors duration-300
-        ${theme === "dark" ? "ring-1 ring-[--electric-blue]/30 shadow-md dark:shadow-[0_0_20px_rgba(61,217,235,0.1)] dark:bg-gradient-to-br dark:from-[#0b0f1c] dark:via-[#12182f] dark:to-[#1a223a]" 
-        : "bg-white border shadow-md"}
+        ${
+          theme === "dark"
+            ? "ring-1 ring-[--electric-blue]/30 shadow-md dark:shadow-[0_0_20px_rgba(61,217,235,0.1)] dark:bg-gradient-to-br dark:from-[#0b0f1c] dark:via-[#12182f] dark:to-[#1a223a]"
+            : "bg-white border shadow-md"
+        }
       `}
     >
       <header className="flex items-center flex-col justify-between mb-5">
@@ -49,17 +53,22 @@ export default function QueueSection({ queue }: Props) {
           queue.map((user) => (
             <li
               key={user.id}
-              className={`flex items-center gap-3 p-4 rounded-lg shadow group transition 
-              ${theme === "dark" ? "hover:shadow-[0_0_12px_rgba(61,217,235,0.3)] bg-gray-100 dark:bg-[#1f273d]" : "bg-gray-100"}
-              `}
+              className={clsx(
+                "flex items-center gap-3 p-4 rounded-lg shadow group transition hover:shadow-[0_0_12px_rgba(61,217,235,0.3)]",
+                user.work_state === "not_available"
+                  ? theme === "dark"
+                    ? "bg-gray-700 text-gray-500 line-through"
+                    : "bg-gray-200 text-gray-500 line-through"
+                  : theme === "dark"
+                  ? "bg-[#1f273d] text-white"
+                  : "bg-gray-100 text-black"
+              )}
             >
               <UserCircle2
                 className="w-6 h-6 group-hover:scale-110 transition-transform"
                 style={{ color: userColors.get(user.id) }}
               />
-              <span className="text-sm font-medium truncate">
-                {user.name}
-              </span>
+              <span className="text-sm font-medium truncate">{user.name}</span>
             </li>
           ))
         ) : (
@@ -71,3 +80,4 @@ export default function QueueSection({ queue }: Props) {
     </section>
   );
 }
+

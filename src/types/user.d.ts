@@ -12,7 +12,7 @@ export interface User {
     role: Role
     organization_id?: number;
     start_working_at?: string;
-    work_state?: string;
+    work_state: string;
     photo_url?: string;
     skills?: Array[string];
     premium?: boolean;
