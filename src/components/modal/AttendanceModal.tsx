@@ -26,7 +26,6 @@ interface AttendanceModalProps {
   onDecline: () => void;
   onResume: () => void;
   onAddService: () => void;
-  hasProcessing: boolean;
 }
 
 export default function AttendanceModal({
@@ -40,11 +39,9 @@ export default function AttendanceModal({
   onDecline,
   onResume,
   onAddService,
-  hasProcessing,
 }: AttendanceModalProps) {
   const { theme } = useTheme();
   const { userData } = useUser();
-  const hasPostponed = false;
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -145,18 +142,16 @@ export default function AttendanceModal({
                   >
                     Declinar
                   </button>
-                  {hasPostponed && (
-                    <button
-                      onClick={onPostpone}
-                      className={`px-4 py-2 rounded-md font-semibold ${
-                        theme === "dark"
-                          ? "bg-gray-500/10 text-gray-300"
-                          : "bg-gray-300 border border-gray-400 text-gray-700"
-                      } hover:bg-gray-600/20 transition`}
-                    >
-                      Posponer
-                    </button>
-                  )}
+                  <button
+                    onClick={onPostpone}
+                    className={`px-4 py-2 rounded-md font-semibold ${
+                      theme === "dark"
+                        ? "bg-gray-500/10 text-gray-300"
+                        : "bg-gray-300 border border-gray-400 text-gray-700"
+                    } hover:bg-gray-600/20 transition`}
+                  >
+                    Posponer
+                  </button>
                 </>
               )}
               <button
@@ -207,14 +202,12 @@ export default function AttendanceModal({
                   >
                     Declinar
                   </button>
-                  {hasProcessing && (
-                    <button
-                      onClick={onResume}
-                      className="px-4 py-2 rounded-md font-semibold bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 transition"
-                    >
-                      Reanudar
-                    </button>
-                  )}
+                  <button
+                    onClick={onResume}
+                    className="px-4 py-2 rounded-md font-semibold bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 transition"
+                  >
+                    Reanudar
+                  </button>
                 </>
               )}
             </>
