@@ -1,5 +1,4 @@
 import { CashReconciliationPreviewResponse, CashReconciliationRequest, CashReconciliationResponse } from "@/types/cash-reconciliation";
-import { Service } from "@/types/service";
 import httpExternalApi from "../common/http.external.service";
 
 class ConcilationAPI {

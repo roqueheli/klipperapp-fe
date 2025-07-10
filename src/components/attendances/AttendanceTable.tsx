@@ -62,7 +62,7 @@ const AttendanceTable = ({
     <div className="my-10 mb-8">
       <h2 className="text-xl font-semibold mb-4">{title}</h2>
 
-      <div className="overflow-x-auto shadow-md border rounded-lg dark:border-gray-700">
+      <div className={`overflow-x-auto shadow-md border rounded-lg ${theme === 'dark' ? "border-gray-700" : "border-gray-300"}`}>
         <table className="min-w-full text-sm text-left">
           <thead>
             <tr>

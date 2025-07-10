@@ -48,7 +48,7 @@ export async function getTillCheckData(
             },
             id: entry.opening_reconciliation_id ? String(entry.opening_reconciliation_id) : null,
         };
-    } catch (error) {
+    } catch {
         // Si no hay registro para esa fecha
         return {
             data: null,

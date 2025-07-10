@@ -33,6 +33,13 @@ interface TillCheckFormData {
   notes: string;
 }
 
+interface TillCheckData {
+    total_cash: number;
+    total_bank: number;
+    total_pos: number;
+    notes?: string;
+}
+
 const tillCheckSchema = yup.object({
   cash: yup.number().required("El efectivo es requerido").min(0),
   bank: yup.number().required("Las transferencias son requeridas").min(0),
@@ -47,7 +54,7 @@ export default function TillCheckPage() {
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd")
   );
-  const [readOnlyData, setReadOnlyData] = useState<any>(null);
+  const [readOnlyData, setReadOnlyData] = useState<TillCheckData | null>(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [existingEntryId, setExistingEntryId] = useState<string | null>(null);
 
