@@ -179,60 +179,47 @@ export default function AttendanceListsPageContainer({
     }
   };
 
-  const handleEnd = async () => {
+  const handleAddService = () => {
+    setAddServiceModalOpen(true);
+  };
+
+  const handleConfirmAndEnd = async (servicesToAdd: Service[], tip: number) => {
     if (!selectedAtt || !selectedUser) return;
 
-    const requestBody = {
+    const putBody = {
+      id: selectedAtt.attendance_id,
+      attendance: {
+        id: selectedAtt.attendance_id,
+        service_ids: servicesToAdd.map((s) => s.id),
+        tip_amount: tip,
+      },
+    };
+
+    console.log('putBody', putBody);    
+
+    const postBody = {
       user_id: selectedUser.userId,
       attendance_id: selectedAtt.attendance_id,
     };
 
     try {
       await toast.promise(
-        httpInternalApi.httpPostPublic(
-          "/users/end_attendance",
-          "POST",
-          requestBody
-        ),
+        Promise.all([
+          httpInternalApi.httpPostPublic(
+            `/attendances/${selectedAtt.attendance_id}`,
+            "PUT",
+            putBody
+          ),
+          httpInternalApi.httpPostPublic(
+            "/users/end_attendance",
+            "POST",
+            postBody
+          ),
+        ]),
         {
-          loading: "Ending attendance...",
-          success: "Attendance successfully ended.",
-          error: "Error ending attendance.",
-        }
-      );
-
-      setModalOpen(false);
-    } catch (error) {
-      console.error("Error in end process:", error);
-    }
-  };
-
-  const handleAddService = () => {
-    setAddServiceModalOpen(true);
-  };
-
-  const handleConfirmServices = async (servicesToAdd: Service[]) => {
-    if (!selectedAtt || !selectedUser) return;
-
-    try {
-      const requestBody = {
-        id: selectedAtt.attendance_id,
-        attendance: {
-          id: selectedAtt.attendance_id,
-          service_ids: servicesToAdd.map((s) => s.id),
-        },
-      };
-
-      await toast.promise(
-        httpInternalApi.httpPostPublic(
-          `/attendances/${selectedAtt.attendance_id}`,
-          "PUT",
-          requestBody
-        ),
-        {
-          loading: "Agregando servicios...",
-          success: "Servicios agregados exitosamente.",
-          error: "Error al agregar servicios.",
+          loading: "Finalizando atención...",
+          success: "Atención finalizada exitosamente.",
+          error: "Error al finalizar atención.",
         }
       );
 
@@ -240,7 +227,7 @@ export default function AttendanceListsPageContainer({
       setModalOpen(false);
       setSelectedServices([]);
     } catch (error) {
-      console.error("Error al agregar servicios:", error);
+      console.error("Error en el proceso de finalizar:", error);
     }
   };
 
@@ -278,7 +265,6 @@ export default function AttendanceListsPageContainer({
         userName={selectedUser?.userName || ""}
         onStart={handleStart}
         onPostpone={handlePostpone}
-        onFinish={handleEnd}
         onDecline={handleDecline}
         onResume={handleResume}
         onAddService={handleAddService}
@@ -315,7 +301,7 @@ export default function AttendanceListsPageContainer({
               },
             });
           }}
-          onConfirm={handleConfirmServices}
+          onFinish={handleConfirmAndEnd}
         />
       )}
 

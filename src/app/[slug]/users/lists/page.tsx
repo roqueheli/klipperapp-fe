@@ -43,7 +43,7 @@ export default function AttendanceListsPage() {
     }
   }, [data?.id, userData?.branch_id]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -79,10 +79,10 @@ export default function AttendanceListsPage() {
         ) as Promise<ServiceResponse>,
       ]);
 
+      await fetchUsersWithProfiles();
       setIsEmpty(workingTodayUsers.users.length === 0);
-      startTransition(async () => {
+      startTransition(() => {
         setQueue(queueRes as User[]);
-        await fetchUsersWithProfiles();
         setFilteredServices(servicesRes.services);
       });
     } catch (error) {
@@ -90,7 +90,7 @@ export default function AttendanceListsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [data?.id, fetchUsersWithProfiles, userData]);
 
   const fetchQueue = useCallback(async () => {
     try {
@@ -121,7 +121,7 @@ export default function AttendanceListsPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const hasPostponed = users.some((user) =>
     user.profiles.some((profile) => profile.status === "postponed")

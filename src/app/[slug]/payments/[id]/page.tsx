@@ -54,6 +54,7 @@ const PaymentsPage = () => {
         )) as Attendances;
         setAttendance(response?.attendances[0]);
         setSelectedServices(response?.attendances[0].services || []);
+        setTipAmount(response?.attendances[0].tip_amount || 0);
       } finally {
         setIsLoading(false);
       }
@@ -87,7 +88,7 @@ const PaymentsPage = () => {
 
   const handleExecuteTransaction = async () => {
     const allAttendances = [attendance, ...selectedAttendances];
-
+    
     const extraDiscount = isSunday
       ? 0
       : Number(data?.metadata?.billing_configs?.extra_discount ?? 0);

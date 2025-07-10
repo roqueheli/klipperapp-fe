@@ -10,6 +10,7 @@ class CheckinAPI {
     cancel_attendance = async (body: object, token: string): Promise<Checkin> => httpExternalApi.httpPost('/users/cancel_attendance', 'POST', body, token);
     resume_attendance = async (body: object, token: string): Promise<Checkin> => httpExternalApi.httpPost('/users/resume_attendance', 'POST', body, token);
     postpone_attendance = async (body: object, token: string): Promise<Checkin> => httpExternalApi.httpPost('/users/postpone_attendance', 'POST', body, token);
+    reopenAttendance= async (id: number, token: string) => httpExternalApi.httpPost(`/attendances/${id}/reopen`, "PATCH", {}, token);
 }
 
 const checkinAPI = new CheckinAPI();

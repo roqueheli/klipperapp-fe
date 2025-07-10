@@ -72,9 +72,9 @@ const TransactionSummary = ({
                 : "bg-gray-100 border-gray-300"
             } w-full border rounded px-3 py-2`}
           >
-            <option>Efectivo</option>
-            <option>Transferencia</option>
-            <option>Punto de venta</option>
+            <option value="cash">Efectivo</option>
+            <option value="transfer">Transferencia</option>
+            <option value="card">Punto de venta</option>
           </select>
         </div>
         <div>

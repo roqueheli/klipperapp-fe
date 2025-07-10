@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { Input } from "@/components/ui/Input";
+import clsx from "clsx";
 
 type InputFieldProps = {
-  type: "text" | "password" | "date" | "email" | "file" | "url" | "tel";
+  type: "text" | "password" | "date" | "email" | "file" | "url" | "tel" | "number" | "textarea";
   label: string;
   fieldName: string;
   placeholder?: string;
@@ -38,14 +40,17 @@ const InputField = ({
   const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
   return (
-    <div className={`w-full flex flex-col mt-4 ${styles ?? ""}`}>
+    <div className={clsx("w-full flex flex-col mt-4", styles)}>
       <label className="mb-1">{label}</label>
 
       <div className="relative">
-        <input
+        <Input
           {...register(fieldName)}
           type={inputType}
-          className={`w-full rounded-md p-2 pr-10 bg-transparent border dark:border-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all`}
+          className={clsx(
+            "pr-10", // Add padding for the icon
+            { "border-red-500 focus:ring-red-500": fieldError }
+          )}
           placeholder={placeholder ?? ""}
           defaultValue={value}
           onChange={onChange}

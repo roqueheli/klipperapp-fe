@@ -6,7 +6,7 @@ import { User } from "./types/user";
 const protectedRoutes = [
     "dashboard", "users", "profiles", "attendances", "services",
     "transactions", "expenses", "management", "payments",
-    "change-password", "restore-password",
+    "change-password", "restore-password", "till-check",
 ];
 
 const publicRoutes = ["login", "register", "forgot-password"];

@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { useTheme } from "../ThemeProvider";
 
 interface DialogProps {
   children: React.ReactNode;
@@ -20,8 +23,13 @@ export function Dialog({ children, open, onOpenChange }: DialogProps) {
 }
 
 export function DialogContent({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme();
   return (
-    <div className="bg-[var(--cyber-gray)] text-[var(--soft-white)] rounded-2xl shadow-xl max-w-lg w-full p-6 border border-[var(--electric-blue)]">
+    <div
+      className={`${
+        theme === "dark" ? "bg-gray-800" : "bg-gray-300"
+      } rounded-lg shadow-xl max-w-xl w-full p-6 border border-gray-500`}
+    >
       {children}
     </div>
   );
@@ -33,7 +41,7 @@ export function DialogHeader({ children }: { children: React.ReactNode }) {
 
 export function DialogTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-lg font-semibold text-[var(--electric-blue)]">
+    <h2 className="text-lg font-semibold">
       {children}
     </h2>
   );

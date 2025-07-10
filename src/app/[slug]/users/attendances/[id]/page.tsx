@@ -41,6 +41,8 @@ const AttendanceDetailPage = () => {
     fetchAttendance();
   }, [id]);
 
+  console.log('view', attendance);
+
   if (isLoading || !attendance) return <LoadingSpinner />;
 
   const {

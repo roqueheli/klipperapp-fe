@@ -22,7 +22,6 @@ interface AttendanceModalProps {
   userName: string;
   onStart: () => void;
   onPostpone: () => void;
-  onFinish: () => void;
   onDecline: () => void;
   onResume: () => void;
   onAddService: () => void;
@@ -36,7 +35,6 @@ export default function AttendanceModal({
   userName,
   onStart,
   onPostpone,
-  onFinish,
   onDecline,
   onResume,
   onAddService,
@@ -138,9 +136,9 @@ export default function AttendanceModal({
                     onClick={onDecline}
                     className={`px-4 py-2 rounded-md font-semibold ${
                       theme === "dark"
-                        ? "bg-red-500/10 text-red-400"
-                        : "bg-red-400 text-white"
-                    } hover:bg-red-500/20 transition`}
+                        ? "bg-red-500 text-white"
+                        : "bg-red-500 text-white"
+                    } hover:bg-red-400 transition`}
                   >
                     Declinar
                   </button>
@@ -149,9 +147,9 @@ export default function AttendanceModal({
                       onClick={onPostpone}
                       className={`px-4 py-2 rounded-md font-semibold ${
                         theme === "dark"
-                          ? "bg-gray-500/10 text-gray-300"
-                          : "bg-gray-300 border border-gray-400 text-gray-700"
-                      } hover:bg-gray-600/20 transition`}
+                          ? "bg-gray-500 text-white"
+                          : "bg-gray-500 border border-gray-400 text-white"
+                      } hover:bg-gray-400 transition`}
                     >
                       Posponer
                     </button>
@@ -162,9 +160,9 @@ export default function AttendanceModal({
                 onClick={onStart}
                 className={`px-4 py-2 rounded-md font-semibold ${
                   theme === "dark"
-                    ? "bg-blue-500/20 text-blue-300"
-                    : "bg-blue-300 text-white"
-                } hover:bg-blue-500/40 transition`}
+                    ? "bg-blue-500 text-white"
+                    : "bg-blue-500 text-white"
+                } hover:bg-blue-400 transition`}
               >
                 Iniciar
               </button>
@@ -177,22 +175,22 @@ export default function AttendanceModal({
                 onClick={onAddService}
                 className={`px-4 py-2 rounded-md font-semibold ${
                   theme === "dark"
-                    ? "bg-yellow-500/10 text-yellow-300"
-                    : "bg-yellow-300 text-white"
-                } hover:bg-yellow-500/40 transition`}
+                    ? "bg-yellow-500 text-white"
+                    : "bg-yellow-500 text-white"
+                } hover:bg-yellow-400 transition`}
               >
                 Agregar Servicio
               </button>
-              <button
+              {/* <button
                 onClick={onFinish}
                 className={`px-4 py-2 rounded-md font-semibold ${
                   theme === "dark"
-                    ? "bg-green-500/20 text-green-300"
-                    : "bg-green-300 text-white"
-                }  hover:bg-green-500/40 transition`}
+                    ? "bg-green-700 text-white"
+                    : "bg-green-700 text-white"
+                }  hover:bg-green-600 transition`}
               >
                 Finalizar
-              </button>
+              </button> */}
             </>
           )}
 

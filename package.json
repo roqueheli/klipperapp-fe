@@ -6,13 +6,17 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start -p $PORT",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.0.1",
+    "@radix-ui/react-popover": "^1.1.14",
     "@rails/actioncable": "^8.0.200",
+    "@types/react-day-picker": "^5.2.1",
     "cloudinary": "^2.7.0",
     "date-fns": "^4.1.0",
     "jspdf": "^3.0.1",
@@ -23,6 +27,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-date-range": "^2.0.1",
+    "react-day-picker": "^9.8.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.4",
     "react-hot-toast": "^2.5.2",
@@ -33,14 +38,20 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^20",
     "@types/rails__actioncable": "^6.1.11",
     "@types/react": "^19",
     "@types/react-date-range": "^1.4.10",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.6.0",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
+    "jsdom": "^26.1.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }
