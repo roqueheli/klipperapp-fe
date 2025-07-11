@@ -25,6 +25,7 @@ export async function getTillCheckData(
         notes?: string;
     };
     id: string | null;
+    status: string | null;
 }> {
     const formattedDate = format(date, "yyyy-MM-dd");
 
@@ -47,6 +48,7 @@ export async function getTillCheckData(
                 pos: entry.expected_total_pos_balance,
             },
             id: entry.opening_reconciliation_id ? String(entry.opening_reconciliation_id) : null,
+            status: entry.status,
         };
     } catch {
         // Si no hay registro para esa fecha
@@ -59,6 +61,7 @@ export async function getTillCheckData(
                 notes: "",
             },
             id: null,
+            status: "",
         };
     }
 }
@@ -108,6 +111,14 @@ export async function updateTillCheck(
         `${BASE_URL}/${id}`,
         "PATCH", // Assuming PATCH for update
         { cash_reconciliation: payload }
+    );
+    return response;
+}
+
+export async function approveTillCheck(id: string): Promise<CashReconciliationResponse> {
+    const response = await httpInternalApi.httpPostPublic<CashReconciliationResponse>(
+        `/${BASE_URL}/${id}/approve`,
+        "PATCH", {}
     );
     return response;
 }

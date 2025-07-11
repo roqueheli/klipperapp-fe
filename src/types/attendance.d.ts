@@ -28,6 +28,7 @@ export interface Attendance {
 	services: Service[]
 	parent_attendance_id: number | null
 	child_attendances: ChildAttendance[]
+	error?: string | null;
 }
 
 export interface ChildAttendance {

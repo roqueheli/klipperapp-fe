@@ -12,6 +12,7 @@ interface PhoneStepProps {
   isUserListsRoute: boolean;
   onPhoneChange: (value: string) => void;
   onSubmit: () => void;
+  onSelectProfile: (profile: Profile) => void;
   onClose?: () => void;
 }
 
@@ -21,6 +22,7 @@ const PhoneStep: React.FC<PhoneStepProps> = ({
   isUserListsRoute,
   onPhoneChange,
   onSubmit,
+  onSelectProfile,
   onClose,
 }) => {
   const { theme } = useTheme();
@@ -30,7 +32,7 @@ const PhoneStep: React.FC<PhoneStepProps> = ({
 
   useEffect(() => {
     if (wasSelectedFromDropdown) {
-      setWasSelectedFromDropdown(false); // resetea la bandera para próximos cambios manuales
+      setWasSelectedFromDropdown(false);
       return;
     }
 
@@ -104,6 +106,7 @@ const PhoneStep: React.FC<PhoneStepProps> = ({
                   setSelectedProfile(r);
                   setResults([]);
                   setWasSelectedFromDropdown(true);
+                  onSelectProfile(r);
                 }}
                 className={`flex gap-2 items-center p-3 ${
                   theme === "dark"
@@ -140,25 +143,13 @@ const PhoneStep: React.FC<PhoneStepProps> = ({
           </ul>
         )}
       </div>
-      {error ? (
+
+      {error && (
         <p className="mt-4 text-center text-red-600 dark:text-red-400 font-semibold">
           {error}
         </p>
-      ) : (
-        selectedProfile && (
-          <div
-            className={`w-[50%] flex items-center justify-between mt-2 text-sm font-medium ${
-              theme === "dark" ? "text-gray-300" : "text-gray-700"
-            }`}
-          >
-            <div>
-              <span className="font-semibold">{selectedProfile.name}</span>{" "}
-              {"-"}{" "}
-              <span className="font-semibold">{selectedProfile.email}</span>
-            </div>
-          </div>
-        )
       )}
+
       <div className="mt-8 flex justify-center gap-6 max-w-sm mx-auto">
         {isUserListsRoute && (
           <button

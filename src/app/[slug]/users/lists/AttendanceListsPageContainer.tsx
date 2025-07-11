@@ -195,8 +195,6 @@ export default function AttendanceListsPageContainer({
       },
     };
 
-    console.log('putBody', putBody);    
-
     const postBody = {
       user_id: selectedUser.userId,
       attendance_id: selectedAtt.attendance_id,

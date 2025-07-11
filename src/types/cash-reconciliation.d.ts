@@ -15,6 +15,7 @@ export interface CashReconciliationPreviewResponse {
   expected_total_cash_on_hand: string; // Changed to string
   expected_total_pos_balance: number; // Added
   expected_total_transfer_balance: number; // Added
+  status: string
 }
 
 export interface CashReconciliationRequestPayload { // New interface for the nested payload

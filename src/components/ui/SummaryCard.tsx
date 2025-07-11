@@ -5,7 +5,7 @@ import clsx from "clsx";
 
 interface SummaryCardProps {
   label: string;
-  value: number;
+  value: number | string;
   icon?: string;
   color?: string; // Ej: text-green-600
 }

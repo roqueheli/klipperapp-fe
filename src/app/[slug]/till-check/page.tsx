@@ -7,7 +7,9 @@ import InputCard from "@/components/ui/InputCard";
 import { InputFieldSimple } from "@/components/ui/InputFieldSimple";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import SummaryCard from "@/components/ui/SummaryCard";
+import { useUser } from "@/contexts/UserContext";
 import {
+  approveTillCheck,
   getTillCheckData,
   saveTillCheck,
   updateTillCheck,
@@ -34,10 +36,10 @@ interface TillCheckFormData {
 }
 
 interface TillCheckData {
-    total_cash: number;
-    total_bank: number;
-    total_pos: number;
-    notes?: string;
+  total_cash: number;
+  total_bank: number;
+  total_pos: number;
+  notes?: string;
 }
 
 const tillCheckSchema = yup.object({
@@ -48,6 +50,7 @@ const tillCheckSchema = yup.object({
 });
 
 export default function TillCheckPage() {
+  const { userData } = useUser();
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -57,6 +60,7 @@ export default function TillCheckPage() {
   const [readOnlyData, setReadOnlyData] = useState<TillCheckData | null>(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [existingEntryId, setExistingEntryId] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
 
   const methods = useForm<TillCheckFormData>({
     resolver: yupResolver(tillCheckSchema) as Resolver<TillCheckFormData>,
@@ -72,11 +76,12 @@ export default function TillCheckPage() {
   const fetchData = useCallback(async () => {
     try {
       const date = new Date(selectedDate);
-      const { data, form, id } = await getTillCheckData(date);
+      const { data, form, id, status } = await getTillCheckData(date);
       setReadOnlyData(data);
       reset(form);
       setExistingEntryId(id);
       setIsReadOnly(!!id);
+      setStatus(status);
     } catch {
       toast.error("Error al cargar datos");
       setReadOnlyData(null);
@@ -104,6 +109,16 @@ export default function TillCheckPage() {
       fetchData();
     } catch {
       toast.error("Error al guardar");
+    }
+  };
+
+  const onApprove = async (id: string) => {
+    try {
+      await approveTillCheck(id);
+      toast.success("Cierre aprobado exitosamente");
+      fetchData(); // refrescar datos luego de aprobación
+    } catch {
+      toast.error("Error al aprobar el cierre");
     }
   };
 
@@ -179,7 +194,7 @@ export default function TillCheckPage() {
                 label="Efectivo"
                 value={readOnlyData.total_cash}
                 icon="💵"
-                color="text-green-600"
+                color="text-yellow-600"
               />
               <SummaryCard
                 label="Transferencias"
@@ -193,6 +208,18 @@ export default function TillCheckPage() {
                 icon="💳"
                 color="text-purple-600"
               />
+              <div className="mt-27">
+                <SummaryCard
+                  label="Total"
+                  value={
+                    readOnlyData.total_cash +
+                    readOnlyData.total_bank +
+                    readOnlyData.total_pos
+                  }
+                  icon="🧮"
+                  color="text-green-600"
+                />
+              </div>
             </div>
           ) : (
             <LoadingSpinner />
@@ -237,49 +264,89 @@ export default function TillCheckPage() {
                   />
                 </InputCard>
               </div>
-
               <InputField
                 label="Notas"
                 fieldName="notes"
-                type="textarea"
+                type="text"
                 disabled={isReadOnly}
               />
-
+              <SummaryCard
+                label="Total Registrado"
+                value={(
+                  Number(watchedCash || 0) +
+                  Number(watchedBank || 0) +
+                  Number(watchedPos || 0)
+                ).toLocaleString("es-CL")}
+                icon="🧮"
+                color="text-green-600"
+              />
               <div className="flex justify-end gap-4 mt-6">
-                {!isReadOnly && (
-                  <button
-                    type="button"
-                    onClick={() => setIsReadOnly(true)}
-                    className={clsx(
-                      "px-6 py-2 rounded font-medium transition",
-                      isDark
-                        ? "border-white text-white hover:bg-gray-700"
-                        : "bg-gray-300 text-black hover:bg-gray-400"
-                    )}
-                  >
-                    Cancelar
-                  </button>
-                )}
-                {isReadOnly ? (
-                  <button
-                    type="button"
-                    onClick={() => setIsReadOnly(false)}
-                    className={clsx(
-                      "px-6 py-2 rounded font-medium transition",
-                      isDark
-                        ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-                        : "bg-yellow-500 hover:bg-yellow-600 text-white"
-                    )}
-                  >
-                    Editar
-                  </button>
-                ) : (
-                  <SubmitButton
-                    label="Registrar"
-                    onSubmit={onSubmit}
-                    styles="px-6 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                  />
-                )}
+                <div className="flex justify-end gap-4 mt-6">
+                  {status === "approved" ? (
+                    <span
+                      className={clsx(
+                        "flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl shadow-sm",
+                        isDark
+                          ? "bg-green-100 text-green-800"
+                          : "bg-green-800/30 text-green-800"
+                      )}
+                    >
+                      ✅ Aprobado
+                    </span>
+                  ) : (
+                    <>
+                      {userData?.role?.name === "admin" &&
+                        status !== "approved" && (
+                          <button
+                            type="button"
+                            onClick={() => onApprove(existingEntryId ?? "")}
+                            className={clsx(
+                              "px-6 py-2 rounded font-medium transition",
+                              isDark
+                                ? "bg-green-700 text-white hover:bg-green-600"
+                                : "bg-green-500 text-white hover:bg-green-600"
+                            )}
+                          >
+                            Aprobar
+                          </button>
+                        )}
+                      {!isReadOnly && (
+                        <button
+                          type="button"
+                          onClick={() => setIsReadOnly(true)}
+                          className={clsx(
+                            "px-6 py-2 rounded font-medium transition",
+                            isDark
+                              ? "border-white bg-gray-500 text-white hover:bg-gray-700"
+                              : "bg-gray-300 text-black hover:bg-gray-400"
+                          )}
+                        >
+                          Cancelar
+                        </button>
+                      )}
+                      {isReadOnly ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsReadOnly(false)}
+                          className={clsx(
+                            "px-6 py-2 rounded font-medium transition",
+                            isDark
+                              ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                              : "bg-yellow-500 hover:bg-yellow-600 text-white"
+                          )}
+                        >
+                          Editar
+                        </button>
+                      ) : (
+                        <SubmitButton
+                          label="Registrar"
+                          onSubmit={onSubmit}
+                          styles="px-6 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </form>
           </FormProvider>
@@ -289,13 +356,13 @@ export default function TillCheckPage() {
       {readOnlyData && (
         <div
           className={clsx(
-            "mt-10 p-6 rounded shadow-md",
+            "mt-6 p-6 rounded shadow-md",
             isDark ? "bg-gray-800" : "bg-white"
           )}
         >
           <h3 className="text-lg font-semibold mb-4">🧾 Diferencias</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex justify-between items-center">
+            <div className="w-full flex justify-evenly items-center">
               <span className="text-gray-500">💵 Efectivo</span>
               <span
                 className={clsx(
@@ -306,7 +373,7 @@ export default function TillCheckPage() {
                 {diff(watchedCash, readOnlyData.total_cash)}
               </span>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="w-full flex justify-evenly items-center">
               <span className="text-gray-500">🏦 Transferencias</span>
               <span
                 className={clsx(
@@ -317,7 +384,7 @@ export default function TillCheckPage() {
                 {diff(watchedBank, readOnlyData.total_bank)}
               </span>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="w-full flex justify-evenly items-center">
               <span className="text-gray-500">💳 Punto de venta</span>
               <span
                 className={clsx(

@@ -36,7 +36,7 @@ interface Props {
   onEdit: (a: Attendance) => void;
   onPay: (a: Attendance) => void;
   onDetail: (a: Attendance) => void;
-  onReopen?: (a: Attendance) => void;
+  onReopen: (a: Attendance) => void;
 }
 
 const AttendanceTable = ({
@@ -125,7 +125,7 @@ const AttendanceTable = ({
                               Pagar
                             </button>
                             <button
-                              onClick={() => typeof onReopen === "function" && onReopen(a)}
+                              onClick={() => onReopen(a)}
                               className="text-xs bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-800"
                             >
                               Reabrir

@@ -15,7 +15,7 @@ export default function InputCard({ label, icon, children }: InputCardProps) {
   return (
     <div
       className={clsx(
-        "p-4 rounded border shadow-md flex justify-between items-center",
+        "p-4 rounded border rounded-lg shadow-md flex justify-between items-center",
         isDark ? "border-gray-700" : "border-gray-300"
       )}
     >

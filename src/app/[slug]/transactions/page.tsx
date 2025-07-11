@@ -101,11 +101,18 @@ const TransactionsPage = () => {
   };
 
   const handleReopenAttendance = async (attendance: Attendance) => {
-    console.log("reopen", attendance.id);
-    
     try {
-      await httpInternalApi.httpPostPublic(`/users/reopen_attendance/${attendance.id}`, "PATCH", {});
-      toast.success("Asistencia reabierta");
+      const response = (await httpInternalApi.httpPostPublic(
+        `/users/reopen_attendance/${attendance.id}`,
+        "PATCH",
+        {}
+      )) as Attendance;
+
+      if (!response.error) {
+        toast.success("Asistencia reabierta");
+      } else {
+        toast.error("Ya tiene una asistencia en proceso");
+      }
     } catch {
       toast.error("No se pudo reabrir la asistencia");
     }
@@ -209,6 +216,7 @@ const TransactionsPage = () => {
         onEdit={handleEditAttendance}
         onPay={handlePayAttendance}
         onDetail={handleViewAttendance}
+        onReopen={handleReopenAttendance}
       />
 
       <AttendanceTable
@@ -217,6 +225,7 @@ const TransactionsPage = () => {
         onEdit={handleEditAttendance}
         onPay={handlePayAttendance}
         onDetail={handleViewAttendance}
+        onReopen={handleReopenAttendance}
       />
     </div>
   );
