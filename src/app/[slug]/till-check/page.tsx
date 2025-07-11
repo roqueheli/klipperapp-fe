@@ -75,7 +75,7 @@ export default function TillCheckPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const date = new Date(selectedDate);
+      const date = parseISO(selectedDate);
       const { data, form, id, status } = await getTillCheckData(date);
       setReadOnlyData(data);
       reset(form);
@@ -97,7 +97,7 @@ export default function TillCheckPage() {
 
   const onSubmit: SubmitHandler<TillCheckFormData> = async (formData) => {
     try {
-      const date = new Date(selectedDate);
+      const date = parseISO(selectedDate);
       if (existingEntryId) {
         await updateTillCheck(existingEntryId, formData);
         toast.success("Cierre actualizado");
