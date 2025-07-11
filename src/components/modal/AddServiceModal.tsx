@@ -4,10 +4,12 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import { Attendance, AttendanceProfile, Attendances } from "@/types/attendance";
 import { Service } from "@/types/service";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import AddServiceSection from "../attendances/payment/AddServiceSection";
 import ClientInfo from "../attendances/payment/ClientInfo";
 import ServiceList from "../attendances/payment/ServiceList";
 import { useTheme } from "../ThemeProvider";
+import { InputFieldSimple } from "../ui/InputFieldSimple";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -20,7 +22,7 @@ interface AddServiceModalProps {
   onSearchChange: (value: string) => void;
   onAddService: (service: Service) => void;
   onRemoveService: (id: number) => void;
-  onConfirm: (services: Service[]) => void;
+  onFinish: (services: Service[], tip: number) => void;
 }
 
 export default function AddServiceModal({
@@ -34,10 +36,11 @@ export default function AddServiceModal({
   onSearchChange,
   onAddService,
   onRemoveService,
-  onConfirm,
+  onFinish,
 }: AddServiceModalProps) {
   const { theme } = useTheme();
   const [attendance, setAttendance] = useState<Attendance>();
+  const [tip, setTip] = useState<number>(0);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -68,8 +71,18 @@ export default function AddServiceModal({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center px-4 ${theme === 'dark' ? "bg-black/60" : "bg-black/30"} backdrop-blur`}>
-      <div className={`w-full max-w-3xl relative p-6 rounded-2xl shadow-xl ${theme === 'dark' ? "bg-gradient-to-br from-[#131b2c] via-[#1b2436] to-[#1e2b40]" : "bg-gray-200"} max-h-[90vh] overflow-y-auto`}>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center px-4 ${
+        theme === "dark" ? "bg-black/60" : "bg-black/30"
+      } backdrop-blur`}
+    >
+      <div
+        className={`w-full max-w-3xl relative p-6 rounded-2xl shadow-xl ${
+          theme === "dark"
+            ? "bg-gradient-to-br from-[#131b2c] via-[#1b2436] to-[#1e2b40]"
+            : "bg-gray-200"
+        } max-h-[90vh] overflow-y-auto`}
+      >
         <button
           onClick={onClose}
           aria-label="Cerrar modal"
@@ -96,6 +109,15 @@ export default function AddServiceModal({
           onAddService={onAddService}
         />
 
+        <div className="w-[15%]">
+          <InputFieldSimple
+            label="Propina"
+            type="number"
+            value={tip}
+            onChange={(e) => setTip(Number(e.target.value))}
+          />
+        </div>
+
         <div className="mt-8 flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -104,10 +126,29 @@ export default function AddServiceModal({
             Cancelar
           </button>
           <button
-            onClick={() => onConfirm(selectedServices)}
-            className={`px-4 py-2 rounded-md font-semibold bg-blue-600 hover:bg-blue-700 text-white transition`}
+            onClick={async () => {
+              try {
+                if (selectedServices.length > 0) {
+                  await onFinish(selectedServices, tip);
+                  onClose();
+                } else {
+                  toast.error("Debes agregar al menos un servicio.");
+                }
+              } catch {
+                toast.error("Error al finalizar la asistencia.");
+              }
+            }}
+            className={`px-4 py-2 rounded-md font-semibold ${
+              theme === "dark"
+                ? "bg-green-700 text-white"
+                : "bg-green-700 text-white"
+            }  hover:bg-green-500 transition ${
+              selectedServices.length === 0
+                ? "cursor-not-allowed opacity-50"
+                : ""
+            }`}
           >
-            Aceptar
+            Finalizar
           </button>
         </div>
       </div>

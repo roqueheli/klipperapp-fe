@@ -27,12 +27,7 @@ type AttendanceWizardProps = {
   onClose?: () => void;
 };
 
-const AttendanceWizard = ({
-  slug,
-  organization,
-  user,
-  onClose,
-}: AttendanceWizardProps) => {
+const AttendanceWizard = ({ slug, organization, user, onClose }: AttendanceWizardProps) => {
   const { userData } = useUser();
   const { theme } = useTheme();
   const router = useRouter();
@@ -42,9 +37,7 @@ const AttendanceWizard = ({
   const [step, setStep] = useState<Step>(1);
   const [phone, setPhone] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(
-    null
-  );
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
   const [attendanceId, setAttendanceId] = useState<number | null>(null);
   const [profile, setProfile] = useState<Profile>();
   const [users, setUsers] = useState<UserResponse>();
@@ -56,19 +49,14 @@ const AttendanceWizard = ({
 
   useEffect(() => {
     const loadFromStorageAndFetch = async () => {
-      // 1. Verificar si hay datos en localStorage
-      const stored =
-        localStorage.getItem("attendanceInfo") ||
-        localStorage.getItem("userAttendance");
+      const stored = localStorage.getItem("attendanceInfo") || localStorage.getItem("userAttendance");
 
       if (stored) {
         try {
           const data = JSON.parse(stored);
           setHasStoredData(data?.attendanceId);
           setAttendanceId(data?.attendanceId || null);
-          setSelectedServiceId(
-            data.services?.length > 0 ? data.services[0].id : null
-          );
+          setSelectedServiceId(data.services?.length > 0 ? data.services[0].id : null);
           setSelectedUserId(data?.userId || data?.id || null);
           setProfile(data?.profile || data || null);
           setPhone(data?.phoneNumber || data?.phone_number || "");
@@ -78,7 +66,6 @@ const AttendanceWizard = ({
         } catch {}
       }
 
-      // 2. Cargar servicios y usuarios
       const servicesParams = new URLSearchParams();
       const usersParams = new URLSearchParams();
       const agentRole = await getRoleByName("agent");
@@ -109,33 +96,67 @@ const AttendanceWizard = ({
 
   const handlePhoneSubmit = async () => {
     if (!phone) return;
+    setIsSubmitting(true);
 
     try {
-      const phoneParam = new URLSearchParams();
-      phoneParam.set("phone_number", phone);
+      const searchParams = new URLSearchParams();
+      searchParams.set("query", phone);
 
-      const response = (await httpInternalApi.httpGetPublic(
-        `/profiles`,
-        phoneParam
-      )) as Promise<ProfileByNumberResponse>;
+      const searchResponse = (await httpInternalApi.httpGetPublic("/profiles/search", searchParams)) as Profile[];
 
-      const profileResponse = await response;
-
-      if (profileResponse.profile?.profile?.id !== undefined) {
-        if (profileResponse.profile?.is_attended_today) {
-          setError("Ya tienes una asistencia registrada hoy.");
-          return;
-        }
-
-        setError(null);
-        setProfile(profileResponse.profile?.profile);
-        setStep(2);
-      } else {
+      if (searchResponse.length === 0) {
         localStorage.setItem("pendingPhone", phone);
         router.push(`/${slug}/profiles/register`);
+        return;
       }
+
+      if (searchResponse.length === 1) {
+        const profileFound = searchResponse[0];
+
+        const phoneParam = new URLSearchParams();
+        phoneParam.set("phone_number", profileFound.phone_number);
+
+        const response = (await httpInternalApi.httpGetPublic(`/profiles`, phoneParam)) as ProfileByNumberResponse;
+        const profileResponse = await response;
+
+        if (profileResponse.profile?.profile?.id !== undefined) {
+          if (profileResponse.profile?.is_attended_today) {
+            setError("Ya tienes una asistencia registrada hoy.");
+            return;
+          }
+          setError(null);
+          setProfile(profileResponse.profile?.profile);
+          setStep(2);
+          return;
+        }
+      }
+
+      toast("Selecciona tu perfil de la lista");
     } catch {
-      console.error("Phone validation error:");
+      toast.error("No se pudo validar el número");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSelectProfile = async (profile: Profile) => {
+    const phoneParam = new URLSearchParams();
+    phoneParam.set("phone_number", profile.phone_number);
+
+    try {
+      const response = (await httpInternalApi.httpGetPublic(`/profiles`, phoneParam)) as ProfileByNumberResponse;
+      const profileResponse = await response;
+
+      if (profileResponse.profile?.is_attended_today) {
+        setError("Ya tienes una asistencia registrada hoy.");
+        return;
+      }
+
+      setError(null);
+      setProfile(profileResponse.profile?.profile);
+      setStep(2);
+    } catch {
+      toast.error("No se pudo validar el perfil");
     }
   };
 
@@ -189,18 +210,14 @@ const AttendanceWizard = ({
 
   return (
     <div
-      className={`${
-        theme === "dark"
-          ? "bg-gray-800 border-gray-200/10"
-          : "bg-white border-gray-400"
-      } border min-h-screen mx-auto p-6 rounded-lg shadow-md`}
-    >
+      className={`${theme === "dark" ? "bg-gray-800 border-gray-200/10" : "bg-white border-gray-400"} border min-h-screen mx-auto p-6 rounded-lg shadow-md`}>
       {step === 1 ? (
         <PhoneStep
           phone={phone}
           isUserListsRoute={isUserListsRoute}
           onPhoneChange={setPhone}
           onSubmit={handlePhoneSubmit}
+          onSelectProfile={handleSelectProfile}
           error={error}
           onClose={isUserListsRoute ? onClose : undefined}
         />

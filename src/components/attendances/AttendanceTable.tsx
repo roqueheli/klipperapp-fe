@@ -36,6 +36,7 @@ interface Props {
   onEdit: (a: Attendance) => void;
   onPay: (a: Attendance) => void;
   onDetail: (a: Attendance) => void;
+  onReopen: (a: Attendance) => void;
 }
 
 const AttendanceTable = ({
@@ -44,6 +45,7 @@ const AttendanceTable = ({
   onEdit,
   onPay,
   onDetail,
+  onReopen,
 }: Props) => {
   const { theme } = useTheme();
   const { userData } = useUser();
@@ -60,7 +62,7 @@ const AttendanceTable = ({
     <div className="my-10 mb-8">
       <h2 className="text-xl font-semibold mb-4">{title}</h2>
 
-      <div className="overflow-x-auto shadow-md border rounded-lg dark:border-gray-700">
+      <div className={`overflow-x-auto shadow-md border rounded-lg ${theme === 'dark' ? "border-gray-700" : "border-gray-300"}`}>
         <table className="min-w-full text-sm text-left">
           <thead>
             <tr>
@@ -76,9 +78,7 @@ const AttendanceTable = ({
             {paginated.map((a) => (
               <tr
                 key={a.id}
-                className={`border-t ${
-                  theme === "dark" ? "hover:bg-gray-500" : "hover:bg-gray-300"
-                } transition`}
+                className={`border-t transition`}
               >
                 <td className="px-4 py-3">{a.id || "0"}</td>
                 <td className="px-4 py-3">{a.profile?.name || "-"}</td>
@@ -101,27 +101,36 @@ const AttendanceTable = ({
                   <div className="flex gap-2 flex-wrap">
                     <button
                       onClick={() => onDetail(a)}
-                      className="text-sm bg-blue-600 text-white px-3 py-1 rounded"
+                      className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-800"
                     >
-                      Ver detalle
+                      Ver
                     </button>
-                    {(userData?.role.name === "admin" || userData?.role.name === "user") && (
+                    {(userData?.role.name === "admin" ||
+                      userData?.role.name === "user") && (
                       <>
                         {a.status === "pending" && (
                           <button
                             onClick={() => onEdit(a)}
-                            className="text-sm bg-yellow-600 text-white px-3 py-1 rounded"
+                            className="text-xs bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-800"
                           >
                             Editar
                           </button>
                         )}
                         {a.status === "completed" && (
-                          <button
-                            onClick={() => onPay(a)}
-                            className="text-sm bg-green-600 text-white px-3 py-1 rounded"
-                          >
-                            Pagar
-                          </button>
+                          <>
+                            <button
+                              onClick={() => onPay(a)}
+                              className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-800"
+                            >
+                              Pagar
+                            </button>
+                            <button
+                              onClick={() => onReopen(a)}
+                              className="text-xs bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-800"
+                            >
+                              Reabrir
+                            </button>
+                          </>
                         )}
                       </>
                     )}

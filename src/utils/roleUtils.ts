@@ -17,6 +17,7 @@ export const getRoleByName = async (name: string, useCache = true): Promise<Role
         const response = await httpInternalApi.httpGetPublic("/roles", params) as RoleResponse;
 
         if (!response.roles || response.roles.length === 0) {
+            // Throw the specific error when role is not found
             throw new Error(`No se encontró el rol con nombre: ${name}`);
         }
 
@@ -29,8 +30,13 @@ export const getRoleByName = async (name: string, useCache = true): Promise<Role
 
         return role;
     } catch (error) {
-        console.error(`Error al obtener el rol ${name}:`, error);
-        throw new Error(`Error al obtener el rol ${name}`);
+        // Re-throw the original error if it's already specific, otherwise throw a generic one
+        if (error instanceof Error && error.message.includes("No se encontró el rol")) {
+            throw error; // Re-throw the specific error
+        } else {
+            console.error(`Error al obtener el rol ${name}:`, error);
+            throw new Error(`Error al obtener el rol ${name}`);
+        }
     }
 };
 

@@ -3,6 +3,7 @@ import httpExternalApi from "../common/http.external.service";
 
 class ProfilesAPI {
     getProfile = async (params?: URLSearchParams, token?: string): Promise<ProfileByNumber> => httpExternalApi.httpGet(`/profiles`, params, token);
+    getProfileByQuery = async (params?: URLSearchParams, token?: string): Promise<ProfileByNumber> => httpExternalApi.httpGet(`/profiles/search`, params, token);
     registerProfile = async (body?: object, token?: string): Promise<Profile> => httpExternalApi.httpPost(`/profiles`, 'POST', body, token);
 }
 

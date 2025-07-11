@@ -136,11 +136,11 @@ const ExpensesTable = ({
                         timeStyle: "short",
                       })}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 capitalize">
                       {users.find((user) => user.id === exp.user_id)?.name ||
                         `${data?.name}`}
                     </td>
-                    <td className="px-4 py-3 text-wrap break-words max-w-xs">
+                    <td className="px-4 py-3 text-wrap break-words max-w-xs capitalize">
                       {exp.description}
                     </td>
                     <td className="px-4 py-3">{exp.quantity}</td>

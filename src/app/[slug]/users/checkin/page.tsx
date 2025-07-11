@@ -224,8 +224,8 @@ const CheckinPage = () => {
                           className={`p-4 rounded-xl shadow-md cursor-grab select-none transition
                           ${
                             snapshot.isDragging
-                              ? "bg-green-300 dark:bg-green-700 shadow-lg scale-105"
-                              : "bg-green-100 dark:bg-green-800"
+                              ? `${theme === 'dark' ? "bg-green-700" : "bg-green-300"} shadow-lg scale-105`
+                              : `${theme === 'dark' ? "bg-green-800" : "bg-green-700"}`
                           }`}
                         >
                           {user.name}

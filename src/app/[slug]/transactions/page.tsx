@@ -8,7 +8,8 @@ import httpInternalApi from "@/lib/common/http.internal.service";
 import { pusherClient } from "@/lib/pusher/pusher.client";
 import { Attendance, AttendanceCable, Attendances } from "@/types/attendance";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react"; // Added useCallback
+import toast from "react-hot-toast";
 
 const TransactionsPage = () => {
   const { slug, data } = useOrganization();
@@ -20,7 +21,8 @@ const TransactionsPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const router = useRouter();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    // Wrapped in useCallback
     setLoading(true);
     const params = new URLSearchParams();
 
@@ -40,7 +42,7 @@ const TransactionsPage = () => {
     )) as Attendances;
     setAttendances(response.attendances);
     setLoading(false);
-  };
+  }, [data?.id, userData]); // Added dependencies
 
   useEffect(() => {
     const channel = pusherClient?.subscribe("attendance_channel");
@@ -83,7 +85,7 @@ const TransactionsPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [data?.id, userData]);
+  }, [fetchData]); // Changed dependency to fetchData
 
   const handleEditAttendance = (attendance: Attendance) => {
     const dataToStore = {
@@ -98,7 +100,25 @@ const TransactionsPage = () => {
     router.push(`/${slug}/users/attendances`);
   };
 
-  const handlePayAttendance = (attendance: Attendance) => {
+  const handleReopenAttendance = async (attendance: Attendance) => {
+    try {
+      const response = (await httpInternalApi.httpPostPublic(
+        `/users/reopen_attendance/${attendance.id}`,
+        "PATCH",
+        {}
+      )) as Attendance;
+
+      if (!response.error) {
+        toast.success("Asistencia reabierta");
+      } else {
+        toast.error("Ya tiene una asistencia en proceso");
+      }
+    } catch {
+      toast.error("No se pudo reabrir la asistencia");
+    }
+  };
+
+  const handlePayAttendance = async (attendance: Attendance) => {
     router.push(`/${slug}/payments/${attendance.id}`);
   };
 
@@ -187,6 +207,7 @@ const TransactionsPage = () => {
         onEdit={handleEditAttendance}
         onPay={handlePayAttendance}
         onDetail={handleViewAttendance}
+        onReopen={handleReopenAttendance}
       />
 
       <AttendanceTable
@@ -195,6 +216,7 @@ const TransactionsPage = () => {
         onEdit={handleEditAttendance}
         onPay={handlePayAttendance}
         onDetail={handleViewAttendance}
+        onReopen={handleReopenAttendance}
       />
 
       <AttendanceTable
@@ -203,6 +225,7 @@ const TransactionsPage = () => {
         onEdit={handleEditAttendance}
         onPay={handlePayAttendance}
         onDetail={handleViewAttendance}
+        onReopen={handleReopenAttendance}
       />
     </div>
   );

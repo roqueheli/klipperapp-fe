@@ -1,4 +1,5 @@
 import React from "react";
+import { Input } from "@/components/ui/Input";
 
 interface InputFieldProps {
   label: string;
@@ -6,7 +7,7 @@ interface InputFieldProps {
   onChange: (value: string | number | File) => void;
   type?: "text" | "number" | "file" | "password";
   textarea?: boolean;
-  accept?: string; // <- NUEVO
+  accept?: string;
 }
 export default function InputField({
   label,
@@ -38,11 +39,11 @@ export default function InputField({
       {textarea ? (
         <textarea
           className="w-full p-3 border rounded-md bg-[--background] text-[--foreground] border-gray-300 dark:border-gray-600"
-          value={value}
+          value={value as string}
           onChange={handleInputChange}
         />
       ) : (
-        <input
+        <Input
           type={type}
           className="w-full p-3 border rounded-md bg-[--background] text-[--foreground] border-gray-300 dark:border-gray-600"
           value={type === "file" ? undefined : value}
