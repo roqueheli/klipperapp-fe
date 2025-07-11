@@ -28,7 +28,6 @@ const PhoneStep: React.FC<PhoneStepProps> = ({
   const { theme } = useTheme();
   const [results, setResults] = useState<Profile[]>([]);
   const [wasSelectedFromDropdown, setWasSelectedFromDropdown] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     if (wasSelectedFromDropdown) {
@@ -88,7 +87,6 @@ const PhoneStep: React.FC<PhoneStepProps> = ({
           onChange={(e) => {
             const value = e.target.value;
             onPhoneChange(value);
-            if (value === "") setSelectedProfile(null);
           }}
         />
 
@@ -103,7 +101,6 @@ const PhoneStep: React.FC<PhoneStepProps> = ({
                 key={r.id}
                 onClick={() => {
                   onPhoneChange(r.phone_number);
-                  setSelectedProfile(r);
                   setResults([]);
                   setWasSelectedFromDropdown(true);
                   onSelectProfile(r);
