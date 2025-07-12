@@ -114,8 +114,8 @@ const AttendancesTable = ({
                         : "-"}
                     </td>
                     <td>{getBranchName(attendance.branch_id)}</td>
-                    <td>{attendance.profile.name}</td>
-                    <td>{attendance.attended_by_user?.name ?? "-"}</td>
+                    <td className="capitalize truncate">{attendance.profile.name}</td>
+                    <td className="capitalize truncate">{attendance.attended_by_user?.name ?? "-"}</td>
                     <td>
                       <span
                         className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusStyle(
