@@ -123,22 +123,15 @@ export default function AttendanceListsPage() {
     loadData();
   }, [loadData]);
 
-  const hasPostponed = users.some((user) =>
-    user.profiles.some((profile) => profile.status === "postponed")
-  );
-
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <>
-      <AttendanceListsPageContainer
-        isWorkingTodayEmpty={isEmpty}
-        isAgent={isAgent}
-        users={users}
-        queue={queue}
-        filteredServices={filteredServices}
-        hasPostponed={hasPostponed}
-      />
-    </>
+    <AttendanceListsPageContainer
+      isWorkingTodayEmpty={isEmpty}
+      isAgent={isAgent}
+      users={users}
+      queue={queue}
+      filteredServices={filteredServices}
+    />
   );
 }
