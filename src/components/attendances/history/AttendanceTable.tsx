@@ -105,7 +105,7 @@ const AttendancesTable = ({
               <tbody className="bg-[var(--color-background)] divide-y divide-gray-200 dark:divide-gray-700">
                 {currentItems.map((attendance) => (
                   <tr key={attendance.id} className="text-xs text-center h-14">
-                    <td>{attendance.id}</td>
+                    <td>{attendance.nid}</td>
                     <td>
                       {attendance.created_at
                         ? new Date(attendance.created_at).toLocaleString(

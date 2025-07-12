@@ -80,8 +80,8 @@ const AttendanceTable = ({
                 key={a.id}
                 className={`border-t transition`}
               >
-                <td className="px-4 py-3">{a.id || "0"}</td>
-                <td className="px-4 py-3">{a.profile?.name || "-"}</td>
+                <td className="px-4 py-3">{a.nid || "0"}</td>
+                <td className="px-4 py-3 capitalize">{a.profile?.name || "-"}</td>
                 <td className="px-4 py-3">
                   {a.attended_by_user?.name || "No asignado"}
                 </td>

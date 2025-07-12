@@ -29,6 +29,7 @@ export interface Attendance {
 	parent_attendance_id: number | null
 	child_attendances: ChildAttendance[]
 	error?: string | null;
+	nid?: string | null;
 }
 
 export interface ChildAttendance {
@@ -85,6 +86,7 @@ export interface AttendanceProfile {
 	name: string;
 	status: "pending" | "processing" | "postponed" | "canceled" | "declined";
 	clickeable: boolean | null;
+	hasPostponed?: boolean | null;
 }
 
 export interface AttendanceCable {
