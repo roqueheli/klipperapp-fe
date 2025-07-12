@@ -28,7 +28,6 @@ interface AttendanceListsPageContainerProps {
   users: UserWithProfiles[];
   queue: User[];
   filteredServices: Service[];
-  hasPostponed: boolean;
 }
 
 export default function AttendanceListsPageContainer({
@@ -37,7 +36,6 @@ export default function AttendanceListsPageContainer({
   users,
   queue,
   filteredServices,
-  hasPostponed,
 }: AttendanceListsPageContainerProps) {
   const { slug, data } = useOrganization();
   const { userData } = useUser();
@@ -46,6 +44,7 @@ export default function AttendanceListsPageContainer({
   const [selectedUser, setSelectedUser] = useState<{
     userId: number;
     userName: string;
+    hasPostponed: boolean;
   } | null>(null);
   const [selectedAtt, setSelectedAtt] = useState<AttendanceProfile>();
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
@@ -62,7 +61,11 @@ export default function AttendanceListsPageContainer({
     userName: string,
     att: AttendanceProfile
   ) => {
-    setSelectedUser({ userId, userName });
+    const userFullData = users.find((u) => u.user.id === userId);
+    const hasPostponed =
+      userFullData?.profiles?.some((a) => a.status === "postponed") ?? false;
+
+    setSelectedUser({ userId, userName, hasPostponed });
     setSelectedAtt(att);
     setModalOpen(true);
   };
@@ -266,7 +269,7 @@ export default function AttendanceListsPageContainer({
         onDecline={handleDecline}
         onResume={handleResume}
         onAddService={handleAddService}
-        hasPostponed={hasPostponed}
+        hasPostponed={selectedUser?.hasPostponed || false}
       />
 
       {selectedAtt && addServiceModalOpen && (
